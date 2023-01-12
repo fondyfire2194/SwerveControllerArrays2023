@@ -1,0 +1,66 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Scheduler/Scheduler": "Scheduler",
+      "/SmartDashboard/Auto Selector": "String Chooser",
+      "/SmartDashboard/Field2d": "Field2d",
+      "/SmartDashboard/PPSwerveControllerCommand_field": "Field2d",
+      "/SmartDashboard/ResetDriverMode1": "Command",
+      "/SmartDashboard/ResetDriverMode2": "Command",
+      "/SmartDashboard/Scheduler": "Scheduler",
+      "/SmartDashboard/SetDriverMode1": "Command",
+      "/SmartDashboard/SetDriverMode2": "Command",
+      "/SmartDashboard/SetIndex0Cam1": "Command",
+      "/SmartDashboard/SetIndex1Cam1": "Command",
+      "/SmartDashboard/SetIndex2Cam1": "Command"
+    },
+    "windows": {
+      "/SmartDashboard/Auto Selector": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Field2d": {
+        "Robot": {
+          "image": "C:\\Users\\John\\Documents\\FRC2023\\SwerveControllerCommand-Arrays-PHVIs-2023\\src\\main\\images\\robot.png"
+        },
+        "Swerve Modules": {
+          "image": "C:\\Users\\John\\Documents\\FRC2023\\SwerveControllerCommand-Arrays-PHVIs-2023\\src\\main\\images\\swerve_module.png"
+        },
+        "image": "C:\\Users\\John\\Documents\\FRC2023\\SwerveControllerCommand-Arrays-PHVIs-2023\\src\\main\\images\\Field2d_2023.png",
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/ResetDriverMode1": {
+        "window": {
+          "visible": true
+        }
+      }
+    }
+  },
+  "NetworkTables": {
+    "transitory": {
+      "LiveWindow": {
+        "open": true
+      },
+      "Shuffleboard": {
+        "Drivetrain": {
+          "FL  Drive": {
+            "open": true
+          }
+        },
+        "Scheduler": {
+          "open": true
+        },
+        "open": true
+      },
+      "SmartDashboard": {
+        "Scheduler": {
+          "open": true
+        }
+      }
+    }
+  }
+}
