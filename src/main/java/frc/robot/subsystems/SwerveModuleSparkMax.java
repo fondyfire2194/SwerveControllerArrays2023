@@ -9,10 +9,9 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import com.revrobotics.REVPhysicsSim;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.REVPhysicsSim;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -25,11 +24,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.simulation.REVPHSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CTRECanCoder;
 import frc.robot.Constants.DriveConstants;
@@ -53,8 +48,9 @@ public class SwerveModuleSparkMax extends SubsystemBase {
 
   private final PIDController m_driveVelController = new PIDController(.0005, 0, 0);
 
-  private ProfiledPIDController m_turnPosController = new ProfiledPIDController(.006, 0, 0,
-      TrapezoidConstants.kThetaControllerConstraints);
+  // private ProfiledPIDController m_turnPosController = new ProfiledPIDController(.006, 0, 0,
+  //     TrapezoidConstants.kThetaControllerConstraints);
+  private PIDController m_turnPosController = new PIDController(.006, 0, 0);
 
   public final CTRECanCoder m_turnCANcoder;
 
@@ -321,6 +317,7 @@ public class SwerveModuleSparkMax extends SubsystemBase {
     m_lastAngle = angle;
 
     SmartDashboard.putNumber("TESTSP", state.speedMetersPerSecond);
+    SmartDashboard.putNumber("TESTAng",angle);
 
     driveMotorMove(state.speedMetersPerSecond);
 
@@ -395,17 +392,17 @@ public class SwerveModuleSparkMax extends SubsystemBase {
     if (RobotBase.isReal()) {
 
       double pidOut = m_turnPosController.calculate(m_turnEncoder.getPosition(), angle);
-
+      SmartDashboard.putNumber("PIDOUT", pidOut);
       double turnAngleError = Math.abs(angle - m_turnEncoder.getPosition());
 
       SmartDashboard.putNumber("ATAE", turnAngleError);
 
       // if robot is not moving, stop the turn motor oscillating
-      if (turnAngleError < turnDeadband
+      // if (turnAngleError < turnDeadband
 
-          && Math.abs(state.speedMetersPerSecond) <= (DriveConstants.kMaxSpeedMetersPerSecond * 0.01))
+      //     && Math.abs(state.speedMetersPerSecond) <= (DriveConstants.kMaxSpeedMetersPerSecond * 0.01))
 
-        pidOut = 0;
+      //   pidOut = 0;
 
       m_turnMotor.setVoltage(pidOut * RobotController.getBatteryVoltage());
 
