@@ -12,18 +12,24 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.Vision.PipelinesCam15;
+import frc.robot.commands.Vision.PipelinesCam16;
 import frc.robot.commands.Vision.SetActivePipeline;
 import frc.robot.commands.Vision.SetDriverMode;
+import frc.robot.commands.Vision.ToggleCamera;
 import frc.robot.commands.swerve.JogDriveModule;
 import frc.robot.commands.swerve.JogTurnModule;
 import frc.robot.commands.swerve.PositionTurnModule;
 import frc.robot.commands.swerve.SetSwerveDrive;
 import frc.robot.simulation.FieldSim;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.VisionPoseEstimator;
 import frc.robot.utils.AutoSelect;
 import frc.robot.utils.FFDisplay;
 import frc.robot.utils.LEDControllerI2C;
+import frc.robot.utils.limelight.LimeLight;
+import frc.robot.utils.limelight.LimeLightControlMode.LedMode;
 
 public class RobotContainer {
   // The robot's subsystems
@@ -44,12 +50,12 @@ public class RobotContainer {
   static Joystick leftJoystick = new Joystick(OIConstants.kDriverControllerPort);
 
   private CommandXboxController m_coDriverController = new CommandXboxController(OIConstants.kCoDriverControllerPort);
+  private CommandXboxController testController = new CommandXboxController(2);
 
   final PowerDistribution m_pdp = new PowerDistribution();
 
-  // final GamepadButtons codriver = new GamepadButtons(m_coDriverController,
-  // true);
-
+  final LimelightVision llvis = new LimelightVision();
+  
   // temp controller for testing -matt
   // private PS4Controller m_ps4controller = new PS4Controller(1);
   // public PoseTelemetry pt = new PoseTelemetry();
@@ -140,6 +146,7 @@ public class RobotContainer {
     JoystickButton button_8 = new JoystickButton(leftJoystick, 8);
     JoystickButton button_7 = new JoystickButton(leftJoystick, 7);
 
+    
     // position turn modules individually
     m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
   m_drive.m_frontLeft));
@@ -150,7 +157,10 @@ public class RobotContainer {
     // m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
     // m_drive.m_backRight));
 
-   
+    testController.a().whileTrue(llvis.setLeds(LedMode.kforceBlink));
+    testController.x().whileTrue(llvis.setLeds(LedMode.kforceOff));
+    testController.b().whileTrue(llvis.getSnapShot2());
+
 
   }
 
