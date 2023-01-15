@@ -4,16 +4,11 @@
 
 package frc.robot;
 
-
-
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -32,6 +27,8 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
+  private double m_disableStartTime;
+
   public static int lpctra;
 
   /**
@@ -41,29 +38,36 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    // Logger.getInstance().recordMetadata("ProjectName", "MyProject"); // Set a metadata value
+    // Logger.getInstance().recordMetadata("ProjectName", "MyProject"); // Set a
+    // metadata value
 
     // if (isReal()) {
-    //   Logger.getInstance().addDataReceiver(new WPILOGWriter("/media/sda1/")); // Log to a USB stick
-    //   Logger.getInstance().addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-    //   // new PowerDistribution(1, ModuleType.kRev); // Enables power distribution
-    //   // logging
+    // Logger.getInstance().addDataReceiver(new WPILOGWriter("/media/sda1/")); //
+    // Log to a USB stick
+    // Logger.getInstance().addDataReceiver(new NT4Publisher()); // Publish data to
+    // NetworkTables
+    // // new PowerDistribution(1, ModuleType.kRev); // Enables power distribution
+    // // logging
     // } else {
-    //  // setUseTiming(false); // Run as fast as possible
-    //   String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-    //   Logger.getInstance().setReplaySource(new WPILOGReader(logPath)); // Read replay log
-    //   Logger.getInstance().addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save
-    //                                                                                                       // outputs to
-    //                                                                                                       // a new log
+    // // setUseTiming(false); // Run as fast as possible
+    // String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from
+    // AdvantageScope (or prompt the user)
+    // Logger.getInstance().setReplaySource(new WPILOGReader(logPath)); // Read
+    // replay log
+    // Logger.getInstance().addDataReceiver(new
+    // WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save
+    // // outputs to
+    // // a new log
     // }
 
-    // Logger.getInstance().start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+    // Logger.getInstance().start(); // Start logging! No more data receivers,
+    // replay sources, or metadata values may be added.
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    
+
   }
 
   /**
@@ -103,13 +107,21 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-
+    m_disableStartTime = 0;
   }
 
   @Override
   public void disabledPeriodic() {
     if (DriverStation.getAlliance() == Alliance.Blue) {
       // m_robotContainer.m_ls.forceAllianceColor(true);
+
+      if (m_disableStartTime == 0)
+        m_disableStartTime = Timer.getFPGATimestamp();
+
+      if (m_disableStartTime != 0 && Timer.getFPGATimestamp() > m_disableStartTime + 3) {
+        m_robotContainer.m_drive.setIdleMode(false);
+
+      }
 
     }
 
