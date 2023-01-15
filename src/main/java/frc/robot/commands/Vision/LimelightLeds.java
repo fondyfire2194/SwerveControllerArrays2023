@@ -7,7 +7,8 @@ package frc.robot.commands.Vision;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.utils.limelight.LimeLight;
-import frc.robot.utils.limelight.LimeLightControlMode.LedMode;
+import frc.robot.utils.limelight.LimeLightReflective.LedMode;
+
 
 public class LimelightLeds extends CommandBase {
   /** Creates a new LimelightLeds. */
@@ -31,7 +32,7 @@ public class LimelightLeds extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_limelight.setLEDMode(m_mode);
+    m_limelight.ref.setLEDMode(m_mode);
   }
 
   // Called once the command ends or is interrupted.

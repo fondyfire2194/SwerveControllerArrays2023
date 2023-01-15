@@ -17,45 +17,48 @@ import frc.robot.commands.Vision.PipelinesCam15;
 import frc.robot.commands.Vision.PipelinesCam16;
 import frc.robot.commands.Vision.ToggleCamera;
 import frc.robot.utils.limelight.LimeLight;
-import frc.robot.utils.limelight.LimeLightControlMode.LedMode;
+import frc.robot.utils.limelight.LimeLight.CamMode;
+import frc.robot.utils.limelight.LimeLightReflective.LedMode;
 
 public class LimelightVision extends SubsystemBase {
   /** Creates a new LimelightVision. */
-  private LimeLight cam15;
-  private LimeLight cam16;
+  public LimeLight cam15;
+  public LimeLight cam16;
   double[] temp;
   Pose3d botPose;
 
   public LimelightVision() {
     cam15 = new LimeLight("limelight-fifteen");
     cam16 = new LimeLight("limelight-sixteen");
+    cam15.ref.setLEDMode(LedMode.kforceBlink);
+    cam15.setCamMode(CamMode.kdriver);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
 
-    SmartDashboard.putBoolean("Cam15HasTarget", cam15.getIsTargetFound());
+    SmartDashboard.putBoolean("Cam15HasTarget", cam15.ref.getIsTargetFound());
     SmartDashboard.putNumber("Cam15 Pipeline#", cam15.getPipeline());
     SmartDashboard.putNumber("Cam15 Latency ms", cam15.getPipelineLatency());
     SmartDashboard.putNumber("Cam15 Tag ID", cam15.getAprilTagID());
     SmartDashboard.putBoolean("Cam15 Connected", cam15.isConnected());
 
-    SmartDashboard.putBoolean("Cam16HasTarget", cam16.getIsTargetFound());
+    SmartDashboard.putBoolean("Cam16HasTarget", cam16.ref.getIsTargetFound());
     SmartDashboard.putNumber("Cam16 Pipeline#", cam16.getPipeline());
     SmartDashboard.putNumber("Cam16 Latency ms", cam16.getPipelineLatency());
     SmartDashboard.putNumber("Cam16 Tag ID", cam16.getAprilTagID());
 
-    SmartDashboard.putBoolean("TargetAvailaBE", cam16.getIsTargetFound());
+    SmartDashboard.putBoolean("TargetAvailaBE", cam16.ref.getIsTargetFound());
     SmartDashboard.putBoolean("Cam16 Connected", cam16.isConnected());
     SmartDashboard.putString("Cam16 Pose", cam16.getRobotPose().toString());
     SmartDashboard.putString("Cam16 Camtran", cam16.getCamTran().toString());
 
-    double[] test = cam15.adv.getAveXHairColor();
+    double[] test = cam15.ref.getAveXHairColor();
 
     SmartDashboard.putNumberArray("COLOR", test);
     double[] cropSize = { .5, 5., 5., 5 };
-    cam15.adv.setCropRectangle(cropSize);
+    cam15.ref.setCropRectangle(cropSize);
 
   }
 
@@ -63,8 +66,8 @@ public class LimelightVision extends SubsystemBase {
     return new ToggleCamera(cam16);
   }
 
-  public Command setLeds(LedMode mode) { // doesn't work properly
-    return new LimelightLeds(cam16, mode);
+  public Command setLeds(LimeLight cam,LedMode mode) { // doesn't work properly
+    return new LimelightLeds(cam, mode);
   }
 
   public Command setPipeline(PipelinesCam15 pipelines) {
@@ -77,6 +80,6 @@ public class LimelightVision extends SubsystemBase {
 
   public Command getSnapShot2() {
     return new SequentialCommandGroup(new InstantCommand(() -> cam16.snap(1)), new WaitCommand(1),
-    new InstantCommand(() -> cam16.snap(0)));
+        new InstantCommand(() -> cam16.snap(0)));
   }
 }

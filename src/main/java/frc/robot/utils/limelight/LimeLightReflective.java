@@ -2,8 +2,6 @@ package frc.robot.utils.limelight;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
-import frc.robot.utils.limelight.LimeLightControlMode.Advanced_Crosshair;
-import frc.robot.utils.limelight.LimeLightControlMode.Advanced_Target;
 
 /**
  * Lime Light Avvanced
@@ -40,7 +38,17 @@ import frc.robot.utils.limelight.LimeLightControlMode.Advanced_Target;
  * cy1 Crosshair B Y in normalized screen space
  * 
  */
-public class LimeLightADV {
+public class LimeLightReflective {
+
+    public enum LedMode {
+        kpipeLine, // 0 use the LED Mode set in the current pipeline
+        kforceOff, // 1 force off
+        kforceBlink, // 2 force blink
+        kforceOn; // 3 force on
+
+    }
+
+    private LedMode currentLedMode = LedMode.kpipeLine;
 
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
@@ -50,12 +58,112 @@ public class LimeLightADV {
     /**
      * Send an instance of the NetworkTabe
      */
-    public LimeLightADV(NetworkTable table) {
+    public LimeLightReflective(NetworkTable table) {
         m_table = table;
         // ToDo
         // m_tableName = get the name of the NT key.
 
     }
+
+       /**
+     * LedMode Sets limelight’s LED state
+     * 
+     * kon
+     * koff
+     * kblink
+     * 
+     * @param ledMode
+     */
+    public void setLEDMode(LedMode ledMode) {
+        currentLedMode = ledMode;
+        m_table.getEntry("ledMode").setValue(ledMode.ordinal());
+    }
+
+    /**
+     * Returns current LED mode of the Lime Light
+     * 
+     * @return LedMode
+     */
+    public LedMode getLEDMode() {
+        int lmode = (int) m_table.getEntry("ledMode").getDouble(0.);
+        switch (lmode) {
+            case 0:
+                currentLedMode = LedMode.kpipeLine;
+                break;
+            case 1:
+                currentLedMode = LedMode.kforceOff;
+                break;
+            case 2:
+                currentLedMode = LedMode.kforceBlink;
+                break;
+            case 3:
+                currentLedMode = LedMode.kforceOn;
+                break;
+            default:
+                currentLedMode = LedMode.kpipeLine;
+                return currentLedMode;
+
+        }
+
+        return currentLedMode;
+    }
+
+
+      /**
+     * tv Whether the limelight has any valid targets (0 or 1)
+     * 
+     * @return
+     */
+    public boolean getIsTargetFound() {
+        NetworkTableEntry tv = m_table.getEntry("tv");
+        boolean v = tv.getBoolean(false);
+        return v;
+    }
+
+    /**
+     * tx Horizontal Offset From Crosshair To Target (-27 degrees to 27 degrees)
+     * 
+     * @return
+     */
+    public double getdegRotationToTarget() {
+        NetworkTableEntry tx = m_table.getEntry("tx");
+        double x = tx.getDouble(0.0);
+        return x;
+    }
+
+    /**
+     * ty Vertical Offset From Crosshair To Target (-20.5 degrees to 20.5 degrees)
+     * 
+     * @return
+     */
+    public double getdegVerticalToTarget() {
+        NetworkTableEntry ty = m_table.getEntry("ty");
+        double y = ty.getDouble(0.0);
+        return y;
+    }
+
+    /**
+     * ta Target Area (0% of image to 100% of image)
+     * 
+     * @return
+     */
+    public double getTargetArea() {
+        NetworkTableEntry ta = m_table.getEntry("ta");
+        double a = ta.getDouble(0.0);
+        return a;
+    }
+
+    /**
+     * ts Skew or rotation (-90 degrees to 0 degrees)
+     * 
+     * @return
+     */
+    public double getSkew_Rotation() {
+        NetworkTableEntry ts = m_table.getEntry("ts");
+        double s = ts.getDouble(0.0);
+        return s;
+    }
+
 
     public boolean rawContoursOn() {
         return m_table.getEntry("tx0").exists();
@@ -114,26 +222,30 @@ public class LimeLightADV {
      * in normalized screen space (-1 to 1) rather than degrees. *
      */
 
-    public double getAdvanced_RotationToTarget(Advanced_Target raw) {
-        NetworkTableEntry txRaw = m_table.getEntry("tx" + Integer.toString(raw.getValue()));
+    public double getAdvanced_RotationToTarget(int n) {
+        String nt = "tx"+String.valueOf( n);
+        NetworkTableEntry txRaw = m_table.getEntry(nt);
         double x = txRaw.getDouble(0.0);
         return x;
     }
 
-    public double getAdvanced_degVerticalToTarget(Advanced_Target raw) {
-        NetworkTableEntry tyRaw = m_table.getEntry("ty" + Integer.toString(raw.getValue()));
+    public double getAdvanced_degVerticalToTarget(int n) {
+        String nt = "ty"+String.valueOf( n);
+        NetworkTableEntry tyRaw = m_table.getEntry(nt);
         double y = tyRaw.getDouble(0.0);
         return y;
     }
 
-    public double getAdvanced_TargetArea(Advanced_Target raw) {
-        NetworkTableEntry taRaw = m_table.getEntry("ta" + Integer.toString(raw.getValue()));
+    public double getAdvanced_TargetArea(int n) {
+        String nt ="ta"+String.valueOf( n);
+        NetworkTableEntry taRaw = m_table.getEntry(nt);
         double a = taRaw.getDouble(0.0);
         return a;
     }
 
-    public double getAdvanced_Skew_Rotation(Advanced_Target raw) {
-        NetworkTableEntry tsRaw = m_table.getEntry("ts" + Integer.toString(raw.getValue()));
+    public double getAdvanced_Skew_Rotation(int n) {
+        String nt ="ts"+String.valueOf( n);
+        NetworkTableEntry tsRaw = m_table.getEntry(nt);
         double s = tsRaw.getDouble(0.0);
         return s;
     }
@@ -142,21 +254,16 @@ public class LimeLightADV {
     // If you are using raw targeting data, you can still utilize your calibrated
     // crosshairs:
 
-    public double[] getAdvanced_RawCrosshair(Advanced_Crosshair raw) {
-        double[] crosshairs = new double[2];
-        crosshairs[0] = getAdvanced_RawCrosshair_X(raw);
-        crosshairs[1] = getAdvanced_RawCrosshair_Y(raw);
-        return crosshairs;
-    }
-
-    public double getAdvanced_RawCrosshair_X(Advanced_Crosshair raw) {
-        NetworkTableEntry cxRaw = m_table.getEntry("cx" + Integer.toString(raw.getValue()));
+    public double getAdvanced_RawCrosshair_X(int n) {
+        String nt ="cx"+String.valueOf( n);
+        NetworkTableEntry cxRaw = m_table.getEntry(nt);
         double x = cxRaw.getDouble(0.0);
         return x;
     }
 
-    public double getAdvanced_RawCrosshair_Y(Advanced_Crosshair raw) {
-        NetworkTableEntry cyRaw = m_table.getEntry("cy" + Integer.toString(raw.getValue()));
+    public double getAdvanced_RawCrosshair_Y(int n) {
+        String nt ="cy"+String.valueOf( n);
+        NetworkTableEntry cyRaw = m_table.getEntry(nt);
         double y = cyRaw.getDouble(0.0);
         return y;
     }

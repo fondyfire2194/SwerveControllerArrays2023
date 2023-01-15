@@ -6,20 +6,16 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.limelight.LimeLightControlMode.CamMode;
-import frc.robot.utils.limelight.LimeLightControlMode.LedMode;
-import frc.robot.utils.limelight.LimeLightControlMode.StreamType;
 
 /**
  * Lime Light Class was started by Corey Applegate of Team 3244
  * Granite City Gearheads. We Hope you Enjoy the Lime Light
  * Camera.
  */
-public class LimeLight extends SubsystemBase {
+public class LimeLight {
     /**
      * This class contains the camera constructor and the following
      * 
@@ -39,7 +35,7 @@ public class LimeLight extends SubsystemBase {
      * getpipe True active pipeline index of the camera (0 .. 9)
      * tid ID of primary AprilTag
      * camtran camera Camera transform in target space of primary apriltag or
-     * solvepnp target.
+     * solvepnp target.ledmode
      * json Full JSON dump of targeting results
      * botpose Robot transform in field-space. Translation (X,Y,Z) Rotation(X,Y,Z)
      * tclass Class ID of primary neural detector result or neural classifier result
@@ -77,20 +73,45 @@ public class LimeLight extends SubsystemBase {
     private NetworkTable m_table;
     private String m_tableName;
 
-    private int lpctr = 0;
-    private int lpctr_last = 1;
     private boolean connected = false;
-    private double snapshotStartTime;
-    private double snapshotTakeTime = .02;
-    private double snapshotRepeatTime = .05;
-    private int snapshotCounter;
 
     private Translation3d tran3d = new Translation3d();
     private Rotation3d r3d = new Rotation3d();
     private Pose3d p3d = new Pose3d();
+    private CamMode currentCamMode = CamMode.kdriver;
    
-    public LimeLightADV adv;
-  
+    private StreamType currentStreamType = StreamType.kStandard;
+
+    public LimeLightReflective ref;
+
+    
+
+    public enum CamMode {
+        kvision,
+        kdriver;
+    }
+
+    public enum StreamType {
+        kStandard,
+        kPiPMain,
+        kPiPSecondary;
+    }
+
+    class PeriodicRunnable implements java.lang.Runnable {
+
+        public void run() {
+            NetworkTableEntry l = m_table.getEntry("tl");
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            connected = l.exists();
+        }
+    }
+
+    Notifier _heartBeat = new Notifier(new PeriodicRunnable());
 
     /**
      * Using the Default Lime Light NT table
@@ -98,7 +119,7 @@ public class LimeLight extends SubsystemBase {
     public LimeLight() {
         m_tableName = "limelight";
         m_table = NetworkTableInstance.getDefault().getTable(m_tableName);
-        adv = new LimeLightADV(m_table);
+        ref= new LimeLightReflective(m_table);
     }
 
     /**
@@ -107,7 +128,7 @@ public class LimeLight extends SubsystemBase {
     public LimeLight(String tableName) {
         m_tableName = tableName;
         m_table = NetworkTableInstance.getDefault().getTable(m_tableName);
-        adv = new LimeLightADV(m_table);
+        ref = new LimeLightReflective(m_table);
     }
 
     /**
@@ -115,7 +136,7 @@ public class LimeLight extends SubsystemBase {
      */
     public LimeLight(NetworkTable table) {
         m_table = table;
-        adv = new LimeLightADV(m_table);
+        ref = new LimeLightReflective(m_table);
 
     }
 
@@ -130,76 +151,13 @@ public class LimeLight extends SubsystemBase {
 
     }
 
-    @Override
-    public void periodic() {
-
-        NetworkTableEntry ab = m_table.getEntry("tv");
-
-        connected = ab.exists();
-
-    }
-
     public boolean isConnected() {
 
         return connected;
 
     }
 
-    /**
-     * tv Whether the limelight has any valid targets (0 or 1)
-     * 
-     * @return
-     */
-    public boolean getIsTargetFound() {
-        NetworkTableEntry tv = m_table.getEntry("tv");
-        boolean v = tv.getBoolean(false);
-        return v;
-    }
-
-    /**
-     * tx Horizontal Offset From Crosshair To Target (-27 degrees to 27 degrees)
-     * 
-     * @return
-     */
-    public double getdegRotationToTarget() {
-        NetworkTableEntry tx = m_table.getEntry("tx");
-        double x = tx.getDouble(0.0);
-        return x;
-    }
-
-    /**
-     * ty Vertical Offset From Crosshair To Target (-20.5 degrees to 20.5 degrees)
-     * 
-     * @return
-     */
-    public double getdegVerticalToTarget() {
-        NetworkTableEntry ty = m_table.getEntry("ty");
-        double y = ty.getDouble(0.0);
-        return y;
-    }
-
-    /**
-     * ta Target Area (0% of image to 100% of image)
-     * 
-     * @return
-     */
-    public double getTargetArea() {
-        NetworkTableEntry ta = m_table.getEntry("ta");
-        double a = ta.getDouble(0.0);
-        return a;
-    }
-
-    /**
-     * ts Skew or rotation (-90 degrees to 0 degrees)
-     * 
-     * @return
-     */
-    public double getSkew_Rotation() {
-        NetworkTableEntry ts = m_table.getEntry("ts");
-        double s = ts.getDouble(0.0);
-        return s;
-    }
-
+   
     /**
      * tl The pipeline’s latency contribution (ms) Add at least 11ms for image
      * capture latency.
@@ -223,36 +181,12 @@ public class LimeLight extends SubsystemBase {
      * @return
      */
 
-    private void resetPilelineLatency() {
+    public void resetPipelelineLatency() {
         m_table.getEntry("tl").setValue(0.0);
     }
     // Setters
 
-    /**
-     * LedMode Sets limelight’s LED state
-     * 
-     * kon
-     * koff
-     * kblink
-     * 
-     * @param ledMode
-     */
-    public void setLEDMode(LedMode ledMode) {
-        m_table.getEntry("ledMode").setValue(ledMode.ordinal());
-    }
-
-    /**
-     * Returns current LED mode of the Lime Light
-     * 
-     * @return LedMode
-     */
-    // public LedMode getLEDMode() {
-    // NetworkTableEntry ledMode = m_table.getEntry("ledMode");
-    // double led = ledMode.getDouble(0.0);
-    // LedMode mode = LedMode.getByValue(led);
-    // return mode;
-    // }
-
+ 
     /**
      * camMode Sets limelight’s operation mode
      * 
@@ -263,19 +197,30 @@ public class LimeLight extends SubsystemBase {
      */
 
     public void setCamMode(CamMode camMode) {
+        currentCamMode = camMode;
+
         m_table.getEntry("camMode").setValue(camMode.ordinal());
     }
 
-    /**
-     * Returns current Cam mode of the Lime Light
-     * 
-     * @return CamMode
-     */
+    // /**
+    // * Returns current Cam mode of the Lime Light
+    // *
+    // * @return CamMode
+    // */
     public CamMode getCamMode() {
-        NetworkTableEntry camMode = m_table.getEntry("camMode");
-        double cam = camMode.getDouble(0.0);
-        CamMode mode = CamMode.getByValue(cam);
-        return mode;
+        int cmode = (int) m_table.getEntry("camMode").getDouble(0.);
+        switch (cmode) {
+            case 0:
+                currentCamMode = CamMode.kdriver;
+                break;
+            case 1:
+                currentCamMode = CamMode.kvision;
+                break;
+            default:
+                currentCamMode = CamMode.kvision;
+                break;
+        }
+        return currentCamMode;
     }
 
     /**
@@ -386,17 +331,30 @@ public class LimeLight extends SubsystemBase {
      * 
      * @param stream
      */
-    public void setStream(StreamType stream) {
-        m_table.getEntry("stream").setValue(stream.ordinal());
+    public void setStream(StreamType streamType) {
+        currentStreamType = streamType;
+        m_table.getEntry("stream").setValue(streamType.ordinal());
     }
 
     public StreamType getStream() {
-        NetworkTableEntry stream = m_table.getEntry("stream");
-        double st = stream.getDouble(0.0);
-        StreamType mode = StreamType.getByValue(st);
-        return mode;
-    }
+        int smode = (int) m_table.getEntry("stream").getDouble(0.);
+        switch (smode) {
+            case 0:
+                currentStreamType = StreamType.kStandard;
+                break;
+            case 1:
+                currentStreamType = StreamType.kPiPMain;
+                break;
+            case 2:
+                currentStreamType = StreamType.kPiPSecondary;
+                break;
+            default:
+                currentStreamType = StreamType.kStandard;
+                break;
+        }
 
+        return currentStreamType;
+    }
 
     public void snap(int on) {
         NetworkTableEntry sn = m_table.getEntry("snapshot");
