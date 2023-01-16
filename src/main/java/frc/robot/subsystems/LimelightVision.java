@@ -4,82 +4,86 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.Vision.LimelightLeds;
-import frc.robot.commands.Vision.LimelightSetPipeline;
-import frc.robot.commands.Vision.PipelinesCam15;
-import frc.robot.commands.Vision.PipelinesCam16;
-import frc.robot.commands.Vision.ToggleCamera;
-import frc.robot.utils.limelight.LimeLight;
-import frc.robot.utils.limelight.LimeLight.CamMode;
-import frc.robot.utils.limelight.LimeLightReflective.LedMode;
+import frc.robot.oi.LimeLight;
+import frc.robot.oi.ShuffleboardLL;
+import frc.robot.oi.LimeLight.CamMode;
+import frc.robot.oi.LimeLight.StreamType;
+import frc.robot.oi.LimeLightReflective.LedMode;
 
 public class LimelightVision extends SubsystemBase {
   /** Creates a new LimelightVision. */
-  public LimeLight cam15;
-  public LimeLight cam16;
-  double[] temp;
-  Pose3d botPose;
+
+  private int numCams = 1;
+
+  public LimeLight cam_tag_15;
+
+  public LimeLight cam_tape_16;
+
+  private ShuffleboardLL cam_tag_15Display;
+
+  
+
+  public static Map<String, Integer> tapePipelines;
+
+  public static Map<String, Integer> cam_tagPipelines;
+  static {
+    cam_tagPipelines = new HashMap<>();
+    cam_tagPipelines.put("tag_0", 0);
+    cam_tagPipelines.put("PL1", 1);
+    cam_tagPipelines.put("PL2", 2);
+    cam_tagPipelines.put("PL3", 3);
+    cam_tagPipelines.put("tape_4", 4);
+    cam_tagPipelines.put("PL5", 5);
+    cam_tagPipelines.put("PL6", 6);
+    cam_tagPipelines.put("PL7", 7);
+    cam_tagPipelines.put("PL8", 8);
+    cam_tagPipelines.put("PL0", 9);
+
+  }
+
+  static {
+    tapePipelines = new HashMap<>();
+    tapePipelines.put("PL)", 0);
+    tapePipelines.put("PL1", 1);
+    tapePipelines.put("PL2", 2);
+    tapePipelines.put("PL3", 3);
+    tapePipelines.put("tape_4", 4);
+    tapePipelines.put("PL5", 5);
+    tapePipelines.put("PL6", 6);
+    tapePipelines.put("PL7", 7);
+    tapePipelines.put("PL8", 8);
+    tapePipelines.put("PL9", 9);
+
+  }
 
   public LimelightVision() {
-    cam15 = new LimeLight("limelight-fifteen");
-    cam16 = new LimeLight("limelight-sixteen");
-    cam15.ref.setLEDMode(LedMode.kforceBlink);
-    cam15.setCamMode(CamMode.kdriver);
+
+    cam_tag_15 = new LimeLight("limelight-tag_15");
+    cam_tag_15.ref.setLEDMode(LedMode.kpipeLine);
+    cam_tag_15.setCamMode(CamMode.kvision);
+    cam_tag_15.setStream(StreamType.kStandard);
+    // cam_tag_15Display = new ShuffleboardLL(cam_tag_15);
+
+    if (numCams > 1) {
+
+      cam_tape_16 = new LimeLight("limelight-tape_16");
+
+      cam_tape_16.ref.setLEDMode(LedMode.kpipeLine);
+      cam_tape_16.setCamMode(CamMode.kvision);
+      cam_tape_16.setStream(StreamType.kStandard);
+
+     // ShuffleboardLL cam_tape_16Display = new ShuffleboardLL(cam_tape_16);
+    }
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
 
-    SmartDashboard.putBoolean("Cam15HasTarget", cam15.ref.getIsTargetFound());
-    SmartDashboard.putNumber("Cam15 Pipeline#", cam15.getPipeline());
-    SmartDashboard.putNumber("Cam15 Latency ms", cam15.getPipelineLatency());
-    SmartDashboard.putNumber("Cam15 Tag ID", cam15.getAprilTagID());
-    SmartDashboard.putBoolean("Cam15 Connected", cam15.isConnected());
-
-    SmartDashboard.putBoolean("Cam16HasTarget", cam16.ref.getIsTargetFound());
-    SmartDashboard.putNumber("Cam16 Pipeline#", cam16.getPipeline());
-    SmartDashboard.putNumber("Cam16 Latency ms", cam16.getPipelineLatency());
-    SmartDashboard.putNumber("Cam16 Tag ID", cam16.getAprilTagID());
-
-    SmartDashboard.putBoolean("TargetAvailaBE", cam16.ref.getIsTargetFound());
-    SmartDashboard.putBoolean("Cam16 Connected", cam16.isConnected());
-    SmartDashboard.putString("Cam16 Pose", cam16.getRobotPose().toString());
-    SmartDashboard.putString("Cam16 Camtran", cam16.getCamTran().toString());
-
-    double[] test = cam15.ref.getAveXHairColor();
-
-    SmartDashboard.putNumberArray("COLOR", test);
-    double[] cropSize = { .5, 5., 5., 5 };
-    cam15.ref.setCropRectangle(cropSize);
-
   }
 
-  public Command toggleCamera() {
-    return new ToggleCamera(cam16);
-  }
-
-  public Command setLeds(LimeLight cam,LedMode mode) { // doesn't work properly
-    return new LimelightLeds(cam, mode);
-  }
-
-  public Command setPipeline(PipelinesCam15 pipelines) {
-    return new LimelightSetPipeline(cam15, pipelines.ordinal()); // 0-9
-  }
-
-  public Command setPipeline(PipelinesCam16 pipelines) {
-    return new LimelightSetPipeline(cam16, pipelines.ordinal()); // 0-9
-  }
-
-  public Command getSnapShot2() {
-    return new SequentialCommandGroup(new InstantCommand(() -> cam16.snap(1)), new WaitCommand(1),
-        new InstantCommand(() -> cam16.snap(0)));
-  }
 }

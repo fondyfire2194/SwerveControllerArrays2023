@@ -2,44 +2,29 @@ package frc.robot.subsystems;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.photonvision.PhotonCamera;
-import org.photonvision.common.hardware.VisionLEDMode;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.commands.Vision.PhotonVision.TargetThread1;
-import frc.robot.commands.Vision.PhotonVision.TargetThread2;
+import frc.robot.commands.Vision.Limelight.TargetThread1LL;
+import frc.robot.oi.LimeLight;
+import frc.robot.oi.LimeLightReflective.LedMode;
 
-public class VisionPoseEstimator extends SubsystemBase {
+public class VisionPoseEstimatorLL extends SubsystemBase {
 
   public DriveSubsystem m_drive;
 
   public AprilTagFieldLayout m_fieldLayout;
 
-  private Pose2d[] visionMeasurement1 = new Pose2d[2];
+  TargetThread1LL tgtTh1ll;
 
-  private Pose2d[] visionMeasurement2 = new Pose2d[2];
+  private String camera1Name = "limelight-sixteen";// 10.21.94.15
 
-  TargetThread1 tgtTh1;
-
-  private String camera1Name = "cam-IP11";// 10.21.94.11
-
-  public PhotonCamera m_cam;
-
-  TargetThread2 tgtTh2;
-
-  private String camera2Name = "cam-IP12";// 10.21.94.12
-
-  public PhotonCamera m_cam2;
-
-  int numCams = 2;
+  public LimeLight m_cam;
 
   private final int targetsInFle = 24;
 
@@ -47,9 +32,9 @@ public class VisionPoseEstimator extends SubsystemBase {
 
   public HashMap<Integer, String> pipelines = new HashMap<Integer, String>();
 
-  private Pose2d visionPoseEstimatedData;
+  private Pose3d visionPoseEstimatedData;
 
-  public VisionPoseEstimator(DriveSubsystem drive) {
+  public VisionPoseEstimatorLL(DriveSubsystem drive) {
 
     PhotonCamera.setVersionCheckEnabled(false);
 
@@ -59,10 +44,7 @@ public class VisionPoseEstimator extends SubsystemBase {
 
     m_drive = drive;
 
-    m_cam = new PhotonCamera(camera1Name);
-
-
-    m_cam2.setLED(VisionLEDMode.kOff);
+    m_cam = new LimeLight(camera1Name);
 
     String fieldFile = AprilTagFields.k2023ChargedUp.m_resourceFile;
 
@@ -78,27 +60,23 @@ public class VisionPoseEstimator extends SubsystemBase {
 
     }
 
-    tgtTh1 = new TargetThread1(this, m_cam);
+    tgtTh1ll = new TargetThread1LL(this, m_cam);
 
-    
   }
 
   @Override
   public void periodic() {
 
-
   }
 
-  public void setVisionPoseEsitmatedData(Pose2d pose) {
+  public void setVisionPoseEsitmatedData(Pose3d pose) {
 
     visionPoseEstimatedData = pose;
 
   }
 
-  public Pose2d getVisionPoseEstimatedData() {
+  public Pose3d getVisionPoseEstimatedData() {
 
     return visionPoseEstimatedData;
   }
-
-
 }

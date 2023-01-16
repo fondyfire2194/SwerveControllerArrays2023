@@ -2,13 +2,12 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.Vision;
+package frc.robot.commands.Vision.PhotonVision;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.photonvision.PhotonCamera;
-
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -21,13 +20,16 @@ import frc.robot.subsystems.VisionPoseEstimator;
 // This is the private constructor that will be called once by getInstance() and
 // it
 // should instantiate anything that will be required by the class
-public class TargetThread2 {
+public class TargetThread1 {
 
     private VisionPoseEstimator m_vpe;
+
     private PhotonCamera m_cam;
 
     private int m_num;
+
     private int n;
+
     private Pose3d[] camPose = new Pose3d[3];
 
     private Pose3d[] targetPose = new Pose3d[3];
@@ -38,7 +40,7 @@ public class TargetThread2 {
 
     public int numberTargets = 0;
 
-    private final int maxTargets = 2;// ##0,1
+    private final int maxTargets = 3;// ##0,1,2
 
     double imageCaptureTime;
 
@@ -46,13 +48,12 @@ public class TargetThread2 {
 
     List<PhotonTrackedTarget> tpr;
 
-    public TargetThread2(VisionPoseEstimator vpe, PhotonCamera cam, int num) {
+    public TargetThread1(VisionPoseEstimator vpe, PhotonCamera cam) {
         m_vpe = vpe;
         m_cam = cam;
 
-        m_num = num;
 
-        Thread tagThread2 = new Thread(new Runnable() {
+        Thread tagThread1 = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -71,20 +72,25 @@ public class TargetThread2 {
 
         // Set up thread properties and start it off
 
-        tagThread2.setPriority(Thread.NORM_PRIORITY);
-        tagThread2.setName("AprilTagThread 2");
-        tagThread2.start();
+        tagThread1.setPriority(Thread.NORM_PRIORITY);
+        tagThread1.setName("AprilTagThread 1");
+        tagThread1.start();
 
     }
 
     public void execute() {
         // Update pose estimator with visible targets,
 
-        SmartDashboard.putNumber("LPCTT2 ", loopctr++);// thread running indicator
+        SmartDashboard.putNumber("LPCTT1 ", loopctr++);// thread running indicator
+
+        for (int k = 0; k < maxTargets; k++) {
+
+            fiducialId[k] = -1;
+        }
 
         var pipelineResult = m_cam.getLatestResult();
 
-        SmartDashboard.putBoolean("HAS TARGETS 2", pipelineResult.hasTargets());
+        SmartDashboard.putBoolean("HAS TARGETS 1", pipelineResult.hasTargets());
 
         if (!pipelineResult.hasTargets())
 
@@ -102,7 +108,7 @@ public class TargetThread2 {
 
             tpr = pipelineResult.targets;
 
-            if (numberTargets > 2)
+            if (numberTargets > maxTargets)
 
                 tpr = pipelineResult.getTargets().subList(0, maxTargets);
 
@@ -111,8 +117,6 @@ public class TargetThread2 {
             for (PhotonTrackedTarget target : tpr) {
 
                 fiducialId[n] = target.getFiducialId();
-
-                SmartDashboard.putNumber("FidID 2 " + String.valueOf(n), fiducialId[n]);
 
                 Optional<Pose3d> temp = m_vpe.m_fieldLayout.getTagPose(fiducialId[n]);
 
@@ -128,18 +132,23 @@ public class TargetThread2 {
 
                 camPose[n] = targetPose[n].transformBy(camToTarget[n].inverse());
 
-                m_vpe.setVisionCorrectionData(1, n,
+                m_vpe.setVisionPoseEsitmatedData(
                         camPose[n].transformBy(VisionConstants.CAMERA_TO_ROBOT_3D).toPose2d());
 
-                n++;
             }
 
         }
 
-        SmartDashboard.putNumber("#TargetsSeen 2",
+        SmartDashboard.putNumber("#TargetsSeen 1",
                 numberTargets);
-        SmartDashboard.putNumber("ImCap mSec_2",
-                imageCaptureTime);
+                SmartDashboard.putNumber("Tgt0ID",fiducialId[0]);
 
+                SmartDashboard.putNumber("Tgt1ID",fiducialId[1]);
+
+                SmartDashboard.putNumber("Tgt2ID",fiducialId[2]);
+
+        
+        SmartDashboard.putNumber("ImCap mSec_1",
+                imageCaptureTime);
     }
 }

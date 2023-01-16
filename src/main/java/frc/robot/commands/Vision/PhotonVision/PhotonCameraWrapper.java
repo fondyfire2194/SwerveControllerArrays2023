@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package frc.robot.subsystems;
+package frc.robot.commands.Vision.PhotonVision;
 
 import java.util.ArrayList;
 import java.util.Optional;
