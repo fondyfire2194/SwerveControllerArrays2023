@@ -7,9 +7,10 @@ package frc.robot.subsystems;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.oi.LimeLight;
-import frc.robot.oi.ShuffleboardLL;
 import frc.robot.oi.LimeLight.CamMode;
 import frc.robot.oi.LimeLight.StreamType;
 import frc.robot.oi.LimeLightReflective.LedMode;
@@ -23,9 +24,7 @@ public class LimelightVision extends SubsystemBase {
 
   public LimeLight cam_tape_16;
 
-  private ShuffleboardLL cam_tag_15Display;
-
-  
+  // private ShuffleboardLL cam_tag_15Display;
 
   public static Map<String, Integer> tapePipelines;
 
@@ -76,13 +75,38 @@ public class LimelightVision extends SubsystemBase {
       cam_tape_16.setCamMode(CamMode.kvision);
       cam_tape_16.setStream(StreamType.kStandard);
 
-     // ShuffleboardLL cam_tape_16Display = new ShuffleboardLL(cam_tape_16);
+      // ShuffleboardLL cam_tape_16Display = new ShuffleboardLL(cam_tape_16);
     }
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    if (cam_tag_15.isConnected()) {
+      SmartDashboard.putNumber("LLTagID", cam_tag_15.getAprilTagID());
+      SmartDashboard.putString("LLTagTransform3d", cam_tag_15.getRobotTransform().toString());
+      SmartDashboard.putString("LLTagTranslation3d", cam_tag_15.getRobotTransform().getTranslation().toString());
+      SmartDashboard.putString("LLTagRotation3d", cam_tag_15.getRobotTransform().getRotation().toString());
+
+      Translation3d t3d = cam_tag_15.getRobotTransform().getTranslation();
+
+      double x = round2dp(t3d.getX());
+      double y = round2dp(t3d.getY());
+      double z = round2dp(t3d.getZ());
+
+      SmartDashboard.putNumber("LL X", x);
+      SmartDashboard.putNumber("LL Y", y);
+      SmartDashboard.putNumber("LL Z", z);
+
+    }
+
+  }
+
+  public double round2dp(double number) {
+
+    number = Math.round(number * 100);
+    number /= 100;
+    return number;
 
   }
 

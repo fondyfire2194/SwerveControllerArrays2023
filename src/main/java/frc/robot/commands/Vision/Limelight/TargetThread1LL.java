@@ -4,15 +4,16 @@
 
 package frc.robot.commands.Vision.Limelight;
 
-import java.util.List;
 import java.util.Optional;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.oi.LimeLight;
-import frc.robot.subsystems.VisionPoseEstimatorLL;
+import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LimelightVision;
 
 /** Add your docs here. */
 // This is the private constructor that will be called once by getInstance() and
@@ -20,10 +21,9 @@ import frc.robot.subsystems.VisionPoseEstimatorLL;
 // should instantiate anything that will be required by the class
 public class TargetThread1LL {
 
-    private VisionPoseEstimatorLL m_vpell;
+    private DriveSubsystem m_drive;
 
-    private LimeLight m_cam;
-
+    private LimelightVision m_llv;
 
     private Pose3d camPose = new Pose3d();
 
@@ -39,9 +39,11 @@ public class TargetThread1LL {
 
     int loopctr;
 
-    public TargetThread1LL(VisionPoseEstimatorLL vpell, LimeLight cam) {
-        m_vpell = vpell;
-        m_cam = cam;
+    private Pose2d visionPoseEstimatedData;
+
+    public TargetThread1LL(DriveSubsystem drive, LimelightVision llv) {
+        m_drive = drive;
+        m_llv = llv;
 
         Thread tagThread1LL = new Thread(new Runnable() {
             @Override
@@ -73,29 +75,34 @@ public class TargetThread1LL {
 
         SmartDashboard.putNumber("LPCTT2LL ", loopctr++);// thread running indicator
 
-        imageCaptureTime = m_cam.getPipelineLatency() / 1000d;
+        imageCaptureTime = m_llv.cam_tag_15.getPipelineLatency() / 1000d;
 
-        fiducialId = m_cam.getAprilTagID();
+        fiducialId = m_llv.cam_tag_15.getAprilTagID();
 
         if (fiducialId != -1) {
 
-            Optional<Pose3d> temp = m_vpell.m_fieldLayout.getTagPose(fiducialId);
+            Optional<Pose3d> temp = m_drive.m_fieldLayout.getTagPose(fiducialId);
 
             if (temp.isPresent()) {
 
                 targetPose = temp.get();
 
-                camToTarget =  m_cam.getRobotTransform();
+                camToTarget = m_llv.cam_tag_15.getRobotTransform();
 
                 camPose = targetPose.transformBy(camToTarget.inverse());
 
-                m_vpell.setVisionPoseEsitmatedData(camPose);
+                visionPoseEstimatedData =
+
                         camPose.transformBy(VisionConstants.CAMERA_TO_ROBOT_3D).toPose2d();
 
             }
-        }
 
+        }
+        visionPoseEstimatedData = new Pose2d();
 
     }
 
+    public Pose2d getVisionPoseEstimatedData() {
+        return visionPoseEstimatedData;
+    }
 }

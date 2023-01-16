@@ -7,14 +7,15 @@ package frc.robot.commands.Vision.PhotonVision;
 import java.util.List;
 import java.util.Optional;
 
-import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.subsystems.VisionPoseEstimator;
+import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.PhotonVision;
 
 /** Add your docs here. */
 // This is the private constructor that will be called once by getInstance() and
@@ -22,36 +23,31 @@ import frc.robot.subsystems.VisionPoseEstimator;
 // should instantiate anything that will be required by the class
 public class TargetThread1 {
 
-    private VisionPoseEstimator m_vpe;
+    private Pose3d camPose = new Pose3d();
 
-    private PhotonCamera m_cam;
+    private Pose3d targetPose = new Pose3d();
 
-    private int m_num;
+    public Transform3d camToTarget = new Transform3d();
 
-    private int n;
+    public int fiducialId;
 
-    private Pose3d[] camPose = new Pose3d[3];
-
-    private Pose3d[] targetPose = new Pose3d[3];
-
-    public Transform3d[] camToTarget = new Transform3d[3];
-
-    public int[] fiducialId = { 0, 0, 0 };
-
-    public int numberTargets = 0;
-
-    private final int maxTargets = 3;// ##0,1,2
+    private Pose2d visionPoseEstimatedData;
 
     double imageCaptureTime;
 
     int loopctr;
 
+    private DriveSubsystem m_drive;
+
+    private PhotonVision m_pv;
+
+    private boolean hasTargets;
+    
     List<PhotonTrackedTarget> tpr;
 
-    public TargetThread1(VisionPoseEstimator vpe, PhotonCamera cam) {
-        m_vpe = vpe;
-        m_cam = cam;
-
+    public TargetThread1(DriveSubsystem drive, PhotonVision pv) {
+        m_drive = drive;
+        m_pv = pv;
 
         Thread tagThread1 = new Thread(new Runnable() {
             @Override
@@ -83,72 +79,61 @@ public class TargetThread1 {
 
         SmartDashboard.putNumber("LPCTT1 ", loopctr++);// thread running indicator
 
-        for (int k = 0; k < maxTargets; k++) {
+        // Query the latest result from PhotonVision
+        var result = m_pv.cam_tag_11.getLatestResult();
 
-            fiducialId[k] = -1;
-        }
+        var pipelineResult = m_pv.cam_tag_11.getLatestResult();
 
-        var pipelineResult = m_cam.getLatestResult();
+        // Check if the latest result has any targets.
 
-        SmartDashboard.putBoolean("HAS TARGETS 1", pipelineResult.hasTargets());
+        hasTargets=false;
 
-        if (!pipelineResult.hasTargets())
+        if (pipelineResult.hasTargets()) {
 
-        {
+            hasTargets=true;
 
-            numberTargets = 0;
-
-            imageCaptureTime = 0;
-
-        } else {
-
-            numberTargets = pipelineResult.targets.size();
+            PhotonTrackedTarget target = result.getBestTarget();
 
             imageCaptureTime = pipelineResult.getLatencyMillis() / 1000d;
 
             tpr = pipelineResult.targets;
 
-            if (numberTargets > maxTargets)
+            fiducialId = target.getFiducialId();
 
-                tpr = pipelineResult.getTargets().subList(0, maxTargets);
+            Optional<Pose3d> temp = m_drive.m_fieldLayout.getTagPose(fiducialId);
 
-            n = 0;
+            if (temp.isPresent())
 
-            for (PhotonTrackedTarget target : tpr) {
+                targetPose = temp.get();
 
-                fiducialId[n] = target.getFiducialId();
+            else
 
-                Optional<Pose3d> temp = m_vpe.m_fieldLayout.getTagPose(fiducialId[n]);
+                camToTarget = target.getBestCameraToTarget();
 
-                if (temp.isPresent())
+            camPose = targetPose.transformBy(camToTarget.inverse());
 
-                    targetPose[n] = temp.get();
-
-                else
-
-                    break;
-
-                camToTarget[n] = target.getBestCameraToTarget();
-
-                camPose[n] = targetPose[n].transformBy(camToTarget[n].inverse());
-
-                m_vpe.setVisionPoseEsitmatedData(
-                        camPose[n].transformBy(VisionConstants.CAMERA_TO_ROBOT_3D).toPose2d());
-
-            }
+            visionPoseEstimatedData = camPose.transformBy(VisionConstants.CAMERA_TO_ROBOT_3D).toPose2d();
 
         }
 
-        SmartDashboard.putNumber("#TargetsSeen 1",
-                numberTargets);
-                SmartDashboard.putNumber("Tgt0ID",fiducialId[0]);
+        setFoundTagID(fiducialId);
+        setFoundTagTransform(camToTarget);
 
-                SmartDashboard.putNumber("Tgt1ID",fiducialId[1]);
+    }
 
-                SmartDashboard.putNumber("Tgt2ID",fiducialId[2]);
+    public void sentHasTargets(boolean on) {
+        m_pv.hasTargets=hasTargets;
+    }
 
-        
-        SmartDashboard.putNumber("ImCap mSec_1",
-                imageCaptureTime);
+    public void setFoundTagID(int id) {
+        m_pv.tagId = id;
+    }
+
+    public void setFoundTagTransform(Transform3d t3d) {
+        m_pv.t3d = t3d;
+    }
+
+    public Pose2d getVisionPoseEstimatedData() {
+        return visionPoseEstimatedData;
     }
 }

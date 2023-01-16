@@ -4,11 +4,15 @@
 
 package frc.robot.subsystems;
 
+import java.io.IOException;
+
 import com.ctre.phoenix.unmanaged.Unmanaged;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.VecBuilder;
@@ -23,6 +27,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
@@ -136,6 +141,9 @@ public class DriveSubsystem extends SubsystemBase {
   private double positionStart;
 
   double positionChange;
+  public AprilTagFieldLayout m_fieldLayout;
+  public boolean fieldFileRead;
+  private Pose2d visionPoseEstimatedData;
 
   // private SwerveModuleDisplay m_smd = new SwerveModuleDisplay(this);
 
@@ -143,6 +151,8 @@ public class DriveSubsystem extends SubsystemBase {
   public DriveSubsystem() {
 
     // SmartDashboard.putData("SM", m_smd);
+
+    getFieldTagData();
 
     m_gyro.reset();
 
@@ -264,13 +274,11 @@ public class DriveSubsystem extends SubsystemBase {
               m_backRight.getPosition()
           });
 
-      // Also apply vision measurements. We use 0.3 seconds in the past as an example
-      // -- on
-      // a real robot, this must be calculated based either on latency or timestamps.
-      // m_poseEstimator.addVisionMeasurement(
-      // ExampleGlobalMeasurementSensor.getEstimatedGlobalPose(
-      // m_poseEstimator.getEstimatedPosition()),
-      // Timer.getFPGATimestamp() - 0.3);
+      m_poseEstimator.addVisionMeasurement(
+
+          visionPoseEstimatedData,
+
+          Timer.getFPGATimestamp() - 0.3);
 
     }
   }
@@ -308,15 +316,13 @@ public class DriveSubsystem extends SubsystemBase {
     return Rotation2d.fromDegrees(getHeadingDegrees());
   }
 
-  public float getGyroPitch(){
+  public float getGyroPitch() {
     return m_gyro.getPitch();
   }
 
-  public float getGyroRoll(){
+  public float getGyroRoll() {
     return m_gyro.getRoll();
   }
-
-  
 
   public boolean checkCANOK() {
     return RobotBase.isSimulation() ||
@@ -438,6 +444,42 @@ public class DriveSubsystem extends SubsystemBase {
   public double getAnglefromThrottle() {
 
     return 180 * throttleValue;
+  }
+
+  private void getFieldTagData() {
+
+    String fieldFileFolder = "/FieldTagLayout/";
+
+    String fieldFileName = "2023-chargedup.json";
+
+    fieldFileRead = true;
+
+    var f = Filesystem.getDeployDirectory().toString();
+
+    f = f + fieldFileFolder + fieldFileName;
+
+    SmartDashboard.putString("fieldFile", fieldFileName);
+
+    try {
+
+      m_fieldLayout = new AprilTagFieldLayout(f);
+
+    } catch (IOException e) {
+
+      fieldFileRead = false;
+
+      e.printStackTrace();
+
+    }
+    SmartDashboard.putBoolean("fieldFileread", fieldFileRead);
+    if (fieldFileRead) {
+      SmartDashboard.putNumber("TagsInFile", m_fieldLayout.getTags().size());
+      SmartDashboard.putNumber("TagsInFile", m_fieldLayout.getTags().size());
+    }
+  }
+
+  public void getVisionPoseEstimatedData(Pose2d data) {
+    visionPoseEstimatedData = data;
   }
 
   public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {

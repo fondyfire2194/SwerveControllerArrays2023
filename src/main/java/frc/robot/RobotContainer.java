@@ -4,13 +4,18 @@
 
 package frc.robot;
 
+import org.photonvision.PhotonCamera;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.Vision.Limelight.TargetThread1LL;
+import frc.robot.commands.Vision.PhotonVision.TargetThread1;
 import frc.robot.commands.swerve.JogDriveModule;
 import frc.robot.commands.swerve.JogTurnModule;
 import frc.robot.commands.swerve.PositionTurnModule;
@@ -18,7 +23,7 @@ import frc.robot.commands.swerve.SetSwerveDrive;
 import frc.robot.simulation.FieldSim;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LimelightVision;
-import frc.robot.subsystems.VisionPoseEstimatorLL;
+import frc.robot.subsystems.PhotonVision;
 import frc.robot.utils.AutoSelect;
 import frc.robot.utils.LEDControllerI2C;
 
@@ -26,11 +31,13 @@ public class RobotContainer {
   // The robot's subsystems
   final DriveSubsystem m_drive = new DriveSubsystem();
 
- // public VisionPoseEstimator m_vpe = new VisionPoseEstimator(m_drive);
+  final LimelightVision m_llv = new LimelightVision();
 
-  public VisionPoseEstimatorLL m_vpe = new VisionPoseEstimatorLL(m_drive);
+  final PhotonVision m_pv = new PhotonVision();
 
- // public FFDisplay ff1 = new FFDisplay("test");
+  TargetThread1LL tgtTh1ll = null;
+
+  TargetThread1 tgtTh1 = null;
 
   public AutoSelect m_autoSelect;
 
@@ -44,9 +51,15 @@ public class RobotContainer {
 
   private CommandXboxController m_coDriverController = new CommandXboxController(OIConstants.kCoDriverControllerPort);
 
+  private CommandXboxController m_testController = new CommandXboxController(OIConstants.kTestControllerPort);
+
   final PowerDistribution m_pdp = new PowerDistribution();
 
   final LimelightVision llvis = new LimelightVision();
+
+  private boolean useLimeLight;
+
+  private boolean usePhotonVision;
 
   // temp controller for testing -matt
   // private PS4Controller m_ps4controller = new PS4Controller(1);
@@ -60,6 +73,14 @@ public class RobotContainer {
     Pref.deleteUnused();
 
     Pref.addMissing();
+
+    if (useLimeLight)
+
+      tgtTh1ll = new TargetThread1LL(m_drive, m_llv);
+
+    if (usePhotonVision)
+
+      tgtTh1 = new TargetThread1(m_drive, m_pv);
 
     SmartDashboard.putData("Scheduler", CommandScheduler.getInstance());
 
@@ -90,8 +111,6 @@ public class RobotContainer {
     // () -> m_ps4controller.getRawAxis(1),
     // () -> m_ps4controller.getRawAxis(0),
     // () -> m_ps4controller.getRawAxis(2)));
-
-    
 
     m_drive.setDefaultCommand(
         new SetSwerveDrive(
@@ -125,7 +144,6 @@ public class RobotContainer {
         () -> m_coDriverController.getRawAxis(3),
         false));
 
-  
     // position turn modules individually
     m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
         m_drive.m_frontLeft));
@@ -136,21 +154,30 @@ public class RobotContainer {
     // m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
     // m_drive.m_backRight));
 
-   
+    m_testController.a().whileTrue(getDriverSetCommand(m_pv.cam_tag_11, true));
 
-  }
+    m_testController.a().whileTrue(getDriverSetCommand(m_pv.cam_tag_11, false));
 
-  public void simulationPeriodic() {
+    m_testController.x().whileTrue(getSetPVPipelineCommand(m_pv.cam_tag_11, 1));  
+    m_testController.y().whileTrue(getSetPVPipelineCommand(m_pv.cam_tag_11, 4));
 
-    m_fieldSim.periodic();
-  }
-
-  public void periodic() {
-    m_fieldSim.periodic();
   }
 
   public double getThrottle() {
+
     return -leftJoystick.getThrottle();
+  }
+
+  public Command getDriverSetCommand(PhotonCamera cam, boolean on) {
+
+    return m_pv.SetDriverMode(cam, on);
+
+  }
+
+  public Command getSetPVPipelineCommand(PhotonCamera cam, int n) {
+
+    return m_pv.SetPipeline(cam, n);
+
   }
 
   // public Command getAutonomousCommand() {

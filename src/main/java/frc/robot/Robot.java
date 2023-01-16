@@ -93,7 +93,6 @@ public class Robot extends TimedRobot {
 
     lpctra++;
 
-    m_robotContainer.periodic();
 
     m_robotContainer.m_drive.throttleValue = m_robotContainer.getThrottle();
 
@@ -183,13 +182,11 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
 
-    // m_robotContainer.m_ls.lightsaber(true);
   }
 
   @Override
   public void simulationPeriodic() {
     m_robotContainer.m_fieldSim.periodic();
-    m_robotContainer.simulationPeriodic();
   }
 
 }
