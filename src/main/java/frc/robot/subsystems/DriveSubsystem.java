@@ -12,7 +12,6 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.VecBuilder;
@@ -144,6 +143,7 @@ public class DriveSubsystem extends SubsystemBase {
   public AprilTagFieldLayout m_fieldLayout;
   public boolean fieldFileRead;
   private Pose2d visionPoseEstimatedData;
+  private boolean visionDataAvailable;
 
   // private SwerveModuleDisplay m_smd = new SwerveModuleDisplay(this);
 
@@ -274,12 +274,14 @@ public class DriveSubsystem extends SubsystemBase {
               m_backRight.getPosition()
           });
 
+          if(visionDataAvailable){
+
       m_poseEstimator.addVisionMeasurement(
 
           visionPoseEstimatedData,
 
           Timer.getFPGATimestamp() - 0.3);
-
+          }
     }
   }
 
@@ -397,6 +399,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_backRight.setTurnBrakeMode(brake);
 
   }
+
 
   @Override
   public void simulationPeriodic() {

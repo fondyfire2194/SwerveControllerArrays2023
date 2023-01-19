@@ -64,8 +64,7 @@ public class PhotonVision extends SubsystemBase {
     cam_tag_11 = new PhotonCamera("cam_tag_11");
     // cam_tag_15.ref.setLEDMode(LedMode.kpipeLine);
     // cam_tag_15.setCamMode(CamMode.kvision);
-    // cam_tag_15.setStream(StreamType.kStandard);
-    // cam_tag_15Display = new ShuffleboardLL(cam_tag_15);
+    // cam_tag_15.setStream(StreamType.kStandard
 
   }
 
@@ -76,12 +75,14 @@ public class PhotonVision extends SubsystemBase {
 
     SmartDashboard.putNumber("PV Pipeline", cam_tag_11.getPipelineIndex());
 
+   // SmartDashboard.putBoolean("PVHasTargets", hasTargets);
+
     if (hasTargets) {
 
       SmartDashboard.putNumber("PVTagID", tagId);
       SmartDashboard.putString("PVTagTransform3d", t3d.toString());
       SmartDashboard.putString("PVTagTranslation3d", t3d.getTranslation().toString());
-      SmartDashboard.putString("LLTagRotation3d", t3d.getRotation().toString());
+      SmartDashboard.putString("PVTagRotation3d", t3d.getRotation().toString());
 
       double x = round2dp(t3d.getTranslation().getX());
       double y = round2dp(t3d.getTranslation().getY());

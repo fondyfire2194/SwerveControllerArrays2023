@@ -29,6 +29,8 @@ public class Robot extends TimedRobot {
 
   private double m_disableStartTime;
 
+  private boolean driveIsBraked;
+
   public static int lpctra;
 
   /**
@@ -93,7 +95,6 @@ public class Robot extends TimedRobot {
 
     lpctra++;
 
-
     m_robotContainer.m_drive.throttleValue = m_robotContainer.getThrottle();
 
     /*
@@ -107,6 +108,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     m_disableStartTime = 0;
+    driveIsBraked = false;
   }
 
   @Override
@@ -114,12 +116,12 @@ public class Robot extends TimedRobot {
     if (DriverStation.getAlliance() == Alliance.Blue) {
       // m_robotContainer.m_ls.forceAllianceColor(true);
 
-      if (m_disableStartTime == 0)
+      if (m_disableStartTime == 0 && !driveIsBraked)
         m_disableStartTime = Timer.getFPGATimestamp();
 
       if (m_disableStartTime != 0 && Timer.getFPGATimestamp() > m_disableStartTime + 3) {
         m_robotContainer.m_drive.setIdleMode(false);
-
+        driveIsBraked = true;
       }
 
     }
@@ -137,6 +139,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_robotContainer.m_drive.setIdleMode(true);
 
     m_autonomousCommand = m_robotContainer.m_autoSelect.getAutonomousCommand();
 
@@ -157,6 +160,8 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+
+    m_robotContainer.m_drive.setIdleMode(true);
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -175,6 +180,8 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     // Cancels all running commands at the start of test mode.
+    m_robotContainer.m_drive.setIdleMode(true);
+
     CommandScheduler.getInstance().cancelAll();
   }
 

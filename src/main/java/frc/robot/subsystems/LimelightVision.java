@@ -7,13 +7,19 @@ package frc.robot.subsystems;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.oi.LimeLight;
 import frc.robot.oi.LimeLight.CamMode;
+import frc.robot.oi.LimeLight.LedMode;
 import frc.robot.oi.LimeLight.StreamType;
-import frc.robot.oi.LimeLightReflective.LedMode;
 
 public class LimelightVision extends SubsystemBase {
   /** Creates a new LimelightVision. */
@@ -24,23 +30,43 @@ public class LimelightVision extends SubsystemBase {
 
   public LimeLight cam_tape_16;
 
-  // private ShuffleboardLL cam_tag_15Display;
+  Rotation2d rr = new Rotation2d(1.57);
+  Translation3d tl3 = new Translation3d(1, 2, 3);
+  Rotation3d rr3 = new Rotation3d(1.57, 1.00, .44);
+  Transform3d tran3d = new Transform3d(tl3, rr3);
+
+  private double imageCaptureTime;
+
+  private int fiducialId;
+
+  private Pose3d camPose = new Pose3d();
+
+  private Pose2d camPose2d = new Pose2d();
+
+  private Transform3d robTran = new Transform3d();
+
+  private Pose2d targetPose2d = new Pose2d();
+
+  public Transform3d camTran = new Transform3d();
+
+  private Pose2d visionPoseEstimatedData;
 
   public static Map<String, Integer> tapePipelines;
 
-  public static Map<String, Integer> cam_tagPipelines;
+  public static Map<String, Integer> tagPipelines;
+
   static {
-    cam_tagPipelines = new HashMap<>();
-    cam_tagPipelines.put("tag_0", 0);
-    cam_tagPipelines.put("PL1", 1);
-    cam_tagPipelines.put("PL2", 2);
-    cam_tagPipelines.put("PL3", 3);
-    cam_tagPipelines.put("tape_4", 4);
-    cam_tagPipelines.put("PL5", 5);
-    cam_tagPipelines.put("PL6", 6);
-    cam_tagPipelines.put("PL7", 7);
-    cam_tagPipelines.put("PL8", 8);
-    cam_tagPipelines.put("PL0", 9);
+    tagPipelines = new HashMap<>();
+    tagPipelines.put("tag_0", 0);
+    tagPipelines.put("PL1", 1);
+    tagPipelines.put("PL2", 2);
+    tagPipelines.put("PL3", 3);
+    tagPipelines.put("tape_4", 4);
+    tagPipelines.put("PL5", 5);
+    tagPipelines.put("PL6", 6);
+    tagPipelines.put("PL7", 7);
+    tagPipelines.put("PL8", 8);
+    tagPipelines.put("PL0", 9);
 
   }
 
@@ -61,17 +87,16 @@ public class LimelightVision extends SubsystemBase {
 
   public LimelightVision() {
 
-    cam_tag_15 = new LimeLight("limelight-tag_15");
-    cam_tag_15.ref.setLEDMode(LedMode.kpipeLine);
+    cam_tag_15 = new LimeLight("limelight-tags");
+    cam_tag_15.setLEDMode(LedMode.kforceOff);
     cam_tag_15.setCamMode(CamMode.kvision);
     cam_tag_15.setStream(StreamType.kStandard);
-    // cam_tag_15Display = new ShuffleboardLL(cam_tag_15);
 
     if (numCams > 1) {
 
-      cam_tape_16 = new LimeLight("limelight-tape_16");
+      // cam_tape_16 = new LimeLight("limelight-tape_16");
 
-      cam_tape_16.ref.setLEDMode(LedMode.kpipeLine);
+      cam_tape_16.setLEDMode(LedMode.kpipeLine);
       cam_tape_16.setCamMode(CamMode.kvision);
       cam_tape_16.setStream(StreamType.kStandard);
 
@@ -81,24 +106,37 @@ public class LimelightVision extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    if (cam_tag_15.isConnected()) {
-      SmartDashboard.putNumber("LLTagID", cam_tag_15.getAprilTagID());
-      SmartDashboard.putString("LLTagTransform3d", cam_tag_15.getRobotTransform().toString());
-      SmartDashboard.putString("LLTagTranslation3d", cam_tag_15.getRobotTransform().getTranslation().toString());
-      SmartDashboard.putString("LLTagRotation3d", cam_tag_15.getRobotTransform().getRotation().toString());
+    // / }
 
-      Translation3d t3d = cam_tag_15.getRobotTransform().getTranslation();
+  }
 
-      double x = round2dp(t3d.getX());
-      double y = round2dp(t3d.getY());
-      double z = round2dp(t3d.getZ());
+  public Transform3d getCamTransform(LimeLight cam) {
 
-      SmartDashboard.putNumber("LL X", x);
-      SmartDashboard.putNumber("LL Y", y);
-      SmartDashboard.putNumber("LL Z", z);
+    imageCaptureTime = cam.getPipelineLatency() / 1000d;
+
+    fiducialId = cam.getAprilTagID();
+
+    if (fiducialId != -1) {
+
+      camTran = cam.getCamTran();
+    }
+
+    return camTran;
+
+  }
+
+  public Transform3d getRobotTransform(LimeLight cam) {
+
+    imageCaptureTime = cam.getPipelineLatency() / 1000d;
+
+    fiducialId = cam.getAprilTagID();
+
+    if (fiducialId != -1) {
+      robTran = cam.getRobotTransform();
 
     }
+
+    return robTran;
 
   }
 

@@ -4,26 +4,23 @@
 
 package frc.robot;
 
-import org.photonvision.PhotonCamera;
-
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.Vision.Limelight.TargetThread1LL;
 import frc.robot.commands.Vision.PhotonVision.TargetThread1;
 import frc.robot.commands.swerve.JogDriveModule;
 import frc.robot.commands.swerve.JogTurnModule;
 import frc.robot.commands.swerve.PositionTurnModule;
 import frc.robot.commands.swerve.SetSwerveDrive;
+import frc.robot.oi.ShuffleboardLLTag;
+import frc.robot.oi.LimeLight.LedMode;
 import frc.robot.simulation.FieldSim;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LimelightVision;
-import frc.robot.subsystems.PhotonVision;
 import frc.robot.utils.AutoSelect;
 import frc.robot.utils.LEDControllerI2C;
 
@@ -33,9 +30,14 @@ public class RobotContainer {
 
   final LimelightVision m_llv = new LimelightVision();
 
-  final PhotonVision m_pv = new PhotonVision();
+  private ShuffleboardLLTag sLLtag;
 
-  TargetThread1LL tgtTh1ll = null;
+  private ShuffleboardLLTag sLLtape;
+
+  
+
+ // final PhotonVision m_pv = new PhotonVision();
+
 
   TargetThread1 tgtTh1 = null;
 
@@ -57,9 +59,9 @@ public class RobotContainer {
 
   final LimelightVision llvis = new LimelightVision();
 
-  private boolean useLimeLight;
+  private boolean useLimeLight =true;
 
-  private boolean usePhotonVision;
+  private boolean usePhotonVision =false;
 
   // temp controller for testing -matt
   // private PS4Controller m_ps4controller = new PS4Controller(1);
@@ -76,11 +78,11 @@ public class RobotContainer {
 
     if (useLimeLight)
 
-      tgtTh1ll = new TargetThread1LL(m_drive, m_llv);
+      
 
     if (usePhotonVision)
 
-      tgtTh1 = new TargetThread1(m_drive, m_pv);
+      //tgtTh1 = new TargetThread1(m_drive, m_pv);
 
     SmartDashboard.putData("Scheduler", CommandScheduler.getInstance());
 
@@ -95,6 +97,10 @@ public class RobotContainer {
 
     // lc = LEDController.getInstance();
     lcI2 = LEDControllerI2C.getInstance();
+
+    sLLtag=new ShuffleboardLLTag(m_llv.cam_tag_15);
+
+//sLLtape = new ShuffleboardLLTag(m_llv.cam_tape_16);
 
     // PortForwarder.add(5800, "10.21.94.11", 5800);
     // PortForwarder.add(1181, "10.21.94.11", 1181);
@@ -115,9 +121,10 @@ public class RobotContainer {
     m_drive.setDefaultCommand(
         new SetSwerveDrive(
             m_drive,
-            () -> leftJoystick.getRawAxis(1),
-            () -> leftJoystick.getRawAxis(0),
-            () -> leftJoystick.getRawAxis(2)));
+            () -> leftJoystick.getRawAxis(1)/2,
+            () -> leftJoystick.getRawAxis(0)/2,
+            () -> leftJoystick.getRawAxis(4)/2));//logitech gamepad
+            //() -> leftJoystick.getRawAxis(2)));
 
     m_coDriverController.leftTrigger().whileTrue(new JogTurnModule(
         m_drive,
@@ -154,12 +161,18 @@ public class RobotContainer {
     // m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
     // m_drive.m_backRight));
 
-    m_testController.a().whileTrue(getDriverSetCommand(m_pv.cam_tag_11, true));
+    // m_testController.a().whileTrue(getDriverSetCommand(m_pv.cam_tag_11, true));
 
-    m_testController.a().whileTrue(getDriverSetCommand(m_pv.cam_tag_11, false));
+    // m_testController.rightBumper().whileTrue(getDriverSetCommand(m_pv.cam_tag_11, false));
 
-    m_testController.x().whileTrue(getSetPVPipelineCommand(m_pv.cam_tag_11, 1));  
-    m_testController.y().whileTrue(getSetPVPipelineCommand(m_pv.cam_tag_11, 4));
+    // m_testController.x().whileTrue(getSetPVPipelineCommand(m_pv.cam_tag_11, 1));  
+    // m_testController.y().whileTrue(getSetPVPipelineCommand(m_pv.cam_tag_11, 0));
+    // m_testController.leftBumper().whileTrue(getSetPVPipelineCommand(m_pv.cam_tag_11, 2));
+
+    m_testController.leftBumper().whileTrue(m_llv.cam_tag_15.ToggleCamMode());
+    m_testController.rightBumper().whileTrue(m_llv.cam_tag_15.ChangeLEDMode(LedMode.kforceOff));
+
+
 
   }
 
@@ -168,17 +181,17 @@ public class RobotContainer {
     return -leftJoystick.getThrottle();
   }
 
-  public Command getDriverSetCommand(PhotonCamera cam, boolean on) {
+  // public Command getDriverSetCommand(PhotonCamera cam, boolean on) {
 
-    return m_pv.SetDriverMode(cam, on);
+  //   return m_pv.SetDriverMode(cam, on);
 
-  }
+  // }
 
-  public Command getSetPVPipelineCommand(PhotonCamera cam, int n) {
+  // public Command getSetPVPipelineCommand(PhotonCamera cam, int n) {
 
-    return m_pv.SetPipeline(cam, n);
+  //   return m_pv.SetPipeline(cam, n);
 
-  }
+  // }
 
   // public Command getAutonomousCommand() {
   // return autoBuilder.fullAuto(pathGroup);
