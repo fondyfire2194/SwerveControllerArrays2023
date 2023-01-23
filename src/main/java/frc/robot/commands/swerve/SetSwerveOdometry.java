@@ -53,7 +53,7 @@ public class SetSwerveOdometry extends CommandBase {
   @Override
   public void initialize() {
     
-    m_swerveDrive.setOdometry(m_pose2d);
+    m_swerveDrive.resetOdometry(m_pose2d);
     // m_driveTrain.setNavXOffset(m_pose2d.getRotation().getDegrees());
     // if (RobotBase.isSimulation()) m_fieldSim.resetRobotPose(m_pose2d);
   }

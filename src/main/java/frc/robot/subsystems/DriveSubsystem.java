@@ -29,7 +29,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -154,7 +153,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     // SmartDashboard.putData("SM", m_smd);
 
-    getFieldTagData();
+    //getFieldTagData();
 
     m_gyro.reset();
 
@@ -298,7 +297,7 @@ public class DriveSubsystem extends SubsystemBase {
     return m_poseEstimator.getEstimatedPosition();
   }
 
-  public void setOdometry(Pose2d pose) {
+  public void resetOdometry(Pose2d pose) {
     m_poseEstimator.resetPosition(getHeadingRotation2d(),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
@@ -409,6 +408,13 @@ public class DriveSubsystem extends SubsystemBase {
 
   }
 
+  public void stopModules() {
+    m_frontLeft.stop();
+    m_frontRight.stop();
+    m_backLeft.stop();
+    m_backRight.stop();
+}
+
 
   @Override
   public void simulationPeriodic() {
@@ -499,7 +505,7 @@ public class DriveSubsystem extends SubsystemBase {
         new InstantCommand(() -> {
           // Reset odometry for the first path you run during auto
           if (isFirstPath) {
-            this.setOdometry(traj.getInitialHolonomicPose());
+            this.resetOdometry(traj.getInitialHolonomicPose());
           }
         }),
         new PPSwerveControllerCommand(

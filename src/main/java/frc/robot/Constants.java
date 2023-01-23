@@ -135,6 +135,8 @@ public final class Constants {
     public static double kControllerRotDeadband = .1;
 
     public static double kVoltCompensation = 12.6;
+    public static double kPhysicalMaxSpeedMetersPerSecond;
+    public static int kPhysicalMaxAngularSpeedRadiansPerSecond;
 
     // public static final double kMaxRotationRadiansPerSecond =
     // Math.hypot(DriveConstants.kTrackWidth / 2.0,

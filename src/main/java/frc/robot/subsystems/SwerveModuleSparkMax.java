@@ -48,8 +48,9 @@ public class SwerveModuleSparkMax extends SubsystemBase {
 
   private final PIDController m_driveVelController = new PIDController(.0005, 0, 0);
 
-  // private ProfiledPIDController m_turnPosController = new ProfiledPIDController(.006, 0, 0,
-  //     TrapezoidConstants.kThetaControllerConstraints);
+  // private ProfiledPIDController m_turnPosController = new
+  // ProfiledPIDController(.006, 0, 0,
+  // TrapezoidConstants.kThetaControllerConstraints);
   private PIDController m_turnPosController = new PIDController(.006, 0, 0);
 
   public final CTRECanCoder m_turnCANcoder;
@@ -183,7 +184,6 @@ public class SwerveModuleSparkMax extends SubsystemBase {
       tunePosGains();
       tuneDriveVelGains();
     }
-  
 
     m_turnPosController.enableContinuousInput(-180, 180);
 
@@ -317,7 +317,7 @@ public class SwerveModuleSparkMax extends SubsystemBase {
     m_lastAngle = angle;
 
     SmartDashboard.putNumber("TESTSP", state.speedMetersPerSecond);
-    SmartDashboard.putNumber("TESTAng",angle);
+    SmartDashboard.putNumber("TESTAng", angle);
 
     driveMotorMove(state.speedMetersPerSecond);
 
@@ -400,9 +400,10 @@ public class SwerveModuleSparkMax extends SubsystemBase {
       // if robot is not moving, stop the turn motor oscillating
       // if (turnAngleError < turnDeadband
 
-      //     && Math.abs(state.speedMetersPerSecond) <= (DriveConstants.kMaxSpeedMetersPerSecond * 0.01))
+      // && Math.abs(state.speedMetersPerSecond) <=
+      // (DriveConstants.kMaxSpeedMetersPerSecond * 0.01))
 
-      //   pidOut = 0;
+      // pidOut = 0;
 
       m_turnMotor.setVoltage(pidOut * RobotController.getBatteryVoltage());
 
@@ -509,6 +510,11 @@ public class SwerveModuleSparkMax extends SubsystemBase {
 
     return driveMotorConnected && turnMotorConnected && turnCoderConnected;
 
+  }
+
+  public void stop() {
+    m_driveMotor.set(0);
+    m_turnMotor.set(0);
   }
 
 }

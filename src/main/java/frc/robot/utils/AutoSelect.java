@@ -62,7 +62,7 @@ public class AutoSelect {
 
         autoBuilder = new SwerveAutoBuilder(
                 m_drive::getEstimatedPose, // null,
-                m_drive::setOdometry, // null,
+                m_drive::resetOdometry, // null,
                 DriveConstants.m_kinematics, // null,
                 new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for translation error (used to create the X
                                                  // and Y
