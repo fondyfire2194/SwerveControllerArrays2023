@@ -35,6 +35,8 @@ public class LimelightVision extends SubsystemBase {
   Rotation3d rr3 = new Rotation3d(1.57, 1.00, .44);
   Transform3d tran3d = new Transform3d(tl3, rr3);
 
+  public int[][] targetMatrix = new int[8][3];
+
   private double imageCaptureTime;
 
   private int fiducialId;

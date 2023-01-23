@@ -5,7 +5,6 @@
 package frc.robot.utils;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.subsystems.DriveSubsystem;
@@ -25,7 +24,7 @@ public class SwerveModuleDisplay extends SubsystemBase {
 
         m_disp.putBoolean("S", m_drive.m_frontLeft.checkCAN());
         m_disp.putNumber("LLL", Robot.lpctra);
- 
+        
 
 
     }

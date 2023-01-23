@@ -74,7 +74,7 @@ public class FieldSim {
 
     updateRobotPoses();
 
-    if (RobotBase.isSimulation())
+   // if (RobotBase.isSimulation())
 
       simulationPeriodic();
 

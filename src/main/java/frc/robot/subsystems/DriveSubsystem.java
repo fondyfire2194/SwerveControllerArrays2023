@@ -26,8 +26,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -45,7 +47,7 @@ import frc.robot.utils.ShuffleboardContent;
 public class DriveSubsystem extends SubsystemBase {
 
   public SwerveDriveKinematics m_kinematics = DriveConstants.m_kinematics;
-  public boolean isOpenLoop = false;
+  public boolean isOpenLoop = !DriverStation.isAutonomousEnabled();
   public final SwerveModuleSparkMax m_frontLeft = new SwerveModuleSparkMax(
       IDConstants.FRONT_LEFT_LOCATION,
       CanConstants.FRONT_LEFT_MODULE_DRIVE_MOTOR,
@@ -233,7 +235,14 @@ public class DriveSubsystem extends SubsystemBase {
     updateOdometry();
     SmartDashboard.putNumber("Xpos", getX());
     SmartDashboard.putNumber("Ypos", getY());
-    SmartDashboard.putNumber("GyrpAngle", getHeadingDegrees());
+    SmartDashboard.putNumber("GyroAngle", getHeadingDegrees());
+
+    SmartDashboard.putNumber("GyroPitch", getGyroPitch());
+
+    SmartDashboard.putNumber("GyroRoll", getGyroRoll());
+
+
+
 
     if (startTime == 0) {
 

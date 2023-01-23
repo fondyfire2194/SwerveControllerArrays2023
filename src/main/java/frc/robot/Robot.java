@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -40,31 +42,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    // Logger.getInstance().recordMetadata("ProjectName", "MyProject"); // Set a
-    // metadata value
 
-    // if (isReal()) {
-    // Logger.getInstance().addDataReceiver(new WPILOGWriter("/media/sda1/")); //
-    // Log to a USB stick
-    // Logger.getInstance().addDataReceiver(new NT4Publisher()); // Publish data to
-    // NetworkTables
-    // // new PowerDistribution(1, ModuleType.kRev); // Enables power distribution
-    // // logging
-    // } else {
-    // // setUseTiming(false); // Run as fast as possible
-    // String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from
-    // AdvantageScope (or prompt the user)
-    // Logger.getInstance().setReplaySource(new WPILOGReader(logPath)); // Read
-    // replay log
-    // Logger.getInstance().addDataReceiver(new
-    // WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save
-    // // outputs to
-    // // a new log
-    // }
-
-    // Logger.getInstance().start(); // Start logging! No more data receivers,
-    // replay sources, or metadata values may be added.
-
+    DataLogManager.start();
+    
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
@@ -72,16 +52,7 @@ public class Robot extends TimedRobot {
 
   }
 
-  /**
-   * This function is called every 20 ms, no matter the mode. Use this for items
-   * like diagnostics
-   * that you want ran during disabled, autonomous, teleoperated and test.
-   *
-   * <p>
-   * This runs after the mode specific periodic functions, but before LiveWindow
-   * and
-   * SmartDashboard integrated updating.
-   */
+  
   @Override
   public void robotPeriodic() {
     // Runs the Scheduler. This is responsible for polling buttons, adding
@@ -92,6 +63,8 @@ public class Robot extends TimedRobot {
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    m_robotContainer.m_fieldSim.periodic();
 
     lpctra++;
 
