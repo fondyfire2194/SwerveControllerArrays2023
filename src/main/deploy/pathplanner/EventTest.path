@@ -16,10 +16,13 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
+        "names": [
+          "DeliverPart",
+          "ReturnArm"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "minimum",
+        "waitTime": 1.0
       }
     },
     {
@@ -63,9 +66,11 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
+        "names": [
+          "PickUpPart"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "after",
         "waitTime": 0
       }
     }
@@ -74,8 +79,14 @@
     {
       "position": 0.34,
       "names": [
-        "event",
-        "event1"
+        "LowerGripper",
+        "PositionRotate"
+      ]
+    },
+    {
+      "position": 0.9600000000000316,
+      "names": [
+        "RotateArm"
       ]
     }
   ]

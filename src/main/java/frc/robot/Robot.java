@@ -120,7 +120,7 @@ public class Robot extends TimedRobot {
 
     else {
 
-      m_autonomousCommand = m_robotContainer.m_autoSelect.getAutonomousCommand();
+      m_autonomousCommand = m_robotContainer.m_autoFactory.getAutonomousCommand();
 
     }
     m_robotContainer.m_drive.setIdleMode(true);

@@ -50,6 +50,16 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_STEER_CANCODER = 15;
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 253.7;// -Math.toRadians(-105);
 
+    public static final int EXTEND_ARM_MOTOR = 18;
+    public static final int TURN_ARM_MOTOR = 18;
+
+  }
+
+  public static class SolenoidConstants {
+    public static final int GRIPPER_OPEN = 4;
+    public static final int GRIPPER_CLOSE = 5;
+    public static final int GRIPPER_RAISE = 6;
+    public static final int GRIPPER_LOWER = 7;
   }
 
   public class IDConstants {

@@ -18,15 +18,18 @@ import frc.robot.commands.swerve.Test.PositionTurnModule;
 import frc.robot.oi.LimeLight.LedMode;
 import frc.robot.oi.ShuffleboardLLTag;
 import frc.robot.simulation.FieldSim;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LimelightVision;
-import frc.robot.utils.AutoSelect;
+import frc.robot.utils.AutoFactory;
 import frc.robot.utils.LEDControllerI2C;
 import frc.robot.utils.TrajectoryFactory;
 
 public class RobotContainer {
     // The robot's subsystems
     final DriveSubsystem m_drive = new DriveSubsystem();
+
+    final ArmSubsystem m_arm = new ArmSubsystem();
 
     final LimelightVision m_llv = new LimelightVision();
 
@@ -38,7 +41,7 @@ public class RobotContainer {
 
     TargetThread1 tgtTh1 = null;
 
-    public AutoSelect m_autoSelect;
+    public AutoFactory m_autoFactory;
 
     public TrajectoryFactory m_tf;
 
@@ -88,7 +91,7 @@ public class RobotContainer {
 
         m_fieldSim.initSim();
 
-        m_autoSelect = new AutoSelect(m_drive);
+        m_autoFactory = new AutoFactory(m_drive,m_arm);
 
         m_tf = new TrajectoryFactory(m_drive);
 

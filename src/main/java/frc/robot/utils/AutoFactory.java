@@ -20,10 +20,11 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.PPConstants;
 import frc.robot.commands.DoNothing;
 import frc.robot.commands.Test.MessageShuffleboard;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 
 /** Add your docs here. */
-public class AutoSelect {
+public class AutoFactory {
 
     SwerveAutoBuilder autoBuilder;
 
@@ -43,15 +44,17 @@ public class AutoSelect {
     private double startTime;
 
     private DriveSubsystem m_drive;
+    private ArmSubsystem m_arm;
 
-    public AutoSelect(DriveSubsystem drive) {
+    public AutoFactory(DriveSubsystem drive, ArmSubsystem arm) {
+
+
         eventMap.put("eventone", new MessageShuffleboard("Event A"));
-        eventMap.put("eventtwo", new MessageShuffleboard("Event B"));
-        eventMap.put("eventthree", new MessageShuffleboard("Event C"));
-        eventMap.put("eventfour", new MessageShuffleboard("Event D"));
-        eventMap.put("eventfive", new MessageShuffleboard("Event E"));
-        eventMap.put("eventsix", new MessageShuffleboard("Event F"));
+      
         m_drive = drive;
+
+        m_arm=arm;
+        
         // Create the AutoBuilder. This only needs to be created once when robot code
         // starts,
         // not every time you want to create an auto command. A good place to put this

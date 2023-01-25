@@ -6,10 +6,11 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.REVPhysicsSim;
 import com.revrobotics.RelativeEncoder;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -23,7 +24,9 @@ import frc.robot.CTRECanCoder;
 import frc.robot.Constants.CurrentLimitConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
+import frc.robot.Constants.ModuleTuneConstants;
 import frc.robot.Constants.SYSIDConstants;
+import frc.robot.Pref;
 import frc.robot.utils.AngleUtils;
 import frc.robot.utils.ShuffleboardContent;
 
@@ -39,6 +42,14 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
   public final int m_locationIndex;
 
+  private final PIDController m_driveVelController = new PIDController(ModuleTuneConstants.kPModuleDriveController,
+      ModuleTuneConstants.kIModuleDriveController, ModuleTuneConstants.kDModuleDriveController);
+
+  private PIDController m_turnPosController = new PIDController(ModuleTuneConstants.kPModuleTurningController,
+      ModuleTuneConstants.kIModuleTurningController, ModuleTuneConstants.kDModuleTurningController);
+
+  public final CTRECanCoder m_turnCANcoder;
+
   SwerveModuleState state;
 
   public int m_moduleNumber;
@@ -49,8 +60,6 @@ public class SwerveModuleSMRads extends SubsystemBase {
   String turnLayout;
 
   String canCoderLayout;
-
-  public final CTRECanCoder m_turnCANcoder;
 
   Pose2d m_pose;
 
@@ -73,12 +82,14 @@ public class SwerveModuleSMRads extends SubsystemBase {
   public boolean driveMotorConnected;
   public boolean turnMotorConnected;
   public boolean turnCoderConnected;
-  private double turnDeadband = .5;
   private boolean showOnShuffleboard = true;
-  private boolean driveBrakeMode;
-  private boolean turnBrakeMode;
+
   public SendableBuilder m_builder;
   private boolean m_isOpenLoop;
+
+  public boolean driveBrakeMode;
+
+  public boolean turnBrakeMode;
 
   /**
    * Constructs a SwerveModule.
@@ -115,7 +126,7 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
     m_driveMotor.restoreFactoryDefaults();
 
-    m_turnMotor.setSmartCurrentLimit(CurrentLimitConstants.turnMotorSmartLimit);
+     m_turnMotor.setSmartCurrentLimit(CurrentLimitConstants.turnMotorSmartLimit);
 
     m_driveMotor.setSmartCurrentLimit(CurrentLimitConstants.driveMotorSmartLimit);
 
@@ -123,61 +134,96 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
     m_turnMotor.enableVoltageCompensation(ModuleConstants.kVoltCompensation);
 
-    m_driveMotor.setInverted(driveMotorReversed);
-
-    m_turnMotor.setInverted(turningMotorReversed);
-
-    // Set neutral mode to brake
-    m_driveMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
-
-    // Set neutral mode to brake
-    m_turnMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
-
-    m_driveEncoder = m_driveMotor.getEncoder();
-
-    m_turnEncoder = m_turnMotor.getEncoder();
-
     // absolute encoder used to establish known wheel position on start position
     m_turnCANcoder = new CTRECanCoder(cancoderCanChannel);
     m_turnCANcoder.configFactoryDefault();
     m_turnCANcoder.configAllSettings(AngleUtils.generateCanCoderConfig());
     m_turnEncoderOffset = turningEncoderOffset;
 
+    m_driveMotor.setInverted(driveMotorReversed);
+
+    m_turnMotor.setInverted(turningMotorReversed);
+
+    m_driveMotor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus0, 100);
+    m_driveMotor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus1, 20);
+    m_driveMotor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus2, 20);
+    // Set neutral mode to brake
+    m_driveMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+
+    m_turnMotor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus0, 10);
+    m_turnMotor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus1, 20);
+    m_turnMotor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus2, 50);
+    // Set neutral mode to brake
+    m_turnMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+
+    m_driveEncoder = m_driveMotor.getEncoder();
+
+    m_driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveMetersPerEncRev);
+
+    m_driveEncoder.setVelocityConversionFactor(ModuleConstants.kDriveMetersPerEncRev
+        / 60);
+
+    m_turnEncoder = m_turnMotor.getEncoder();
+
+    m_turnEncoder.setPositionConversionFactor(ModuleConstants.kTurningRadiansPerEncoderRev);
+
+    m_turnEncoder.setVelocityConversionFactor(ModuleConstants.kTurningRadiansPerEncoderRev / 60);
+
+    m_turnPosController.enableContinuousInput(-Math.PI, Math.PI);
+
+    checkCAN();
+
+    resetAngleToAbsolute();
+
     if (showOnShuffleboard) {
 
-      ShuffleboardContent.initDriveShuffleboard(this);
-      ShuffleboardContent.initTurnShuffleboard(this);
+       ShuffleboardContent.initDriveShuffleboard(this);
+       ShuffleboardContent.initTurnShuffleboard(this);
       ShuffleboardContent.initCANCoderShuffleboard(this);
-      ShuffleboardContent.initBooleanShuffleboard(this);
-      ShuffleboardContent.initCoderBooleanShuffleboard(this);
+       ShuffleboardContent.initBooleanShuffleboard(this);
+       ShuffleboardContent.initCoderBooleanShuffleboard(this);
     }
 
-    REVPhysicsSim.getInstance().addSparkMax(m_driveMotor, 3, 5600);
-
-    m_driveEncoder.setPositionConversionFactor(1);
-
-    m_driveEncoder.setVelocityConversionFactor(1);
-
-    REVPhysicsSim.getInstance().addSparkMax(m_turnMotor, 3, 5600);
-
-    m_turnEncoder.setPositionConversionFactor(1);
-
-    m_turnEncoder.setVelocityConversionFactor(1);
-
-    SmartDashboard.putNumber("TURNDEGPR", ModuleConstants.kTurningDegreesPerEncRev);
-    SmartDashboard.putNumber("TURNRadPR", ModuleConstants.kTurningRadiansPerEncoderRev);
-    
   }
 
   @Override
   public void periodic() {
 
+    if (Pref.getPref("SwerveTune") == 1 && tuneOn == 0) {
+
+      tuneOn = 1;
+
+      tunePosGains();
+
+      tuneDriveVelGains();
+    }
+
+    if (tuneOn == 1) {
+
+      tuneOn = (int) Pref.getPref("SwerveTune");
+    }
+
+    if (m_turnCANcoder.getFaulted()) {
+      // SmartDashboard.putStringArray("CanCoderFault"
+      // + m_modulePosition.toString(), m_turnCANcoder.getFaults());
+      SmartDashboard.putStringArray("CanCoderStickyFault"
+          + String.valueOf(m_locationIndex), m_turnCANcoder.getStickyFaults());
+
+    }
   }
 
-  @Override
-  public void simulationPeriodic() {
+  public void tunePosGains() {
+    m_turnPosController.setP(Pref.getPref("SwerveTurnPoskP"));
+    m_turnPosController.setI(Pref.getPref("SwerveTurnPoskI"));
+    m_turnPosController.setD(Pref.getPref("SwerveTurnPoskD"));
+    // m_turnController.setIZone(Pref.getPref("SwerveTurnPoskIz"));
+  }
 
-    REVPhysicsSim.getInstance().run();
+  public void tuneDriveVelGains() {
+    m_driveVelController.setP(Pref.getPref("SwerveVelkP"));
+    m_driveVelController.setI(Pref.getPref("SwerveVelkI"));
+    m_driveVelController.setD(Pref.getPref("SwerveVelkD"));
+
   }
 
   public SwerveModuleState getState() {
@@ -224,11 +270,6 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
   }
 
-  public void resetAngleToAbsolute() {
-    double angle = m_turnCANcoder.getAbsolutePosition() - m_turnEncoderOffset;
-    m_turnEncoder.setPosition(angle);
-  }
-
   public static double limitMotorCmd(double motorCmdIn) {
     return Math.max(Math.min(motorCmdIn, 1.0), -1.0);
   }
@@ -268,9 +309,15 @@ public class SwerveModuleSMRads extends SubsystemBase {
       m_turnMotor.setIdleMode(IdleMode.kCoast);
   }
 
+  public void resetAngleToAbsolute() {
+    double angle = m_turnCANcoder.getAbsolutePosition() - m_turnEncoderOffset;
+    m_turnEncoder.setPosition(angle);
+  }
+
   public double getTurnAngleRads() {
 
-    return m_turnEncoder.getPosition() * ModuleConstants.kTurningRadiansPerEncoderRev;
+    return m_turnEncoder.getPosition();
+
   }
 
   public void turnMotorMove(double speed) {
@@ -280,28 +327,44 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
   public void positionTurn(double angle) {
 
-    double turnAngleError = angle - getTurnAngleRads();
+    double pidOut = m_turnPosController.calculate(m_turnEncoder.getPosition(), angle);
+    SmartDashboard.putNumber("PIDOUT", pidOut);
+    double turnAngleError = Math.abs(angle - m_turnEncoder.getPosition());
 
-    m_turnMotor.setVoltage(turnAngleError);
+    SmartDashboard.putNumber("ATAERads", turnAngleError);
+
+    // if robot is not moving, stop the turn motor oscillating
+    // if (turnAngleError < turnDeadband
+
+    // && Math.abs(state.speedMetersPerSecond) <=
+    // (DriveConstants.kMaxSpeedMetersPerSecond * 0.01))
+
+    // pidOut = 0;
+
+    m_turnMotor.setVoltage(pidOut * RobotController.getBatteryVoltage());
 
   }
 
   public void driveMotorMove(double speed) {
 
-    m_driveMotor.setVoltage(speed * 12 / DriveConstants.kMaxSpeedMetersPerSecond);
+    double pidOut = 0;
+
+    if (m_isOpenLoop) {
+
+      m_driveMotor.set(speed / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
+
+    }
 
   }
 
   public double getDriveVelocity() {
 
-    // return is in revs per minute so divide by 60 and multiply by meters per rev
-    return (m_driveEncoder.getVelocity() * ModuleConstants.kDriveMetersPerEncRev) / 60;
+    return m_driveEncoder.getVelocity();
   }
 
   public double getDrivePosition() {
 
-    // count is in encoder revs in simulation
-    return m_driveEncoder.getPosition() / ModuleConstants.kEncoderRevsPerMeter;
+    return m_driveEncoder.getPosition();
 
   }
 
@@ -310,8 +373,7 @@ public class SwerveModuleSMRads extends SubsystemBase {
   }
 
   public double getTurnVelocity() {
-    // convert rpm to degrees per sec
-    return (m_turnEncoder.getVelocity() * ModuleConstants.kTurningRadiansPerEncoderRev) / 60;
+    return m_turnEncoder.getVelocity();
   }
 
   public double getTurnCurrent() {
@@ -329,7 +391,11 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
   public boolean checkCAN() {
 
-    return true;
+    driveMotorConnected = m_driveMotor.getFirmwareVersion() != 0;
+    turnMotorConnected = m_turnMotor.getFirmwareVersion() != 0;
+    turnCoderConnected = m_turnCANcoder.getFirmwareVersion() > 0;
+
+    return driveMotorConnected && turnMotorConnected && turnCoderConnected;
 
   }
 
