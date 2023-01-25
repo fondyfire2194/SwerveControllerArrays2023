@@ -6,14 +6,15 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.DriverConstants;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class SetSwerveDrive extends CommandBase {
   @SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
   private final DriveSubsystem m_swerveDrive;
-  private final SlewRateLimiter m_slewX = new SlewRateLimiter(DriveConstants.kTranslationSlew);
-  private final SlewRateLimiter m_slewY = new SlewRateLimiter(DriveConstants.kTranslationSlew);
-  private final SlewRateLimiter m_slewRot = new SlewRateLimiter(DriveConstants.kRotationSlew);
+  private final SlewRateLimiter m_slewX = new SlewRateLimiter(DriverConstants.kTranslationSlew);
+  private final SlewRateLimiter m_slewY = new SlewRateLimiter(DriverConstants.kTranslationSlew);
+  private final SlewRateLimiter m_slewRot = new SlewRateLimiter(DriverConstants.kRotationSlew);
   private final DoubleSupplier m_throttleInput, m_strafeInput, m_rotationInput;
 
   /**
@@ -44,13 +45,13 @@ public class SetSwerveDrive extends CommandBase {
   @Override
   public void execute() {
     double throttle = MathUtil.applyDeadband(Math.abs(m_throttleInput.getAsDouble()),
-        DriveConstants.kControllerDeadband)
+        DriverConstants.kControllerDeadband)
         * Math.signum(m_throttleInput.getAsDouble());
     double strafe = MathUtil.applyDeadband(Math.abs(m_strafeInput.getAsDouble()),
-        DriveConstants.kControllerDeadband)
+        DriverConstants.kControllerDeadband)
         * Math.signum(m_strafeInput.getAsDouble());
     double rotation = MathUtil.applyDeadband(Math.abs(m_rotationInput.getAsDouble()),
-        DriveConstants.kControllerRotDeadband)
+        DriverConstants.kControllerRotDeadband)
         * Math.signum(m_rotationInput.getAsDouble());
 
     // square values after deadband while keeping original sign
@@ -62,7 +63,6 @@ public class SetSwerveDrive extends CommandBase {
     throttle *= DriveConstants.kMaxSpeedMetersPerSecond;
     strafe *= DriveConstants.kMaxSpeedMetersPerSecond;
     rotation *= DriveConstants.kMaxRotationRadiansPerSecond;
-
 
     double throttle_sl = m_slewX.calculate(throttle);
     double strafe_sl = m_slewY.calculate(strafe);

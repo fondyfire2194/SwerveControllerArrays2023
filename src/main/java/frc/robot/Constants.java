@@ -108,48 +108,31 @@ public final class Constants {
 
     public static final boolean kGyroReversed = true;
 
-    // These are example values only - DO NOT USE THESE FOR YOUR OWN ROBOT!
-    // These characterization values MUST be determined either experimentally or
-    // theoretically
-    // for *your* robot's drive.
-    // The SysId tool provides a convenient method for obtaining these values for
-    // your robot.
-    public static final double ksVolts = 1;
-    public static final double kvVoltSecondsPerMeter = 0.8;
-    public static final double kaVoltSecondsSquaredPerMeter = 0.15;
-
     public static final double kMaxSpeedMetersPerSecond = 3.25;
 
     public static final double kMaxRotationRadiansPerSecond = Math.PI;
+
     public static final double kMaxRotationRadiansPerSecondSquared = Math.PI;
 
-    public static final double kP_X = 0.2;
-    public static final double kD_X = 0;
-    public static final double kP_Y = 0.2;
-    public static final double kD_Y = 0;
-    public static final double kP_Theta = 8;
-    public static final double kD_Theta = 0;
-    public static double kTranslationSlew = 55;
+    public static double kPhysicalMaxSpeedMetersPerSecond = 3.25;
+
+    public static int kPhysicalMaxAngularSpeedRadiansPerSecond = 3;
+
+  }
+
+  public static final class DriverConstants {
+
+    public static double kTranslationSlew = .55;
     public static double kRotationSlew = 1.00;
     public static double kControllerDeadband = .05;
     public static double kControllerRotDeadband = .1;
-
-    public static double kVoltCompensation = 12.6;
-    public static double kPhysicalMaxSpeedMetersPerSecond;
-    public static int kPhysicalMaxAngularSpeedRadiansPerSecond;
-
-    // public static final double kMaxRotationRadiansPerSecond =
-    // Math.hypot(DriveConstants.kTrackWidth / 2.0,
-    // DriveConstants.kWheelBase / 2.0);
-
-    // public static final double MAX_ANGULAR_ACCEL_RADIANS_PER_SECOND_SQUARED = 2 *
-    // Math.PI;
 
   }
 
   public static final class ModuleConstants {
 
     // ModuleConfiguration MK4I_L1
+
     public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
 
     public static double mk4iL1DriveGearRatio = 1 / ((14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0));// 8.14 .122807
@@ -162,24 +145,23 @@ public final class Constants {
 
     public static double kEncoderRevsPerMeter = 1 / kDriveMetersPerEncRev;// 25.511337897182322
 
-    public static double kFreeMetersPerSecond = 3.25;
+  
 
     public static final double kTurningDegreesPerEncRev =
 
         360 / mk4iL1TurnGearRatio;
 
+    public static final double kTurningRadiansPerEncoderRev = Units.degreesToRadians(kTurningDegreesPerEncRev);
+
     // max turn speed = (5400/ 21.43) revs per min 240 revs per min 4250 deg per
     // min
-    public static final double kPModuleTurningController = .025;
 
-    public static final double kPModuleDriveController = .2;
 
-    // use sysid on robot
-    public static double ksVolts = .055;
-    public static double kvVoltSecondsPerMeter = .2;
-    public static double kaVoltSecondsSquaredPerMeter = .02;
 
-    public static double kPModuleTurnController;
+
+    
+
+    public static double kVoltCompensation = 12.6;
 
     public static double kSMmaxAccel = 90;// deg per sec per sec
 
@@ -187,6 +169,25 @@ public final class Constants {
 
     public static double allowedErr = .05;// deg
 
+    public static double kMaxModuleAngularSpeedDegPerSec = 90;
+
+    public static final double kMaxModuleAngularAccelerationDegreesPerSecondSquared = 90;
+
+  }
+
+  public final static class ModuleTuneConstants{
+
+    public static final double kPModuleDriveController = .2;
+    public static final double kIModuleDriveController = 0;
+    public static final double kDModuleDriveController = 0;
+
+    public static final double kPModuleTurningController = .025;
+    public static final double kIModuleTurningController = 0;
+    public static final double kDModuleTurningController = 0;
+
+  }
+
+  public static final class SYSIDConstants {
     // sysid on module?
     public static final double ksDriveVoltSecondsPerMeter = 0.667 / 12;
     public static final double kvDriveVoltSecondsSquaredPerMeter = 2.44 / 12;
@@ -195,55 +196,51 @@ public final class Constants {
     public static final double kvTurnVoltSecondsPerRadian = 1.47; // originally 1.5
     public static final double kaTurnVoltSecondsSquaredPerRadian = 0.348; // originally 0.3
 
-    public static double kMaxModuleAngularSpeedDegPerSec = 90;
-
-    public static final double kMaxModuleAngularAccelerationDegreesPerSecondSquared = 90;
-
   }
 
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
     public static final int kCoDriverControllerPort = 1;
     public static final int kTestControllerPort = 3;
-    
-
-  }
-
-  public static final class TrapezoidConstants {
-
-    public static final double kMaxSpeedMetersPerSecond = 3;
-
-    public static final double kMaxAccelerationMetersPerSecondSquared = 3;
-
-    // public static final double kMaxAngularSpeedDegreesPerSecond = 800;
-
-    // public static final double kMaxAngularSpeedDegreesPerSecondSquared =2000;
-    public static final double kMaxRotationRadiansPerSecond = Math.PI;
-    public static final double kMaxRotationRadiansPerSecondSquared = Math.PI * 2;
-
-    public static final double kPXController = 1;
-    public static final double kPYController = 1;
-    public static final double kPThetaController = 1;
-
-    public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
-
-        kMaxRotationRadiansPerSecond, kMaxRotationRadiansPerSecondSquared);
 
   }
 
   public static final class AutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = 3;
+    public static final double kMaxSpeedMetersPerSecond = DriveConstants.kPhysicalMaxSpeedMetersPerSecond / 4;
+    public static final double kMaxAngularSpeedRadiansPerSecond = //
+        DriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
     public static final double kMaxAccelerationMetersPerSecondSquared = 3;
-    public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
-    public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
+    public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
+    public static final double kPXController = 1.5;
+    public static final double kPYController = 1.5;
+    public static final double kPThetaController = 3;
 
-    public static final double kPXController = 1;
-    public static final double kPYController = 1;
-    public static final double kPThetaController = 1;
+    public static final TrapezoidProfile.Constraints kThetaControllerConstraints = //
+        new TrapezoidProfile.Constraints(
+            kMaxAngularSpeedRadiansPerSecond,
+            kMaxAngularAccelerationRadiansPerSecondSquared);
+  }
 
-    // Constraint for the motion profiled robot angle controller
-    public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
-        kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+  public static final class PPConstants {
+    public static final double kMaxSpeedMetersPerSecond = DriveConstants.kPhysicalMaxSpeedMetersPerSecond / 4;
+    public static final double kMaxAngularSpeedRadiansPerSecond = //
+        DriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+
+    public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
+
+    public static final double kPXController = .4;
+    public static final double kDXController = 0;
+    public static final double kIXController = 0;
+
+    public static final double kPYController = .1;
+    public static final double kDYController = 0;
+    public static final double kIYController = 0;
+
+    public static final double kPThetaController = 0;
+    public static final double kDThetaController = 0;
+    public static final double kIThetaController = 0;
+
   }
 
   public static class VisionConstants {
@@ -270,5 +267,7 @@ public final class Constants {
         new Rotation3d());
   }
 
-  public static final int LED_CONTROLLER_PORT = 1;
+  public static final class LEDConstants {
+    public static final int LED_CONTROLLER_PORT = 1;
+  }
 }

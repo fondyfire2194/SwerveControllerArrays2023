@@ -108,8 +108,8 @@ public class AutoSelect {
                 PathPlannerTrajectory driveStraight = PathPlanner.loadPath("DriveForward", 4, 3);
                 
 
-                autonomousCommand = m_drive.followTrajectoryCommand(driveStraight, true)
-                        .andThen(() -> m_drive.drive(0, 0, 0));
+                // autonomousCommand = m_drive.followTrajectoryCommand(driveStraight, true)
+                //         .andThen(() -> m_drive.drive(0, 0, 0));
 
                 break;
 

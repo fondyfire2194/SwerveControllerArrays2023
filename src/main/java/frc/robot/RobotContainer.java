@@ -6,6 +6,9 @@ package frc.robot;
 
 import java.util.List;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -26,7 +29,9 @@ import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ModuleTuneConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.PPConstants;
 import frc.robot.commands.Vision.PhotonVision.TargetThread1;
 import frc.robot.commands.swerve.SetSwerveDrive;
 import frc.robot.commands.swerve.Test.JogDriveModule;
@@ -41,202 +46,228 @@ import frc.robot.utils.AutoSelect;
 import frc.robot.utils.LEDControllerI2C;
 
 public class RobotContainer {
-  // The robot's subsystems
-  final DriveSubsystem m_drive = new DriveSubsystem();
+    // The robot's subsystems
+    final DriveSubsystem m_drive = new DriveSubsystem();
 
-  final LimelightVision m_llv = new LimelightVision();
+    final LimelightVision m_llv = new LimelightVision();
 
-  private ShuffleboardLLTag sLLtag;
+    private ShuffleboardLLTag sLLtag;
 
-  private ShuffleboardLLTag sLLtape;
+    private ShuffleboardLLTag sLLtape;
 
-  
+    // final PhotonVision m_pv = new PhotonVision();
 
- // final PhotonVision m_pv = new PhotonVision();
+    TargetThread1 tgtTh1 = null;
 
+    public AutoSelect m_autoSelect;
 
-  TargetThread1 tgtTh1 = null;
+    public LEDControllerI2C lcI2;
 
-  public AutoSelect m_autoSelect;
+    public final FieldSim m_fieldSim = new FieldSim(m_drive);
 
-  public LEDControllerI2C lcI2;
+    // The driver's controller
 
-  public final FieldSim m_fieldSim = new FieldSim(m_drive);
+    static Joystick leftJoystick = new Joystick(OIConstants.kDriverControllerPort);
 
-  // The driver's controller
+    private CommandXboxController m_coDriverController = new CommandXboxController(OIConstants.kCoDriverControllerPort);
 
-  static Joystick leftJoystick = new Joystick(OIConstants.kDriverControllerPort);
+    private CommandXboxController m_testController = new CommandXboxController(OIConstants.kTestControllerPort);
 
-  private CommandXboxController m_coDriverController = new CommandXboxController(OIConstants.kCoDriverControllerPort);
+    final PowerDistribution m_pdp = new PowerDistribution();
 
-  private CommandXboxController m_testController = new CommandXboxController(OIConstants.kTestControllerPort);
+    final LimelightVision llvis = new LimelightVision();
 
-  final PowerDistribution m_pdp = new PowerDistribution();
+    private boolean useLimeLight = true;
 
-  final LimelightVision llvis = new LimelightVision();
+    private boolean usePhotonVision = false;
 
-  private boolean useLimeLight =true;
+    // temp controller for testing -matt
+    // private PS4Controller m_ps4controller = new PS4Controller(1);
+    // public PoseTelemetry pt = new PoseTelemetry();
 
-  private boolean usePhotonVision =false;
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
+    public RobotContainer() {
+        // Preferences.removeAll();
+        Pref.deleteUnused();
 
-  // temp controller for testing -matt
-  // private PS4Controller m_ps4controller = new PS4Controller(1);
-  // public PoseTelemetry pt = new PoseTelemetry();
+        Pref.addMissing();
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  public RobotContainer() {
-    // Preferences.removeAll();
-    Pref.deleteUnused();
+        if (useLimeLight)
 
-    Pref.addMissing();
+            if (usePhotonVision)
 
-    if (useLimeLight)
+                // tgtTh1 = new TargetThread1(m_drive, m_pv);
 
-      
+                SmartDashboard.putData("Scheduler", CommandScheduler.getInstance());
 
-    if (usePhotonVision)
+        // LiveWindow.disableAllTelemetry();
+        // Configure the button bindings
 
-      //tgtTh1 = new TargetThread1(m_drive, m_pv);
+        m_fieldSim.initSim();
 
-    SmartDashboard.putData("Scheduler", CommandScheduler.getInstance());
+        m_autoSelect = new AutoSelect(m_drive);
 
-    LiveWindow.disableAllTelemetry();
-    // Configure the button bindings
+        SmartDashboard.putData(m_drive);
 
-    m_fieldSim.initSim();
+        // m_ls = new LightStrip(9, 60);
 
-    m_autoSelect = new AutoSelect(m_drive);
+        // lc = LEDController.getInstance();
+        lcI2 = LEDControllerI2C.getInstance();
 
-    // m_ls = new LightStrip(9, 60);
+        sLLtag = new ShuffleboardLLTag(m_llv.cam_tag_15);
 
-    // lc = LEDController.getInstance();
-    lcI2 = LEDControllerI2C.getInstance();
+        // sLLtape = new ShuffleboardLLTag(m_llv.cam_tape_16);
 
-    sLLtag=new ShuffleboardLLTag(m_llv.cam_tag_15);
+        // PortForwarder.add(5800, "10.21.94.11", 5800);
+        // PortForwarder.add(1181, "10.21.94.11", 1181);
+        // PortForwarder.add(1182, "10.21.94.11", 1182);
+        // PortForwarder.add(1183, "10.21.94,11", 1183);
+        // PortForwarder.add(1184, "10.21.94.11", 1184);
 
-//sLLtape = new ShuffleboardLLTag(m_llv.cam_tape_16);
+        // () -> -m_coDriverController.getRawAxis(1),
+        // () -> -m_coDriverController.getRawAxis(0),
+        // () -> -m_coDriverController.getRawAxis(4)));
+        // m_drive.setDefaultCommand(
+        // new SetSwerveDrive(
+        // m_drive,
+        // () -> m_ps4controller.getRawAxis(1),
+        // () -> m_ps4controller.getRawAxis(0),
+        // () -> m_ps4controller.getRawAxis(2)));
 
-    // PortForwarder.add(5800, "10.21.94.11", 5800);
-    // PortForwarder.add(1181, "10.21.94.11", 1181);
-    // PortForwarder.add(1182, "10.21.94.11", 1182);
-    // PortForwarder.add(1183, "10.21.94,11", 1183);
-    // PortForwarder.add(1184, "10.21.94.11", 1184);
+        m_drive.setDefaultCommand(
+                new SetSwerveDrive(
+                        m_drive,
+                        () -> leftJoystick.getRawAxis(1) / 2,
+                        () -> leftJoystick.getRawAxis(0) / 2,
+                        () -> leftJoystick.getRawAxis(4) / 2));// logitech gamepad
+        // () -> leftJoystick.getRawAxis(2)));
 
-    // () -> -m_coDriverController.getRawAxis(1),
-    // () -> -m_coDriverController.getRawAxis(0),
-    // () -> -m_coDriverController.getRawAxis(4)));
-    // m_drive.setDefaultCommand(
-    // new SetSwerveDrive(
-    // m_drive,
-    // () -> m_ps4controller.getRawAxis(1),
-    // () -> m_ps4controller.getRawAxis(0),
-    // () -> m_ps4controller.getRawAxis(2)));
+        m_coDriverController.leftTrigger().whileTrue(new JogTurnModule(
+                m_drive,
+                () -> -m_coDriverController.getRawAxis(1),
+                () -> m_coDriverController.getRawAxis(0),
+                () -> m_coDriverController.getRawAxis(4),
+                () -> m_coDriverController.getRawAxis(5)));
 
-    m_drive.setDefaultCommand(
-        new SetSwerveDrive(
-            m_drive,
-            () -> leftJoystick.getRawAxis(1)/2,
-            () -> leftJoystick.getRawAxis(0)/2,
-            () -> leftJoystick.getRawAxis(4)/2));//logitech gamepad
-            //() -> leftJoystick.getRawAxis(2)));
+        // individual modules
+        m_coDriverController.leftBumper().whileTrue(new JogDriveModule(
+                m_drive,
+                () -> -m_coDriverController.getRawAxis(1),
+                () -> m_coDriverController.getRawAxis(0),
+                () -> m_coDriverController.getRawAxis(4),
+                () -> m_coDriverController.getRawAxis(5),
+                true));
 
-    m_coDriverController.leftTrigger().whileTrue(new JogTurnModule(
-        m_drive,
-        () -> -m_coDriverController.getRawAxis(1),
-        () -> m_coDriverController.getRawAxis(0),
-        () -> m_coDriverController.getRawAxis(4),
-        () -> m_coDriverController.getRawAxis(5)));
+        // all modules
+        m_coDriverController.rightBumper().whileTrue(new JogDriveModule(
+                m_drive,
+                () -> -m_coDriverController.getRawAxis(1),
+                () -> m_coDriverController.getRawAxis(0),
+                () -> m_coDriverController.getRawAxis(2),
+                () -> m_coDriverController.getRawAxis(3),
+                false));
 
-    // individual modules
-    m_coDriverController.leftBumper().whileTrue(new JogDriveModule(
-        m_drive,
-        () -> -m_coDriverController.getRawAxis(1),
-        () -> m_coDriverController.getRawAxis(0),
-        () -> m_coDriverController.getRawAxis(4),
-        () -> m_coDriverController.getRawAxis(5),
-        true));
+        // position turn modules individually
+        m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
+                m_drive.m_frontLeft));
+        // m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
+        // m_drive.m_frontRight));
+        // m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
+        // m_drive.m_backLeft));
+        // m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
+        // m_drive.m_backRight));
 
-    // all modules
-    m_coDriverController.rightBumper().whileTrue(new JogDriveModule(
-        m_drive,
-        () -> -m_coDriverController.getRawAxis(1),
-        () -> m_coDriverController.getRawAxis(0),
-        () -> m_coDriverController.getRawAxis(2),
-        () -> m_coDriverController.getRawAxis(3),
-        false));
+        // m_testController.a().whileTrue(getDriverSetCommand(m_pv.cam_tag_11, true));
 
-    // position turn modules individually
-    m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
-        m_drive.m_frontLeft));
-    // m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
-    // m_drive.m_frontRight));
-    // m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
-    // m_drive.m_backLeft));
-    // m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
-    // m_drive.m_backRight));
+        // m_testController.rightBumper().whileTrue(getDriverSetCommand(m_pv.cam_tag_11,
+        // false));
 
-    // m_testController.a().whileTrue(getDriverSetCommand(m_pv.cam_tag_11, true));
+        // m_testController.x().whileTrue(getSetPVPipelineCommand(m_pv.cam_tag_11, 1));
+        // m_testController.y().whileTrue(getSetPVPipelineCommand(m_pv.cam_tag_11, 0));
+        // m_testController.leftBumper().whileTrue(getSetPVPipelineCommand(m_pv.cam_tag_11,
+        // 2));
 
-    // m_testController.rightBumper().whileTrue(getDriverSetCommand(m_pv.cam_tag_11, false));
+        m_testController.leftBumper().whileTrue(m_llv.cam_tag_15.ToggleCamMode());
+        m_testController.rightBumper().whileTrue(m_llv.cam_tag_15.ChangeLEDMode(LedMode.kforceOff));
+    }
 
-    // m_testController.x().whileTrue(getSetPVPipelineCommand(m_pv.cam_tag_11, 1));  
-    // m_testController.y().whileTrue(getSetPVPipelineCommand(m_pv.cam_tag_11, 0));
-    // m_testController.leftBumper().whileTrue(getSetPVPipelineCommand(m_pv.cam_tag_11, 2));
+    public double getThrottle() {
 
-    m_testController.leftBumper().whileTrue(m_llv.cam_tag_15.ToggleCamMode());
-    m_testController.rightBumper().whileTrue(m_llv.cam_tag_15.ChangeLEDMode(LedMode.kforceOff));
+        return -leftJoystick.getThrottle();
+    }
 
+    public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
+        return new SequentialCommandGroup(
+                new InstantCommand(() -> {
+                    // Reset odometry for the first path you run during auto
+                    if (isFirstPath) {
+                        m_drive.resetOdometry(traj.getInitialHolonomicPose());
+                    }
+                }),
+                new PPSwerveControllerCommand(
 
+                        traj,
 
-  }
+                        m_drive::getEstimatedPose, // Pose supplier
 
-  public double getThrottle() {
+                        m_drive.m_kinematics, // SwerveDriveKinematics
 
-    return -leftJoystick.getThrottle();
-  }
+                        new PIDController(
 
- 
+                                PPConstants.kPXController, PPConstants.kIXController, PPConstants.kIXController), // X
 
-  public Command getAutonomousCommand() {
-    // 1. Create trajectory settings
-    TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            AutoConstants.kMaxSpeedMetersPerSecond,
-            AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-                    .setKinematics(DriveConstants.m_kinematics);
+                        new PIDController(PPConstants.kPYController, PPConstants.kIYController,
+                                PPConstants.kDYController),
+                        new PIDController(PPConstants.kPThetaController, PPConstants.kIThetaController,
+                                PPConstants.kDThetaController),
 
-    // 2. Generate trajectory
-    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-            new Pose2d(0, 0, new Rotation2d(0)),
-            List.of(
-                    new Translation2d(1, 0),
-                    new Translation2d(1, -1)),
-            new Pose2d(2, -1, Rotation2d.fromDegrees(180)),
-            trajectoryConfig);
+                        m_drive::setModuleStates, // Module states consumer
 
-    // 3. Define PID controllers for tracking trajectory
-    PIDController xController = new PIDController(AutoConstants.kPXController, 0, 0);
-    PIDController yController = new PIDController(AutoConstants.kPYController, 0, 0);
-    ProfiledPIDController thetaController = new ProfiledPIDController(
-            AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
-    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+                        m_drive // Requires this drive subsystem
+                ));
+    }
 
-    // 4. Construct command to follow trajectory
-    SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-            trajectory,
-            m_drive::getEstimatedPose,
-            DriveConstants.m_kinematics,
-            xController,
-            yController,
-            thetaController,
-            m_drive::setModuleStates,
-            m_drive);
+    public Command getAutonomousCommand() {
+        // 1. Create trajectory settings
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+                AutoConstants.kMaxSpeedMetersPerSecond,
+                AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+                .setKinematics(DriveConstants.m_kinematics);
 
-    // 5. Add some init and wrap-up, and return everything
-    return new SequentialCommandGroup(
-            new InstantCommand(() -> m_drive.resetOdometry(trajectory.getInitialPose())),
-            swerveControllerCommand,
-            new InstantCommand(() -> m_drive.stopModules()));
-}
+        // 2. Generate trajectory
+        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+                new Pose2d(0, 0, new Rotation2d(0)),
+                List.of(
+                        new Translation2d(1, 0),
+                        new Translation2d(1, -1)),
+                new Pose2d(2, -1, Rotation2d.fromDegrees(180)),
+                trajectoryConfig);
+
+        // 3. Define PID controllers for tracking trajectory
+        PIDController xController = new PIDController(AutoConstants.kPXController, 0, 0);
+        PIDController yController = new PIDController(AutoConstants.kPYController, 0, 0);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+                AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        // 4. Construct command to follow trajectory
+        SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
+                trajectory,
+                m_drive::getEstimatedPose,
+                DriveConstants.m_kinematics,
+                xController,
+                yController,
+                thetaController,
+                m_drive::setModuleStates,
+                m_drive);
+
+        // 5. Add some init and wrap-up, and return everything
+        return new SequentialCommandGroup(
+                new InstantCommand(() -> m_drive.resetOdometry(trajectory.getInitialPose())),
+                swerveControllerCommand,
+                new InstantCommand(() -> m_drive.stopModules()));
+    }
+
 }

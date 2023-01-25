@@ -96,7 +96,7 @@ public class LimelightVision extends SubsystemBase {
 
     if (numCams > 1) {
 
-      // cam_tape_16 = new LimeLight("limelight-tape_16");
+      // cam_tape_16 = new LimeLight("limelight-tapes
 
       cam_tape_16.setLEDMode(LedMode.kpipeLine);
       cam_tape_16.setCamMode(CamMode.kvision);

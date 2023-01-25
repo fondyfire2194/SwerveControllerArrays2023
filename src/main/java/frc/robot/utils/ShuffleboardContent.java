@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.SwerveModuleSparkMax;
+import frc.robot.subsystems.SwerveModuleSMRads;
 
 /** Add your docs here. */
 public class ShuffleboardContent {
@@ -24,7 +24,7 @@ public class ShuffleboardContent {
 
         }
 
-        public static void initBooleanShuffleboard(SwerveModuleSparkMax m_sm) {
+        public static void initBooleanShuffleboard(SwerveModuleSMRads m_sm) {
 
                 locationIndex = m_sm.m_locationIndex;
 
@@ -39,7 +39,7 @@ public class ShuffleboardContent {
 
         }
 
-        public static void initDriveShuffleboard(SwerveModuleSparkMax m_sm) {
+        public static void initDriveShuffleboard(SwerveModuleSMRads m_sm) {
 
                 int locationIndex = m_sm.m_locationIndex;
                 String abrev = m_sm.modAbrev[locationIndex];
@@ -63,7 +63,7 @@ public class ShuffleboardContent {
 
         }
 
-        public static void initTurnShuffleboard(SwerveModuleSparkMax m_sm) {
+        public static void initTurnShuffleboard(SwerveModuleSMRads m_sm) {
 
                 int locationIndex = m_sm.m_locationIndex;
                 String abrev = m_sm.modAbrev[locationIndex];
@@ -76,7 +76,7 @@ public class ShuffleboardContent {
                 tuLayout.addNumber("Turn Setpoint Deg " + abrev, () -> m_sm.angle);
 
                 tuLayout.addNumber("Turn Enc Pos " + abrev,
-                                () -> m_sm.getTurnAngle() % 360);
+                                () -> m_sm.getTurnAngleRads() % Math.PI/180);
 
                 tuLayout.addNumber("TurnOutput" + abrev,
                                 () -> m_sm.m_turnMotor.getAppliedOutput());
@@ -92,7 +92,7 @@ public class ShuffleboardContent {
 
         }
 
-        public static void initCoderBooleanShuffleboard(SwerveModuleSparkMax m_sm) {
+        public static void initCoderBooleanShuffleboard(SwerveModuleSMRads m_sm) {
 
                 int locationIndex = m_sm.m_locationIndex;
                 String abrev = m_sm.modAbrev[locationIndex];
@@ -105,7 +105,7 @@ public class ShuffleboardContent {
 
         }
 
-        public static void initCANCoderShuffleboard(SwerveModuleSparkMax m_sm) {
+        public static void initCANCoderShuffleboard(SwerveModuleSMRads m_sm) {
                 int locationIndex = m_sm.m_locationIndex;
                 String abrev = m_sm.modAbrev[locationIndex];
                 String canCoderLayout = abrev + " CanCoder";

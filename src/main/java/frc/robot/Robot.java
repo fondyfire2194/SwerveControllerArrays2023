@@ -4,10 +4,7 @@
 
 package frc.robot;
 
-import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -44,7 +41,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
 
     DataLogManager.start();
-    
+
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
@@ -52,7 +49,6 @@ public class Robot extends TimedRobot {
 
   }
 
-  
   @Override
   public void robotPeriodic() {
     // Runs the Scheduler. This is responsible for polling buttons, adding
@@ -86,23 +82,15 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    if (DriverStation.getAlliance() == Alliance.Blue) {
-      // m_robotContainer.m_ls.forceAllianceColor(true);
 
-      if (m_disableStartTime == 0 && !driveIsBraked)
-        m_disableStartTime = Timer.getFPGATimestamp();
+    if (m_disableStartTime == 0 && !driveIsBraked)
+      m_disableStartTime = Timer.getFPGATimestamp();
 
-      if (m_disableStartTime != 0 && Timer.getFPGATimestamp() > m_disableStartTime + 3) {
-        m_robotContainer.m_drive.setIdleMode(false);
-        driveIsBraked = true;
-      }
-
+    if (m_disableStartTime != 0 && Timer.getFPGATimestamp() > m_disableStartTime + 3) {
+      m_robotContainer.m_drive.setIdleMode(false);
+      driveIsBraked = true;
     }
 
-    if (DriverStation.getAlliance() != Alliance.Blue) {
-      // m_robotContainer.m_ls.forceAllianceColor(false);
-
-    }
   }
 
   /**
@@ -111,10 +99,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     m_robotContainer.m_drive.setIdleMode(true);
 
-   // m_autonomousCommand = m_robotContainer.m_autoSelect.getAutonomousCommand();
+    // m_autonomousCommand = m_robotContainer.m_autoSelect.getAutonomousCommand();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -156,6 +144,7 @@ public class Robot extends TimedRobot {
     m_robotContainer.m_drive.setIdleMode(true);
 
     CommandScheduler.getInstance().cancelAll();
+
   }
 
   /** This function is called periodically during test mode. */

@@ -8,15 +8,11 @@ import java.io.IOException;
 
 import com.ctre.phoenix.unmanaged.Unmanaged;
 import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -32,11 +28,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.CanConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IDConstants;
@@ -47,7 +39,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public SwerveDriveKinematics m_kinematics = DriveConstants.m_kinematics;
   public boolean isOpenLoop = !DriverStation.isAutonomousEnabled();
-  public final SwerveModuleSparkMax m_frontLeft = new SwerveModuleSparkMax(
+  public final SwerveModuleSMRads m_frontLeft = new SwerveModuleSMRads(
       IDConstants.FRONT_LEFT_LOCATION,
       CanConstants.FRONT_LEFT_MODULE_DRIVE_MOTOR,
       CanConstants.FRONT_LEFT_MODULE_STEER_MOTOR,
@@ -59,7 +51,7 @@ public class DriveSubsystem extends SubsystemBase {
       isOpenLoop,
       CanConstants.FRONT_LEFT_MODULE_STEER_OFFSET);
 
-  public final SwerveModuleSparkMax m_frontRight = new SwerveModuleSparkMax(
+  public final SwerveModuleSMRads m_frontRight = new SwerveModuleSMRads(
       IDConstants.FRONT_RIGHT_LOCATION,
       CanConstants.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
       CanConstants.FRONT_RIGHT_MODULE_STEER_MOTOR,
@@ -71,7 +63,7 @@ public class DriveSubsystem extends SubsystemBase {
       isOpenLoop,
       CanConstants.FRONT_RIGHT_MODULE_STEER_OFFSET);
 
-  public final SwerveModuleSparkMax m_backLeft = new SwerveModuleSparkMax(
+  public final SwerveModuleSMRads m_backLeft = new SwerveModuleSMRads(
       IDConstants.REAR_LEFT_LOCATION,
       CanConstants.BACK_LEFT_MODULE_DRIVE_MOTOR,
       CanConstants.BACK_LEFT_MODULE_STEER_MOTOR,
@@ -83,7 +75,7 @@ public class DriveSubsystem extends SubsystemBase {
       isOpenLoop,
       CanConstants.BACK_LEFT_MODULE_STEER_OFFSET);
 
-  public final SwerveModuleSparkMax m_backRight = new SwerveModuleSparkMax(
+  public final SwerveModuleSMRads m_backRight = new SwerveModuleSMRads(
       IDConstants.REAR_RIGHT_LOCATION,
       CanConstants.BACK_RIGHT_MODULE_DRIVE_MOTOR,
       CanConstants.BACK_RIGHT_MODULE_STEER_MOTOR,
@@ -99,13 +91,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final AHRS m_gyro = new AHRS(SPI.Port.kMXP, (byte) 200);
 
-  private PIDController m_xController = new PIDController(DriveConstants.kP_X, 0, DriveConstants.kD_X);
-  private PIDController m_yController = new PIDController(DriveConstants.kP_Y, 0, DriveConstants.kD_Y);
-  private ProfiledPIDController m_turnController = new ProfiledPIDController(
-      DriveConstants.kP_Theta, 0,
-      DriveConstants.kD_Theta,
-      Constants.TrapezoidConstants.kThetaControllerConstraints);
-
+  
   /*
    * Here we use SwerveDrivePoseEstimator so that we can fuse odometry readings.
    * The numbers used
@@ -361,17 +347,17 @@ public class DriveSubsystem extends SubsystemBase {
     return getEstimatedPose().getTranslation();
   }
 
-  public PIDController getXPidController() {
-    return m_xController;
-  }
+  // public PIDController getXPidController() {
+  //   return m_xController;
+  // }
 
-  public PIDController getYPidController() {
-    return m_yController;
-  }
+  // public PIDController getYPidController() {
+  //   return m_yController;
+  // }
 
-  public ProfiledPIDController getThetaPidController() {
-    return m_turnController;
-  }
+  // public ProfiledPIDController getThetaPidController() {
+  //   return m_turnController;
+  // }
 
   public double getX() {
     return getTranslation().getX();
@@ -443,19 +429,19 @@ public class DriveSubsystem extends SubsystemBase {
     Unmanaged.feedEnable(20);
   }
 
-  public void jogTurnModule(SwerveModuleSparkMax i, double speed) {
+  public void jogTurnModule(SwerveModuleSMRads i, double speed) {
     i.turnMotorMove(speed);
   }
 
-  public void positionTurnModule(SwerveModuleSparkMax i, double angle) {
+  public void positionTurnModule(SwerveModuleSMRads i, double angle) {
     i.positionTurn(angle);
   }
 
-  public void driveModule(SwerveModuleSparkMax i, double speed) {
+  public void driveModule(SwerveModuleSMRads i, double speed) {
     i.driveMotorMove(speed);
   }
 
-  public boolean getTurnInPosition(SwerveModuleSparkMax i, double targetAngle) {
+  public boolean getTurnInPosition(SwerveModuleSMRads i, double targetAngle) {
     return i.turnInPosition(targetAngle);
   }
 
@@ -500,26 +486,6 @@ public class DriveSubsystem extends SubsystemBase {
     visionPoseEstimatedData = data;
   }
 
-  public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
-    return new SequentialCommandGroup(
-        new InstantCommand(() -> {
-          // Reset odometry for the first path you run during auto
-          if (isFirstPath) {
-            this.resetOdometry(traj.getInitialHolonomicPose());
-          }
-        }),
-        new PPSwerveControllerCommand(
-            traj,
-            this::getEstimatedPose, // Pose supplier
-            this.m_kinematics, // SwerveDriveKinematics
-            new PIDController(.4, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use
-                                         // feedforwards.
-            new PIDController(0.1, 0, 0), // Y controller (usually the same values as X controller)
-            new PIDController(0, 0, 0), // Rotation controller. Tune these values for your robot. Leaving them 0 will
-                                        // only use feedforwards.
-            this::setModuleStates, // Module states consumer
-            this // Requires this drive subsystem
-        ));
-  }
+ 
 
 }

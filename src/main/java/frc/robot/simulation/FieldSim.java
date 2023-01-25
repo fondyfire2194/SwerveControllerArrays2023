@@ -11,12 +11,12 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.SwerveModuleSparkMax;
+import frc.robot.subsystems.SwerveModuleSMRads;
 
 public class FieldSim {
   private final DriveSubsystem m_swerveDrive;
 
-  private SwerveModuleSparkMax[] modules = new SwerveModuleSparkMax[4];
+  private SwerveModuleSMRads[] modules = new SwerveModuleSMRads[4];
   
  
 
