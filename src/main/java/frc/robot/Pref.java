@@ -33,7 +33,7 @@ public class Pref {
   static {
 
     prefDict.put("SwerveTune", 0.);
-    
+
     prefDict.put("SwerveTurnPoskP", .004);
     prefDict.put("SwerveTurnPoskI", 0.);
     prefDict.put("SwerveTurnPoskD", 0.);
@@ -43,7 +43,25 @@ public class Pref {
     prefDict.put("SwerveVelPoskI", 0.);
     prefDict.put("SwerveVElPoskD", 0.);
     prefDict.put("SwerveVelPoskIz", 0.);
-     
+
+    prefDict.put("XTune", 0.);
+
+    prefDict.put("PPXkP", .1);
+    prefDict.put("PPXkI", 0.);
+    prefDict.put("PPXkD", 0.);
+
+    prefDict.put("YTune", 0.);
+
+    prefDict.put("PPYkP", .1);
+    prefDict.put("PPYkI", 0.);
+    prefDict.put("PPYkD", 0.);
+
+    prefDict.put("ThetaTune", 0.);
+
+    prefDict.put("PPThetakP", .1);
+    prefDict.put("PPThetakI", 0.);
+    prefDict.put("PPThetakD", 0.);
+
   }
 
   public static void ensureRioPrefs() {

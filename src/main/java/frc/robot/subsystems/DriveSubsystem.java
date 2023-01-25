@@ -13,6 +13,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -29,16 +30,20 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Pref;
 import frc.robot.Constants.CanConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IDConstants;
 import frc.robot.Constants.PDPConstants;
+import frc.robot.Constants.PPConstants;
 import frc.robot.utils.ShuffleboardContent;
 
 public class DriveSubsystem extends SubsystemBase {
 
   public SwerveDriveKinematics m_kinematics = DriveConstants.m_kinematics;
+
   public boolean isOpenLoop = !DriverStation.isAutonomousEnabled();
+
   public final SwerveModuleSMRads m_frontLeft = new SwerveModuleSMRads(
       IDConstants.FRONT_LEFT_LOCATION,
       CanConstants.FRONT_LEFT_MODULE_DRIVE_MOTOR,
@@ -91,7 +96,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final AHRS m_gyro = new AHRS(SPI.Port.kMXP, (byte) 200);
 
-  
   /*
    * Here we use SwerveDrivePoseEstimator so that we can fuse odometry readings.
    * The numbers used
@@ -132,6 +136,15 @@ public class DriveSubsystem extends SubsystemBase {
   private Pose2d visionPoseEstimatedData;
   private boolean visionDataAvailable;
 
+  private PIDController xPID = new PIDController(
+      PPConstants.kPXController, PPConstants.kIXController, PPConstants.kIXController); // X
+
+  private PIDController yPID = new PIDController(PPConstants.kPYController, PPConstants.kIYController,
+      PPConstants.kDYController);
+
+  private PIDController thetaPID = new PIDController(PPConstants.kPThetaController, PPConstants.kIThetaController,
+      PPConstants.kDThetaController);
+
   // private SwerveModuleDisplay m_smd = new SwerveModuleDisplay(this);
 
   /** Creates a new DriveSubsystem. */
@@ -139,7 +152,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     // SmartDashboard.putData("SM", m_smd);
 
-    //getFieldTagData();
+    // getFieldTagData();
 
     m_gyro.reset();
 
@@ -226,9 +239,6 @@ public class DriveSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("GyroRoll", getGyroRoll());
 
-
-
-
     if (startTime == 0) {
 
       startTime = Timer.getFPGATimestamp();
@@ -246,6 +256,13 @@ public class DriveSubsystem extends SubsystemBase {
       positionStart = getEstimatedPose().getX();
 
     }
+
+    if (Pref.getPref("XTune") == 1)
+      tuneXPIDGains();
+    if (Pref.getPref("YTune") == 1)
+      tuneYPIDGains();
+    if (Pref.getPref("ThetaTune") == 1)
+      tuneThetaPIDGains();
 
   }
 
@@ -268,14 +285,14 @@ public class DriveSubsystem extends SubsystemBase {
               m_backRight.getPosition()
           });
 
-          if(visionDataAvailable){
+      if (visionDataAvailable) {
 
-      m_poseEstimator.addVisionMeasurement(
+        m_poseEstimator.addVisionMeasurement(
 
-          visionPoseEstimatedData,
+            visionPoseEstimatedData,
 
-          Timer.getFPGATimestamp() - 0.3);
-          }
+            Timer.getFPGATimestamp() - 0.3);
+      }
     }
   }
 
@@ -348,15 +365,15 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   // public PIDController getXPidController() {
-  //   return m_xController;
+  // return m_xController;
   // }
 
   // public PIDController getYPidController() {
-  //   return m_yController;
+  // return m_yController;
   // }
 
   // public ProfiledPIDController getThetaPidController() {
-  //   return m_turnController;
+  // return m_turnController;
   // }
 
   public double getX() {
@@ -399,8 +416,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontRight.stop();
     m_backLeft.stop();
     m_backRight.stop();
-}
-
+  }
 
   @Override
   public void simulationPeriodic() {
@@ -486,6 +502,37 @@ public class DriveSubsystem extends SubsystemBase {
     visionPoseEstimatedData = data;
   }
 
- 
+  public PIDController getXPID() {
+    return xPID;
+  }
+
+  public PIDController getYPID() {
+    return yPID;
+  }
+
+  public PIDController getThetaPID() {
+    return thetaPID;
+  }
+
+  public void tuneXPIDGains() {
+    xPID.setP(Pref.getPref("PPXkP"));
+    xPID.setI(Pref.getPref("PPXkI"));
+    xPID.setD(Pref.getPref("PPXkD"));
+
+  }
+
+  public void tuneYPIDGains() {
+    yPID.setP(Pref.getPref("PPYkP"));
+    yPID.setI(Pref.getPref("PPYkI"));
+    yPID.setD(Pref.getPref("PPYkD"));
+
+  }
+
+  public void tuneThetaPIDGains() {
+    thetaPID.setP(Pref.getPref("PPThetakP"));
+    thetaPID.setI(Pref.getPref("PPThetakI"));
+    thetaPID.setD(Pref.getPref("PPThetakD"));
+
+  }
 
 }

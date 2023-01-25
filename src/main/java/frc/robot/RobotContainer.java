@@ -44,6 +44,7 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LimelightVision;
 import frc.robot.utils.AutoSelect;
 import frc.robot.utils.LEDControllerI2C;
+import frc.robot.utils.TrajectoryFactory;
 
 public class RobotContainer {
     // The robot's subsystems
@@ -60,6 +61,8 @@ public class RobotContainer {
     TargetThread1 tgtTh1 = null;
 
     public AutoSelect m_autoSelect;
+
+    public TrajectoryFactory m_tf;
 
     public LEDControllerI2C lcI2;
 
@@ -109,7 +112,11 @@ public class RobotContainer {
 
         m_autoSelect = new AutoSelect(m_drive);
 
+        m_tf = new TrajectoryFactory(m_drive);
+
         SmartDashboard.putData(m_drive);
+
+
 
         // m_ls = new LightStrip(9, 60);
 
@@ -198,37 +205,7 @@ public class RobotContainer {
         return -leftJoystick.getThrottle();
     }
 
-    public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
-        return new SequentialCommandGroup(
-                new InstantCommand(() -> {
-                    // Reset odometry for the first path you run during auto
-                    if (isFirstPath) {
-                        m_drive.resetOdometry(traj.getInitialHolonomicPose());
-                    }
-                }),
-                new PPSwerveControllerCommand(
-
-                        traj,
-
-                        m_drive::getEstimatedPose, // Pose supplier
-
-                        m_drive.m_kinematics, // SwerveDriveKinematics
-
-                        new PIDController(
-
-                                PPConstants.kPXController, PPConstants.kIXController, PPConstants.kIXController), // X
-
-                        new PIDController(PPConstants.kPYController, PPConstants.kIYController,
-                                PPConstants.kDYController),
-                        new PIDController(PPConstants.kPThetaController, PPConstants.kIThetaController,
-                                PPConstants.kDThetaController),
-
-                        m_drive::setModuleStates, // Module states consumer
-
-                        m_drive // Requires this drive subsystem
-                ));
-    }
-
+ 
     public Command getAutonomousCommand() {
         // 1. Create trajectory settings
         TrajectoryConfig trajectoryConfig = new TrajectoryConfig(

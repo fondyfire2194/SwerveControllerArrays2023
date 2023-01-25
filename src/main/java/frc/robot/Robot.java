@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -99,10 +103,19 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+
+    String trajName = m_robotContainer.m_tf.getSelectedTrajectory();
+
+    SmartDashboard.putString("TrajName", trajName);
+
+    PathPlannerTrajectory trajectory = m_robotContainer.m_tf
+        .getTrajectory(trajName);
+
+  m_autonomousCommand  = m_robotContainer.m_tf.followTrajectoryCommand(trajectory, true);
+
     m_robotContainer.m_drive.setIdleMode(true);
 
-    // m_autonomousCommand = m_robotContainer.m_autoSelect.getAutonomousCommand();
+   
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {

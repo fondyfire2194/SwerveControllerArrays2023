@@ -105,23 +105,17 @@ public class AutoSelect {
 
                 skipPathGroup = true;
 
-                PathPlannerTrajectory driveStraight = PathPlanner.loadPath("DriveForward", 4, 3);
+                PathPlannerTrajectory driveForward = PathPlanner.loadPath("DriveForward", 4, 3);
                 
-
-                // autonomousCommand = m_drive.followTrajectoryCommand(driveStraight, true)
-                //         .andThen(() -> m_drive.drive(0, 0, 0));
-
-                break;
+               break;
 
             case 2:
 
-                pathGroup = PathPlanner.loadPathGroup("Drive Straight", new PathConstraints(1, 1));
-
+               
                 break;
 
             case 3:
 
-                pathGroup = PathPlanner.loadPathGroup("FiveBallAuto-2", new PathConstraints(3, 3));
 
                 break;
 
