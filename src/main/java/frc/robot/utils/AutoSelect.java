@@ -7,7 +7,6 @@ package frc.robot.utils;
 import java.util.HashMap;
 import java.util.List;
 
-import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
@@ -18,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.PPConstants;
 import frc.robot.commands.DoNothing;
 import frc.robot.commands.Test.MessageShuffleboard;
 import frc.robot.subsystems.DriveSubsystem;
@@ -44,8 +44,6 @@ public class AutoSelect {
 
     private DriveSubsystem m_drive;
 
-    private PathPlannerTrajectory driveStraight;
-
     public AutoSelect(DriveSubsystem drive) {
         eventMap.put("eventone", new MessageShuffleboard("Event A"));
         eventMap.put("eventtwo", new MessageShuffleboard("Event B"));
@@ -64,13 +62,14 @@ public class AutoSelect {
                 m_drive::getEstimatedPose, // null,
                 m_drive::resetOdometry, // null,
                 DriveConstants.m_kinematics, // null,
-                new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for translation error (used to create the X
-                                                 // and Y
-                                                 // PID controllers)
-                new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for rotation error (used to create the
-                                                 // rotation
-                                                 // controller)
-                m_drive::setModuleStates, // Module states consumer used to output to the drive subsystem
+
+                new PIDConstants(PPConstants.kPXController, PPConstants.kIXController, PPConstants.kDXController), 
+               
+                new PIDConstants(PPConstants.kPThetaController, PPConstants.kIThetaController,
+                        PPConstants.kDThetaController), 
+               
+            
+                        m_drive::setModuleStates, // Module states consumer used to output to the drive subsystem
                 eventMap,
                 m_drive);
 
@@ -79,8 +78,6 @@ public class AutoSelect {
         m_autoChooser.addOption("Drive Forward", 1);
 
         m_autoChooser.addOption("Drive Straight", 2);
-
-        m_autoChooser.addOption("Five Ball Auto 2", 3);
 
         SmartDashboard.putData("Auto Selector", m_autoChooser);
     }
@@ -106,16 +103,14 @@ public class AutoSelect {
                 skipPathGroup = true;
 
                 PathPlannerTrajectory driveForward = PathPlanner.loadPath("DriveForward", 4, 3);
-                
-               break;
+
+                break;
 
             case 2:
 
-               
                 break;
 
             case 3:
-
 
                 break;
 

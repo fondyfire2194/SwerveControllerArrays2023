@@ -125,9 +125,9 @@ public class SwerveModuleSMRadsBak extends SubsystemBase {
 
     m_driveMotor.restoreFactoryDefaults();
 
-    m_turnMotor.setSmartCurrentLimit(20);
+     m_turnMotor.setSmartCurrentLimit(CurrentLimitConstants.turnMotorSmartLimit);
 
-    m_driveMotor.setSmartCurrentLimit(20);
+    m_driveMotor.setSmartCurrentLimit(CurrentLimitConstants.driveMotorSmartLimit);
 
     m_driveMotor.enableVoltageCompensation(ModuleConstants.kVoltCompensation);
 
@@ -168,7 +168,7 @@ public class SwerveModuleSMRadsBak extends SubsystemBase {
 
     m_turnEncoder.setVelocityConversionFactor(ModuleConstants.kTurningRadiansPerEncoderRev / 60);
 
-    m_turnPosController.enableContinuousInput(-Math.PI / 2, Math.PI / 2);
+    m_turnPosController.enableContinuousInput(-Math.PI, Math.PI);
 
     checkCAN();
 
@@ -176,11 +176,11 @@ public class SwerveModuleSMRadsBak extends SubsystemBase {
 
     if (showOnShuffleboard) {
 
-      // ShuffleboardContent.initDriveShuffleboard(this);
-      // ShuffleboardContent.initTurnShuffleboard(this);
-      // ShuffleboardContent.initCANCoderShuffleboard(this);
-      // ShuffleboardContent.initBooleanShuffleboard(this);
-      // ShuffleboardContent.initCoderBooleanShuffleboard(this);
+       ShuffleboardContent.initDriveShuffleboard(this);
+       ShuffleboardContent.initTurnShuffleboard(this);
+      ShuffleboardContent.initCANCoderShuffleboard(this);
+       ShuffleboardContent.initBooleanShuffleboard(this);
+       ShuffleboardContent.initCoderBooleanShuffleboard(this);
     }
 
   }

@@ -34,6 +34,11 @@ public class TrajectoryFactory {
         ppTrajChooser.setDefaultOption("DriveForward", "DriveForward");
 
         ppTrajChooser.addOption("DriveToPickup", "DriveToPickup");
+        ppTrajChooser.addOption("DriveToPickupTwo", "DriveToPickupTwo");
+        ppTrajChooser.addOption("DriveToPickupThree", "DriveToPickupThree");
+        ppTrajChooser.addOption("DriveToPickupFour", "DriveToPickupFour");
+        ppTrajChooser.addOption("DriveToPickupFive", "DriveToPickupFive");
+
 
         SmartDashboard.putData("TrajChoice", ppTrajChooser);
     }
@@ -43,8 +48,7 @@ public class TrajectoryFactory {
     }
 
     public PathPlannerTrajectory getTrajectory(String name) {
-        return PathPlanner.loadPath(name, Units.feetToMeters(2),
-                Units.feetToMeters(2), false);
+        return PathPlanner.loadPath(name, 3,2, false);
     }
 
     public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
@@ -62,12 +66,13 @@ public class TrajectoryFactory {
                         m_drive::getEstimatedPose, // Pose supplier
 
                         m_drive.m_kinematics, // SwerveDriveKinematics
+          
                         m_drive.getXPID(),
+
                         m_drive.getYPID(),
+
                         m_drive.getThetaPID(),
                         
-                        
-                      
                         m_drive::setModuleStates, // Module states consumer
 
                         m_drive // Requires this drive subsystem

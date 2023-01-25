@@ -5,12 +5,10 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.REVPhysicsSim;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -22,10 +20,12 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CTRECanCoder;
+import frc.robot.Constants.CurrentLimitConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.SYSIDConstants;
 import frc.robot.utils.AngleUtils;
+import frc.robot.utils.ShuffleboardContent;
 
 public class SwerveModuleSMRads extends SubsystemBase {
 
@@ -80,10 +80,6 @@ public class SwerveModuleSMRads extends SubsystemBase {
   public SendableBuilder m_builder;
   private boolean m_isOpenLoop;
 
-  private SparkMaxPIDController m_driveSimPidController;
-
-  private SparkMaxPIDController m_turnSimPidController;
-
   /**
    * Constructs a SwerveModule.
    *
@@ -119,9 +115,9 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
     m_driveMotor.restoreFactoryDefaults();
 
-    m_turnMotor.setSmartCurrentLimit(20);
+    m_turnMotor.setSmartCurrentLimit(CurrentLimitConstants.turnMotorSmartLimit);
 
-    m_driveMotor.setSmartCurrentLimit(20);
+    m_driveMotor.setSmartCurrentLimit(CurrentLimitConstants.driveMotorSmartLimit);
 
     m_driveMotor.enableVoltageCompensation(ModuleConstants.kVoltCompensation);
 
@@ -149,18 +145,14 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
     if (showOnShuffleboard) {
 
-      // ShuffleboardContent.initDriveShuffleboard(this);
-      // ShuffleboardContent.initTurnShuffleboard(this);
-      // ShuffleboardContent.initCANCoderShuffleboard(this);
-      // ShuffleboardContent.initBooleanShuffleboard(this);
-      // ShuffleboardContent.initCoderBooleanShuffleboard(this);
+      ShuffleboardContent.initDriveShuffleboard(this);
+      ShuffleboardContent.initTurnShuffleboard(this);
+      ShuffleboardContent.initCANCoderShuffleboard(this);
+      ShuffleboardContent.initBooleanShuffleboard(this);
+      ShuffleboardContent.initCoderBooleanShuffleboard(this);
     }
 
     REVPhysicsSim.getInstance().addSparkMax(m_driveMotor, 3, 5600);
-
-    m_driveSimPidController = m_driveMotor.getPIDController();
-
-    m_driveSimPidController.setP(1);
 
     m_driveEncoder.setPositionConversionFactor(1);
 
@@ -168,14 +160,13 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
     REVPhysicsSim.getInstance().addSparkMax(m_turnMotor, 3, 5600);
 
-    m_turnSimPidController = m_turnMotor.getPIDController();
-
-    m_turnSimPidController.setP(1);
-
     m_turnEncoder.setPositionConversionFactor(1);
 
     m_turnEncoder.setVelocityConversionFactor(1);
 
+    SmartDashboard.putNumber("TURNDEGPR", ModuleConstants.kTurningDegreesPerEncRev);
+    SmartDashboard.putNumber("TURNRadPR", ModuleConstants.kTurningRadiansPerEncoderRev);
+    
   }
 
   @Override
@@ -291,26 +282,13 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
     double turnAngleError = angle - getTurnAngleRads();
 
-    turnAngleError *= 15;
-
-    m_turnSimPidController.setReference(turnAngleError, ControlType.kVelocity);
+    m_turnMotor.setVoltage(turnAngleError);
 
   }
 
   public void driveMotorMove(double speed) {
 
-    /**
-     * speed is in meters per second
-     * no position or velocity conversions so convert MPS to RPM
-     * multiply speed by 60 and divide by kDriveMetersPerEncRev
-     * 
-     */
-    double speedConv = 60 / ModuleConstants.kDriveMetersPerEncRev;
-
-    SmartDashboard.putNumber("DSSPD", speed);
-    SmartDashboard.putNumber("DSCONS", speedConv);
-
-    m_driveSimPidController.setReference(speed * speedConv, ControlType.kVelocity);
+    m_driveMotor.setVoltage(speed * 12 / DriveConstants.kMaxSpeedMetersPerSecond);
 
   }
 
@@ -333,7 +311,7 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
   public double getTurnVelocity() {
     // convert rpm to degrees per sec
-    return (m_turnEncoder.getVelocity() * ModuleConstants.kTurningDegreesPerEncRev) / 60;
+    return (m_turnEncoder.getVelocity() * ModuleConstants.kTurningRadiansPerEncoderRev) / 60;
   }
 
   public double getTurnCurrent() {

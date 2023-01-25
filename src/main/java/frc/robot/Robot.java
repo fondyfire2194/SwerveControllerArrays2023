@@ -104,18 +104,26 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
 
-    String trajName = m_robotContainer.m_tf.getSelectedTrajectory();
+    boolean useRawTrajectory = true;
 
-    SmartDashboard.putString("TrajName", trajName);
+    if (useRawTrajectory) {
 
-    PathPlannerTrajectory trajectory = m_robotContainer.m_tf
-        .getTrajectory(trajName);
+      String trajName = m_robotContainer.m_tf.getSelectedTrajectory();
 
-  m_autonomousCommand  = m_robotContainer.m_tf.followTrajectoryCommand(trajectory, true);
+      SmartDashboard.putString("TrajName", trajName);
 
+      PathPlannerTrajectory trajectory = m_robotContainer.m_tf
+          .getTrajectory(trajName);
+
+      m_autonomousCommand = m_robotContainer.m_tf.followTrajectoryCommand(trajectory, true);
+    }
+
+    else {
+
+      m_autonomousCommand = m_robotContainer.m_autoSelect.getAutonomousCommand();
+
+    }
     m_robotContainer.m_drive.setIdleMode(true);
-
-   
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
