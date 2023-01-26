@@ -16,9 +16,13 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.PPConstants;
 import frc.robot.commands.DoNothing;
+import frc.robot.commands.Arm.OpenCloseGripper;
+import frc.robot.commands.Arm.PositionArmInOut;
+import frc.robot.commands.Arm.PositionRotateArm;
 import frc.robot.commands.Test.MessageShuffleboard;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -34,27 +38,36 @@ public class AutoFactory {
 
     public final SendableChooser<Integer> m_autoChooser = new SendableChooser<Integer>();
 
-    // This is just an example event map. It would be better to have a constant,
-    // global event map
-    // in your code that can be used repeatedly.
-    HashMap<String, Command> eventMap = new HashMap<>();
-
     private boolean skipPathGroup;
 
     private double startTime;
+    private enum nodeRow{
+        REAR,
+        MID,
+        FRONT
+    }
+
+/**
+ * Event map for auto paths
+ */
+HashMap<String, Command> eventMap = new HashMap<>();
+
 
     private DriveSubsystem m_drive;
+
     private ArmSubsystem m_arm;
 
     public AutoFactory(DriveSubsystem drive, ArmSubsystem arm) {
 
-
-        eventMap.put("eventone", new MessageShuffleboard("Event A"));
-      
+        eventMap.put("deliverconehigh", deliverCone(nodeRow.REAR));
+        eventMap.put("pickupcube", pickupCube());
+        
+        
+        
         m_drive = drive;
 
-        m_arm=arm;
-        
+        m_arm = arm;
+
         // Create the AutoBuilder. This only needs to be created once when robot code
         // starts,
         // not every time you want to create an auto command. A good place to put this
@@ -66,13 +79,12 @@ public class AutoFactory {
                 m_drive::resetOdometry, // null,
                 DriveConstants.m_kinematics, // null,
 
-                new PIDConstants(PPConstants.kPXController, PPConstants.kIXController, PPConstants.kDXController), 
-               
+                new PIDConstants(PPConstants.kPXController, PPConstants.kIXController, PPConstants.kDXController),
+
                 new PIDConstants(PPConstants.kPThetaController, PPConstants.kIThetaController,
-                        PPConstants.kDThetaController), 
-               
-            
-                        m_drive::setModuleStates, // Module states consumer used to output to the drive subsystem
+                        PPConstants.kDThetaController),
+
+                m_drive::setModuleStates, // Module states consumer used to output to the drive subsystem
                 eventMap,
                 m_drive);
 
@@ -84,6 +96,8 @@ public class AutoFactory {
 
         SmartDashboard.putData("Auto Selector", m_autoChooser);
     }
+
+    
 
     public Command getAutonomousCommand() {
 
@@ -130,6 +144,34 @@ public class AutoFactory {
 
         return autonomousCommand;
 
+    }
+
+    public Command deliverCone(nodeRow row){
+
+        return new SequentialCommandGroup(
+            new PositionRotateArm(),new PositionArmInOut(),new OpenCloseGripper());
+        
+    }
+
+    public Command pickupCone(){
+
+        return new SequentialCommandGroup(
+            new PositionRotateArm(),new PositionArmInOut(),new OpenCloseGripper());
+        
+    }
+
+    public Command deliverCube(nodeRow row){
+
+        return new SequentialCommandGroup(
+            new PositionRotateArm(),new PositionArmInOut(),new OpenCloseGripper());
+        
+    }
+
+    public Command pickupCube(){
+
+        return new SequentialCommandGroup(
+            new PositionRotateArm(),new PositionArmInOut(),new OpenCloseGripper());
+        
     }
 
 }

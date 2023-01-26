@@ -4,16 +4,11 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.CanConstants;
 import frc.robot.Constants.SolenoidConstants;
 
 public class ArmSubsystem extends SubsystemBase {
@@ -23,9 +18,9 @@ public class ArmSubsystem extends SubsystemBase {
 
   public final PWMSparkMax m_extendArmMotor;
 
-  public final Encoder m_turnArmEncoder = new Encoder (1,2);
+  public final Encoder m_turnArmEncoder = new Encoder(1, 2);
 
-  private final Encoder m_extendEncoder=new Encoder(3,4);
+  private final Encoder m_extendEncoder = new Encoder(3, 4);
 
   private final DoubleSolenoid gripperOpenClose = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,
       SolenoidConstants.GRIPPER_CLOSE, SolenoidConstants.GRIPPER_OPEN);;
@@ -38,8 +33,6 @@ public class ArmSubsystem extends SubsystemBase {
     m_extendArmMotor = new PWMSparkMax(1);
 
     m_turnArmMotor = new PWMSparkMax(2);
-
-    
 
   }
 
