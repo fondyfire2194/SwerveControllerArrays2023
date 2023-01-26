@@ -273,9 +273,10 @@ public class SwerveModuleSMRads extends SubsystemBase {
   public void driveMotorMove(double speed) {
 
     if (m_isOpenLoop) {
-
-      m_driveMotor.set(speed / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
-      // m_driveMotor.setVoltage(feedforward.calculate(speed));
+  m_driveMotor.set(speed / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
+    SmartDashboard.putNumber("DrFF Volts", feedforward.calculate(speed));
+  
+  // m_driveMotor.setVoltage(feedforward.calculate(speed));
     }
     else {
 
