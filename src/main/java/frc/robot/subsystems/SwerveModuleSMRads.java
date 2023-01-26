@@ -68,7 +68,7 @@ public class SwerveModuleSMRads extends SubsystemBase {
   SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(
       SYSIDConstants.ksDriveVoltSecondsPerMeter,
       SYSIDConstants.kvDriveVoltSecondsSquaredPerMeter,
-      SYSIDConstants.kaTurnVoltSecondsSquaredPerRadian);
+      SYSIDConstants.kaDriveVoltSecondsSquaredPerMeter);
 
   private double m_lastAngle;
   public double angle;
@@ -126,7 +126,7 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
     m_driveMotor.restoreFactoryDefaults();
 
-     m_turnMotor.setSmartCurrentLimit(CurrentLimitConstants.turnMotorSmartLimit);
+    m_turnMotor.setSmartCurrentLimit(CurrentLimitConstants.turnMotorSmartLimit);
 
     m_driveMotor.setSmartCurrentLimit(CurrentLimitConstants.driveMotorSmartLimit);
 
@@ -177,11 +177,11 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
     if (showOnShuffleboard) {
 
-       ShuffleboardContent.initDriveShuffleboard(this);
-       ShuffleboardContent.initTurnShuffleboard(this);
+      ShuffleboardContent.initDriveShuffleboard(this);
+      ShuffleboardContent.initTurnShuffleboard(this);
       ShuffleboardContent.initCANCoderShuffleboard(this);
-       ShuffleboardContent.initBooleanShuffleboard(this);
-       ShuffleboardContent.initCoderBooleanShuffleboard(this);
+      ShuffleboardContent.initBooleanShuffleboard(this);
+      ShuffleboardContent.initCoderBooleanShuffleboard(this);
     }
 
   }
@@ -270,6 +270,41 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
   }
 
+  public void driveMotorMove(double speed) {
+
+    if (m_isOpenLoop) {
+
+      m_driveMotor.set(speed / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
+      // m_driveMotor.setVoltage(feedforward.calculate(speed));
+    }
+    else {
+
+      m_driveMotor.setVoltage(feedforward.calculate(speed)
+          + m_driveVelController.calculate(getDriveVelocity(), speed));
+
+    }
+  }
+
+  public void positionTurn(double angle) {
+
+    double pidOut = m_turnPosController.calculate(m_turnEncoder.getPosition(), angle);
+    SmartDashboard.putNumber("PIDOUT", pidOut);
+    double turnAngleError = Math.abs(angle - m_turnEncoder.getPosition());
+
+    SmartDashboard.putNumber("ATAERads", turnAngleError);
+
+    // if robot is not moving, stop the turn motor oscillating
+    // if (turnAngleError < turnDeadband
+
+    // && Math.abs(state.speedMetersPerSecond) <=
+    // (DriveConstants.kMaxSpeedMetersPerSecond * 0.01))
+
+    // pidOut = 0;
+
+    m_turnMotor.setVoltage(pidOut * RobotController.getBatteryVoltage());
+
+  }
+
   public static double limitMotorCmd(double motorCmdIn) {
     return Math.max(Math.min(motorCmdIn, 1.0), -1.0);
   }
@@ -323,38 +358,6 @@ public class SwerveModuleSMRads extends SubsystemBase {
   public void turnMotorMove(double speed) {
 
     m_turnMotor.setVoltage(speed * RobotController.getBatteryVoltage());
-  }
-
-  public void positionTurn(double angle) {
-
-    double pidOut = m_turnPosController.calculate(m_turnEncoder.getPosition(), angle);
-    SmartDashboard.putNumber("PIDOUT", pidOut);
-    double turnAngleError = Math.abs(angle - m_turnEncoder.getPosition());
-
-    SmartDashboard.putNumber("ATAERads", turnAngleError);
-
-    // if robot is not moving, stop the turn motor oscillating
-    // if (turnAngleError < turnDeadband
-
-    // && Math.abs(state.speedMetersPerSecond) <=
-    // (DriveConstants.kMaxSpeedMetersPerSecond * 0.01))
-
-    // pidOut = 0;
-
-    m_turnMotor.setVoltage(pidOut * RobotController.getBatteryVoltage());
-
-  }
-
-  public void driveMotorMove(double speed) {
-
-    double pidOut = 0;
-
-    if (m_isOpenLoop) {
-
-      m_driveMotor.set(speed / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
-
-    }
-
   }
 
   public double getDriveVelocity() {
