@@ -67,12 +67,13 @@ public class SetSwerveDrive extends CommandBase {
 
     double throttle_sl = m_slewX.calculate(throttle);
     double strafe_sl = m_slewY.calculate(strafe);
-    double rotation_sl = m_slewRot.calculate(rotation);
+    //double rotation_sl = m_slewRot.calculate(rotation);
+    //SlewRateLimiter causes drifting issues with swerve rotation
 
     SmartDashboard.putNumber("JSVal", throttle);
     SmartDashboard.putNumber("JSSlew", throttle_sl);
 
-    m_swerveDrive.drive(throttle_sl, strafe_sl, rotation_sl);
+    m_swerveDrive.drive(throttle_sl, strafe_sl, rotation);
 
   }
 
