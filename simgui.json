@@ -73,14 +73,10 @@
         },
         "Scheduler": {
           "open": true
-        },
-        "open": true
+        }
       },
       "SmartDashboard": {
         "Scheduler": {
-          "open": true
-        },
-        "TrajChoice": {
           "open": true
         },
         "open": true

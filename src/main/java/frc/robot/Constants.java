@@ -193,7 +193,7 @@ public final class Constants {
     public static final double kIModuleDriveController = 0;
     public static final double kDModuleDriveController = 0;
 
-    public static final double kPModuleTurningController = .025;
+    public static final double kPModuleTurningController = .004;
     public static final double kIModuleTurningController = 0;
     public static final double kDModuleTurningController = 0;
 
@@ -223,7 +223,7 @@ public final class Constants {
         / 10;
     public static final double kMaxAccelerationMetersPerSecondSquared = 3;
 
-    public static final double kPXController = 5;
+    public static final double kPXController = 2;
     public static final double kDXController = 0;
     public static final double kIXController = 0;
 

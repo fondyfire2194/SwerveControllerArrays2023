@@ -42,7 +42,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public SwerveDriveKinematics m_kinematics = DriveConstants.m_kinematics;
 
-  public boolean isOpenLoop = true;//RobotBase.isSimulation() && !DriverStation.isAutonomousEnabled();
+  public boolean isOpenLoop = true;// RobotBase.isSimulation() && !DriverStation.isAutonomousEnabled();
 
   public final SwerveModuleSM m_frontLeft = new SwerveModuleSM(
       IDConstants.FRONT_LEFT_LOCATION,
@@ -513,23 +513,41 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void tuneXPIDGains() {
-    xPID.setP(Pref.getPref("PPXkP"));
-    xPID.setI(Pref.getPref("PPXkI"));
-    xPID.setD(Pref.getPref("PPXkD"));
+
+    if (xPID.getP() != Pref.getPref("PPXkP"))
+      xPID.setP(Pref.getPref("PPXkP"));
+
+    if (xPID.getI() != Pref.getPref("PPXkI"))
+      xPID.setI(Pref.getPref("PPXkI"));
+
+    if (xPID.getD() != Pref.getPref("PPXkD"))
+      xPID.setD(Pref.getPref("PPXkD"));
 
   }
 
   public void tuneYPIDGains() {
-    yPID.setP(Pref.getPref("PPYkP"));
-    yPID.setI(Pref.getPref("PPYkI"));
-    yPID.setD(Pref.getPref("PPYkD"));
+
+    if (yPID.getP() != Pref.getPref("PPYkP"))
+      yPID.setP(Pref.getPref("PPYkP"));
+
+    if (yPID.getI() != Pref.getPref("PPYkI"))
+      yPID.setI(Pref.getPref("PPYkI"));
+
+    if (yPID.getD() != Pref.getPref("PPYkD"))
+      yPID.setD(Pref.getPref("PPYkD"));
 
   }
 
   public void tuneThetaPIDGains() {
-    thetaPID.setP(Pref.getPref("PPThetakP"));
-    thetaPID.setI(Pref.getPref("PPThetakI"));
-    thetaPID.setD(Pref.getPref("PPThetakD"));
+
+    if (thetaPID.getP() != Pref.getPref("PPThetakP"))
+      thetaPID.setP(Pref.getPref("PPThetakP"));
+
+    if (thetaPID.getI() != Pref.getPref("PPThetakI"))
+      thetaPID.setI(Pref.getPref("PPThetakI"));
+
+    if (thetaPID.getP() != Pref.getPref("PPThetakD"))
+      thetaPID.setD(Pref.getPref("PPThetakD"));
 
   }
 

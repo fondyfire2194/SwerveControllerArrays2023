@@ -81,7 +81,9 @@ public class TrajectoryFactory {
                         m_drive::setModuleStates, // Module states consumer
 
                         m_drive // Requires this drive subsystem
-                ));
+                ),
+
+                new InstantCommand(() -> m_drive.stopModules()));
     }
 
 }

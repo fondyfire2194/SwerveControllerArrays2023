@@ -6,7 +6,12 @@ package frc.robot;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -46,6 +51,20 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     if (RobotBase.isReal())
       DataLogManager.start();
+
+    PPSwerveControllerCommand.setLoggingCallbacks(
+        (PathPlannerTrajectory activeTrajectory) -> {
+          // Log current trajectory
+        },
+        (Pose2d targetPose) -> {
+          // Log target pose
+        },
+        (ChassisSpeeds setpointSpeeds) -> {
+          // Log setpoint ChassisSpeeds
+        },
+        (Translation2d translationError, Rotation2d rotationError) -> {
+          // Log path following error
+        });
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
@@ -105,7 +124,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
 
-    boolean useRawTrajectory = true;
+    boolean useRawTrajectory = false;
 
     if (useRawTrajectory) {
 

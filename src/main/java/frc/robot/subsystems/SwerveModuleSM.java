@@ -84,7 +84,7 @@ public class SwerveModuleSM extends SubsystemBase {
   public boolean driveMotorConnected;
   public boolean turnMotorConnected;
   public boolean turnCoderConnected;
-  private boolean showOnShuffleboard = true;
+  private boolean showOnShuffleboard = false;
 
   public SendableBuilder m_builder;
   private boolean m_isOpenLoop;
