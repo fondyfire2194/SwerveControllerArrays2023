@@ -132,8 +132,8 @@ public final class Constants {
 
   public static final class DriverConstants {
 
-    public static double kTranslationSlew = 1.0;
-    public static double kRotationSlew = 1.0;
+    public static double kTranslationSlew = 10.0;
+    public static double kRotationSlew = 10.0;
     public static double kControllerDeadband = .05;
     public static double kControllerRotDeadband = .1;
 
@@ -159,7 +159,8 @@ public final class Constants {
 
         360 / mk4iL1TurnGearRatio;
 
-    public static final double kTurningRadiansPerEncoderRev = Units.degreesToRadians(kTurningDegreesPerEncRev);
+    // public static final double kTurningRadiansPerEncoderRev =
+    // Units.degreesToRadians(kTurningDegreesPerEncRev);
 
     // max turn speed = (5400/ 21.43) revs per min 240 revs per min 4250 deg per
     // min
@@ -199,10 +200,10 @@ public final class Constants {
   }
 
   public static final class SYSIDConstants {
-    // sysid on module?
-    public static final double ksDriveVoltSecondsPerMeter = 0.667 / 12;
-    public static final double kvDriveVoltSecondsSquaredPerMeter = 2.44 / 12;
-    public static final double kaDriveVoltSecondsSquaredPerMeter = 0.27 / 12;
+    // from Beta test
+    public static final double ksDriveVoltSecondsPerMeter = .0927;
+    public static final double kvDriveVoltSecondsSquaredPerMeter = 3.13;
+    public static final double kaDriveVoltSecondsSquaredPerMeter = 0.82;
     // sysid on module?
     public static final double kvTurnVoltSecondsPerRadian = 1.47; // originally 1.5
     public static final double kaTurnVoltSecondsSquaredPerRadian = 0.348; // originally 0.3
@@ -216,24 +217,21 @@ public final class Constants {
 
   }
 
-  
   public static final class PPConstants {
     public static final double kMaxSpeedMetersPerSecond = DriveConstants.kPhysicalMaxSpeedMetersPerSecond / 4;
-    public static final double kMaxAngularSpeedRadiansPerSecond = //
-        DriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond / 10;
+    public static final double kMaxAngularSpeedRadiansPerSecond = DriveConstants.kPhysicalMaxAngularSpeedRadiansPerSecond
+        / 10;
     public static final double kMaxAccelerationMetersPerSecondSquared = 3;
 
-    public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
-
-    public static final double kPXController = .4;
+    public static final double kPXController = 5;
     public static final double kDXController = 0;
     public static final double kIXController = 0;
 
-    public static final double kPYController = .1;
+    public static final double kPYController = 2;
     public static final double kDYController = 0;
     public static final double kIYController = 0;
 
-    public static final double kPThetaController = 0;
+    public static final double kPThetaController = 0.1;
     public static final double kDThetaController = 0;
     public static final double kIThetaController = 0;
 

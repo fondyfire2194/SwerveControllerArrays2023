@@ -42,9 +42,9 @@ public class DriveSubsystem extends SubsystemBase {
 
   public SwerveDriveKinematics m_kinematics = DriveConstants.m_kinematics;
 
-  public boolean isOpenLoop = !DriverStation.isAutonomousEnabled();
+  public boolean isOpenLoop = true;//RobotBase.isSimulation() && !DriverStation.isAutonomousEnabled();
 
-  public final SwerveModuleSMRads m_frontLeft = new SwerveModuleSMRads(
+  public final SwerveModuleSM m_frontLeft = new SwerveModuleSM(
       IDConstants.FRONT_LEFT_LOCATION,
       CanConstants.FRONT_LEFT_MODULE_DRIVE_MOTOR,
       CanConstants.FRONT_LEFT_MODULE_STEER_MOTOR,
@@ -56,7 +56,7 @@ public class DriveSubsystem extends SubsystemBase {
       isOpenLoop,
       CanConstants.FRONT_LEFT_MODULE_STEER_OFFSET);
 
-  public final SwerveModuleSMRads m_frontRight = new SwerveModuleSMRads(
+  public final SwerveModuleSM m_frontRight = new SwerveModuleSM(
       IDConstants.FRONT_RIGHT_LOCATION,
       CanConstants.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
       CanConstants.FRONT_RIGHT_MODULE_STEER_MOTOR,
@@ -68,7 +68,7 @@ public class DriveSubsystem extends SubsystemBase {
       isOpenLoop,
       CanConstants.FRONT_RIGHT_MODULE_STEER_OFFSET);
 
-  public final SwerveModuleSMRads m_backLeft = new SwerveModuleSMRads(
+  public final SwerveModuleSM m_backLeft = new SwerveModuleSM(
       IDConstants.REAR_LEFT_LOCATION,
       CanConstants.BACK_LEFT_MODULE_DRIVE_MOTOR,
       CanConstants.BACK_LEFT_MODULE_STEER_MOTOR,
@@ -80,7 +80,7 @@ public class DriveSubsystem extends SubsystemBase {
       isOpenLoop,
       CanConstants.BACK_LEFT_MODULE_STEER_OFFSET);
 
-  public final SwerveModuleSMRads m_backRight = new SwerveModuleSMRads(
+  public final SwerveModuleSM m_backRight = new SwerveModuleSM(
       IDConstants.REAR_RIGHT_LOCATION,
       CanConstants.BACK_RIGHT_MODULE_DRIVE_MOTOR,
       CanConstants.BACK_RIGHT_MODULE_STEER_MOTOR,
@@ -156,9 +156,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     m_gyro.reset();
 
-    if (RobotBase.isReal())
-
-      resetModuleEncoders();
+    resetModuleEncoders();
 
     setIdleMode(true);
 
@@ -200,7 +198,7 @@ public class DriveSubsystem extends SubsystemBase {
    * field.
    */
   public void drive(double xSpeed, double ySpeed, double rot) {
-    SmartDashboard.putNumber("ATHRAD", xSpeed);
+
     var swerveModuleStates = m_kinematics.toSwerveModuleStates(
         this.m_fieldOriented
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_gyro.getRotation2d())
@@ -445,19 +443,19 @@ public class DriveSubsystem extends SubsystemBase {
     Unmanaged.feedEnable(20);
   }
 
-  public void jogTurnModule(SwerveModuleSMRads i, double speed) {
+  public void jogTurnModule(SwerveModuleSM i, double speed) {
     i.turnMotorMove(speed);
   }
 
-  public void positionTurnModule(SwerveModuleSMRads i, double angle) {
+  public void positionTurnModule(SwerveModuleSM i, double angle) {
     i.positionTurn(angle);
   }
 
-  public void driveModule(SwerveModuleSMRads i, double speed) {
+  public void driveModule(SwerveModuleSM i, double speed) {
     i.driveMotorMove(speed);
   }
 
-  public boolean getTurnInPosition(SwerveModuleSMRads i, double targetAngle) {
+  public boolean getTurnInPosition(SwerveModuleSM i, double targetAngle) {
     return i.turnInPosition(targetAngle);
   }
 

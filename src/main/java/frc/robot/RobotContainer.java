@@ -127,9 +127,9 @@ public class RobotContainer {
         m_drive.setDefaultCommand(
                 new SetSwerveDrive(
                         m_drive,
-                        () -> leftJoystick.getRawAxis(1) / 2,
-                        () -> leftJoystick.getRawAxis(0) / 2,
-                        () -> leftJoystick.getRawAxis(4) / 2));// logitech gamepad
+                        () -> leftJoystick.getRawAxis(1),
+                        () -> leftJoystick.getRawAxis(0),
+                        () -> leftJoystick.getRawAxis(2)));// logitech gamepad
         // () -> leftJoystick.getRawAxis(2)));
 
         m_coDriverController.leftTrigger().whileTrue(new JogTurnModule(

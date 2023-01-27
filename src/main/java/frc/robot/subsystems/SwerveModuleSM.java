@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.REVPhysicsSim;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -17,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -30,7 +32,7 @@ import frc.robot.Pref;
 import frc.robot.utils.AngleUtils;
 import frc.robot.utils.ShuffleboardContent;
 
-public class SwerveModuleSMRads extends SubsystemBase {
+public class SwerveModuleSM extends SubsystemBase {
 
   public final CANSparkMax m_driveMotor;
 
@@ -77,8 +79,8 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
   private int tuneOn;
 
-  private double tolRadPerSec = .0001;
-  private double toleranceRads = .005;
+  private double tolDegPerSec = .01;
+  private double toleranceDeg = .25;
   public boolean driveMotorConnected;
   public boolean turnMotorConnected;
   public boolean turnCoderConnected;
@@ -91,6 +93,8 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
   public boolean turnBrakeMode;
 
+  private int tst;
+
   /**
    * Constructs a SwerveModule.
    *
@@ -102,7 +106,7 @@ public class SwerveModuleSMRads extends SubsystemBase {
    * @param turningEncoderReversed  Whether the turning encoder is reversed.
    * @param turningEncoderOffset
    */
-  public SwerveModuleSMRads(
+  public SwerveModuleSM(
       int locationIndex,
       int driveMotorCanChannel,
       int turningMotorCanChannel,
@@ -165,9 +169,9 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
     m_turnEncoder = m_turnMotor.getEncoder();
 
-    m_turnEncoder.setPositionConversionFactor(ModuleConstants.kTurningRadiansPerEncoderRev);
+    m_turnEncoder.setPositionConversionFactor(ModuleConstants.kTurningDegreesPerEncRev);
 
-    m_turnEncoder.setVelocityConversionFactor(ModuleConstants.kTurningRadiansPerEncoderRev / 60);
+    m_turnEncoder.setVelocityConversionFactor(ModuleConstants.kTurningDegreesPerEncRev / 60);
 
     m_turnPosController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -182,6 +186,24 @@ public class SwerveModuleSMRads extends SubsystemBase {
       ShuffleboardContent.initCANCoderShuffleboard(this);
       ShuffleboardContent.initBooleanShuffleboard(this);
       ShuffleboardContent.initCoderBooleanShuffleboard(this);
+    }
+
+    if (RobotBase.isSimulation()) {
+
+      REVPhysicsSim.getInstance().addSparkMax(m_driveMotor, 3, 5600);
+
+      m_driveEncoder.setPositionConversionFactor(1);
+
+      m_driveEncoder.setVelocityConversionFactor(1);
+
+      REVPhysicsSim.getInstance().addSparkMax(m_turnMotor, 3, 5600);
+
+      m_turnEncoder.setPositionConversionFactor(1);
+
+      m_turnEncoder.setVelocityConversionFactor(1);
+
+      m_turnPosController.setP(.01);
+
     }
 
   }
@@ -212,28 +234,19 @@ public class SwerveModuleSMRads extends SubsystemBase {
     }
   }
 
-  public void tunePosGains() {
-    m_turnPosController.setP(Pref.getPref("SwerveTurnPoskP"));
-    m_turnPosController.setI(Pref.getPref("SwerveTurnPoskI"));
-    m_turnPosController.setD(Pref.getPref("SwerveTurnPoskD"));
-    // m_turnController.setIZone(Pref.getPref("SwerveTurnPoskIz"));
-  }
+  @Override
+  public void simulationPeriodic() {
 
-  public void tuneDriveVelGains() {
-    m_driveVelController.setP(Pref.getPref("SwerveVelkP"));
-    m_driveVelController.setI(Pref.getPref("SwerveVelkI"));
-    m_driveVelController.setD(Pref.getPref("SwerveVelkD"));
-
+    REVPhysicsSim.getInstance().run();
   }
 
   public SwerveModuleState getState() {
 
-    return new SwerveModuleState(getDriveVelocity(), Rotation2d.fromRadians((getTurnAngleRads())));
+    return new SwerveModuleState(getDriveVelocity(), Rotation2d.fromDegrees((getTurnAngleDegs())));
   }
 
   public SwerveModulePosition getPosition() {
     return new SwerveModulePosition(getDrivePosition(), getHeadingRotation2d());
-
   }
 
   /**
@@ -247,24 +260,24 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
     SmartDashboard.putNumber("StateSpeed", state.speedMetersPerSecond);
 
-    SmartDashboard.putNumber("StateRads", state.angle.getRadians());
+    SmartDashboard.putNumber("StateDegs", state.angle.getDegrees());
 
     // turn motor code
     // Prevent rotating module if speed is less then 1%. Prevents Jittering.
-    angle = (Math.abs(state.speedMetersPerSecond) <= (DriveConstants.kMaxSpeedMetersPerSecond * 0.01))
 
-        ? m_lastAngle
+    if ((Math.abs(state.speedMetersPerSecond) <= (DriveConstants.kMaxSpeedMetersPerSecond * 0.01)))
 
-        : state.angle.getRadians();
+      angle = m_lastAngle;
+
+    else
+
+      angle = state.angle.getDegrees();
 
     m_lastAngle = angle;
 
     SmartDashboard.putNumber("TESTSP", state.speedMetersPerSecond);
-    SmartDashboard.putNumber("TEST", angle);
-
+  
     driveMotorMove(state.speedMetersPerSecond);
-
-    // turn axis
 
     positionTurn(angle);
 
@@ -273,12 +286,14 @@ public class SwerveModuleSMRads extends SubsystemBase {
   public void driveMotorMove(double speed) {
 
     if (m_isOpenLoop) {
-  m_driveMotor.set(speed / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
-    SmartDashboard.putNumber("DrFF Volts", feedforward.calculate(speed));
-  
-  // m_driveMotor.setVoltage(feedforward.calculate(speed));
-    }
-    else {
+      m_driveMotor
+          .setVoltage(RobotController.getBatteryVoltage() * speed / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
+
+      SmartDashboard.putNumber("DrFF Volts", feedforward.calculate(speed));
+
+      // m_driveMotor.setVoltage(feedforward.calculate(speed));
+
+    } else {
 
       m_driveMotor.setVoltage(feedforward.calculate(speed)
           + m_driveVelController.calculate(getDriveVelocity(), speed));
@@ -288,11 +303,16 @@ public class SwerveModuleSMRads extends SubsystemBase {
 
   public void positionTurn(double angle) {
 
-    double pidOut = m_turnPosController.calculate(m_turnEncoder.getPosition(), angle);
-    SmartDashboard.putNumber("PIDOUT", pidOut);
-    double turnAngleError = Math.abs(angle - m_turnEncoder.getPosition());
+    double pidOut = m_turnPosController.calculate(getTurnAngleDegs(), angle);
 
-    SmartDashboard.putNumber("ATAERads", turnAngleError);
+    SmartDashboard.putNumber("PIDOUT", pidOut);
+
+    double turnAngleError = Math.abs(angle - getTurnAngleDegs());
+
+    SmartDashboard.putNumber("ATAE", turnAngleError);
+
+    SmartDashboard.putNumber("TEST", tst++);
+
 
     // if robot is not moving, stop the turn motor oscillating
     // if (turnAngleError < turnDeadband
@@ -316,12 +336,12 @@ public class SwerveModuleSMRads extends SubsystemBase {
     m_turnEncoder.setPosition(0);
   }
 
-  public double getHeadingRadians() {
-    return getTurnAngleRads();
+  public double getHeadingDegs() {
+    return getTurnAngleDegs();
   }
 
   public Rotation2d getHeadingRotation2d() {
-    return Rotation2d.fromRadians(getHeadingRadians());
+    return Rotation2d.fromDegrees(getHeadingDegs());
   }
 
   public void setModulePose(Pose2d pose) {
@@ -346,13 +366,19 @@ public class SwerveModuleSMRads extends SubsystemBase {
   }
 
   public void resetAngleToAbsolute() {
-    double angle = m_turnCANcoder.getAbsolutePosition() - m_turnEncoderOffset;
+    double angle = 0;
+    if (RobotBase.isReal())
+      angle = m_turnCANcoder.getAbsolutePosition() - m_turnEncoderOffset;
     m_turnEncoder.setPosition(angle);
   }
 
-  public double getTurnAngleRads() {
-
-    return m_turnEncoder.getPosition();
+  public double getTurnAngleDegs() {
+    if (RobotBase.isReal())
+      return m_turnEncoder.getPosition();
+    else
+       return angle;
+      // return m_turnEncoder.getPosition() *
+      //     ModuleConstants.kTurningDegreesPerEncRev;
 
   }
 
@@ -362,13 +388,18 @@ public class SwerveModuleSMRads extends SubsystemBase {
   }
 
   public double getDriveVelocity() {
+    if (RobotBase.isReal())
+      return m_driveEncoder.getVelocity();
+    else
+      return (m_driveEncoder.getVelocity() * ModuleConstants.kDriveMetersPerEncRev) / 60;
 
-    return m_driveEncoder.getVelocity();
   }
 
   public double getDrivePosition() {
-
-    return m_driveEncoder.getPosition();
+    if (RobotBase.isReal())
+      return m_driveEncoder.getPosition();
+    else
+      return m_driveEncoder.getPosition() * ModuleConstants.kDriveMetersPerEncRev;
 
   }
 
@@ -377,7 +408,11 @@ public class SwerveModuleSMRads extends SubsystemBase {
   }
 
   public double getTurnVelocity() {
-    return m_turnEncoder.getVelocity();
+    if (RobotBase.isReal())
+      return m_turnEncoder.getVelocity();
+    else
+      return (m_turnEncoder.getVelocity() * ModuleConstants.kTurningDegreesPerEncRev) / 60;
+
   }
 
   public double getTurnCurrent() {
@@ -385,12 +420,12 @@ public class SwerveModuleSMRads extends SubsystemBase {
   }
 
   public boolean turnInPosition(double targetAngle) {
-    return Math.abs(targetAngle - getTurnAngleRads()) < toleranceRads;
+    return Math.abs(targetAngle - getTurnAngleDegs()) < toleranceDeg;
   }
 
   public boolean turnIsStopped() {
 
-    return Math.abs(m_turnEncoder.getVelocity()) < tolRadPerSec;
+    return Math.abs(m_turnEncoder.getVelocity()) < tolDegPerSec;
   }
 
   public boolean checkCAN() {
@@ -406,6 +441,20 @@ public class SwerveModuleSMRads extends SubsystemBase {
   public void stop() {
     m_driveMotor.set(0);
     m_turnMotor.set(0);
+  }
+
+  public void tunePosGains() {
+    m_turnPosController.setP(Pref.getPref("SwerveTurnPoskP"));
+    m_turnPosController.setI(Pref.getPref("SwerveTurnPoskI"));
+    m_turnPosController.setD(Pref.getPref("SwerveTurnPoskD"));
+    // m_turnController.setIZone(Pref.getPref("SwerveTurnPoskIz"));
+  }
+
+  public void tuneDriveVelGains() {
+    m_driveVelController.setP(Pref.getPref("SwerveVelkP"));
+    m_driveVelController.setI(Pref.getPref("SwerveVelkI"));
+    m_driveVelController.setD(Pref.getPref("SwerveVelkD"));
+
   }
 
 }

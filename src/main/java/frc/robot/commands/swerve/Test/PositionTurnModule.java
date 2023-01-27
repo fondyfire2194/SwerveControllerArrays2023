@@ -7,16 +7,16 @@ package frc.robot.commands.swerve.Test;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.SwerveModuleSMRads;
+import frc.robot.subsystems.SwerveModuleSM;
 
 public class PositionTurnModule extends CommandBase {
 
   private DriveSubsystem m_drive;
 
-  private SwerveModuleSMRads m_n;
+  private SwerveModuleSM m_n;
 
   /** Creates a new PositionTurnModule. */
-  public PositionTurnModule(DriveSubsystem drive, SwerveModuleSMRads n) {
+  public PositionTurnModule(DriveSubsystem drive, SwerveModuleSM n) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_drive = drive;
 

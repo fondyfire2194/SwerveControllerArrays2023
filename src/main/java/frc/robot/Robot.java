@@ -9,6 +9,7 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -43,8 +44,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-
-    DataLogManager.start();
+    if (RobotBase.isReal())
+      DataLogManager.start();
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our

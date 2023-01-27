@@ -56,7 +56,7 @@ public class SetSwerveDrive extends CommandBase {
         * Math.signum(m_rotationInput.getAsDouble());
 
     // square values after deadband while keeping original sign
-
+SmartDashboard.putNumber("THHRAW", throttle);
     throttle = -Math.signum(throttle) * Math.pow(throttle, 2);
     strafe = -Math.signum(strafe) * Math.pow(strafe, 2);
     rotation = -Math.signum(rotation) * Math.pow(rotation, 2);

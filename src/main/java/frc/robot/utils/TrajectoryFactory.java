@@ -27,18 +27,23 @@ public class TrajectoryFactory {
 
     private boolean tune;
 
+    private String pathOne = "PathOne";
+    private String pathTwo = "PathOne";
+    private String pathThree = "PathOne";
+    private String pathFour = "PathOne";
+    private String pathFive = "PathOne";
+
     public TrajectoryFactory(DriveSubsystem drive) {
 
         m_drive = drive;
 
         ppTrajChooser.setDefaultOption("DriveForward", "DriveForward");
 
-        ppTrajChooser.addOption("DriveToPickup", "DriveToPickup");
-        ppTrajChooser.addOption("DriveToPickupTwo", "DriveToPickupTwo");
-        ppTrajChooser.addOption("DriveToPickupThree", "DriveToPickupThree");
-        ppTrajChooser.addOption("DriveToPickupFour", "DriveToPickupFour");
-        ppTrajChooser.addOption("DriveToPickupFive", "DriveToPickupFive");
-
+        ppTrajChooser.addOption(pathOne, pathOne);
+        ppTrajChooser.addOption(pathTwo, pathTwo);
+        ppTrajChooser.addOption(pathThree, pathThree);
+        ppTrajChooser.addOption(pathFour, pathFour);
+        ppTrajChooser.addOption(pathFive, pathFive);
 
         SmartDashboard.putData("TrajChoice", ppTrajChooser);
     }
@@ -48,7 +53,7 @@ public class TrajectoryFactory {
     }
 
     public PathPlannerTrajectory getTrajectory(String name) {
-        return PathPlanner.loadPath(name, 3,2, false);
+        return PathPlanner.loadPath(name, 1, 1, false);
     }
 
     public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
@@ -66,13 +71,13 @@ public class TrajectoryFactory {
                         m_drive::getEstimatedPose, // Pose supplier
 
                         m_drive.m_kinematics, // SwerveDriveKinematics
-          
+
                         m_drive.getXPID(),
 
                         m_drive.getYPID(),
 
                         m_drive.getThetaPID(),
-                        
+
                         m_drive::setModuleStates, // Module states consumer
 
                         m_drive // Requires this drive subsystem

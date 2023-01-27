@@ -35,7 +35,7 @@ public class SwerveModuleDisplay extends SubsystemBase {
         builder.addBooleanProperty("m_fl_turn_stopped", m_drive.m_frontLeft::turnIsStopped, null);
 
         builder.addDoubleProperty("m_fl_turn_velocity", m_drive.m_frontLeft::getTurnVelocity, null);
-        builder.addDoubleProperty("m_fl_turn_angle", m_drive.m_frontLeft::getTurnAngleRads, null);
+        builder.addDoubleProperty("m_fl_turn_angle", m_drive.m_frontLeft::getTurnAngleDegs, null);
 
         builder.addDoubleProperty("m_fl_drive_velocity", m_drive.m_frontLeft::getDriveVelocity, null);
         builder.addDoubleProperty("m_fl_drive_position", m_drive.m_frontLeft::getDrivePosition, null);
@@ -44,7 +44,7 @@ public class SwerveModuleDisplay extends SubsystemBase {
         builder.addBooleanProperty("m_fr_turn_stopped", m_drive.m_frontRight::turnIsStopped, null);
 
         builder.addDoubleProperty("m_fr_turn_velocity", m_drive.m_frontRight::getTurnVelocity, null);
-        builder.addDoubleProperty("m_fr_turn_angle", m_drive.m_frontRight::getTurnAngleRads, null);
+        builder.addDoubleProperty("m_fr_turn_angle", m_drive.m_frontRight::getTurnAngleDegs, null);
 
         builder.addDoubleProperty("m_fr_drive_velocity", m_drive.m_frontRight::getDriveVelocity, null);
         builder.addDoubleProperty("m_fr_drive_position", m_drive.m_frontRight::getDrivePosition, null);
@@ -55,7 +55,7 @@ public class SwerveModuleDisplay extends SubsystemBase {
         builder.addBooleanProperty("m_bl_turn_stopped", m_drive.m_backLeft::turnIsStopped, null);
 
         builder.addDoubleProperty("m_bl_turn_velocity", m_drive.m_backLeft::getTurnVelocity, null);
-        builder.addDoubleProperty("m_bl_turn_angle", m_drive.m_backLeft::getTurnAngleRads, null);
+        builder.addDoubleProperty("m_bl_turn_angle", m_drive.m_backLeft::getTurnAngleDegs, null);
 
         builder.addDoubleProperty("m_bl_drive_velocity", m_drive.m_backLeft::getDriveVelocity, null);
         builder.addDoubleProperty("m_bl_drive_position", m_drive.m_backLeft::getDrivePosition, null);
@@ -64,7 +64,7 @@ public class SwerveModuleDisplay extends SubsystemBase {
         builder.addBooleanProperty("m_br_turn_stopped", m_drive.m_backRight::turnIsStopped, null);
 
         builder.addDoubleProperty("m_br_turn_velocity", m_drive.m_backRight::getTurnVelocity, null);
-        builder.addDoubleProperty("m_br_turn_angle", m_drive.m_backRight::getTurnAngleRads, null);
+        builder.addDoubleProperty("m_br_turn_angle", m_drive.m_backRight::getTurnAngleDegs, null);
 
         builder.addDoubleProperty("m_br_drive_velocity", m_drive.m_backRight::getDriveVelocity, null);
         builder.addDoubleProperty("m_br_drive_position", m_drive.m_backRight::getDrivePosition, null);
