@@ -20,6 +20,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.Auto.GridTrajectory;
+import frc.robot.commands.Auto.RunTrajectory;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -126,23 +128,8 @@ public class Robot extends TimedRobot {
 
     boolean useRawTrajectory = false;
 
-    if (useRawTrajectory) {
+    m_autonomousCommand = m_robotContainer.m_autoFactory.getAutonomousCommand();
 
-      String trajName = m_robotContainer.m_tf.getSelectedTrajectory();
-
-      SmartDashboard.putString("TrajName", trajName);
-
-      PathPlannerTrajectory trajectory = m_robotContainer.m_tf
-          .getTrajectory(trajName);
-
-      m_autonomousCommand = m_robotContainer.m_tf.followTrajectoryCommand(trajectory, true);
-    }
-
-    else {
-
-      m_autonomousCommand = m_robotContainer.m_autoFactory.getAutonomousCommand();
-
-    }
     m_robotContainer.m_drive.setIdleMode(true);
 
     // schedule the autonomous command (example)
@@ -177,7 +164,17 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     // m_robotContainer.m_ls.rainbow();
+    if (m_robotContainer.m_tf.run) {
+      new RunTrajectory(m_robotContainer.m_tf, 1, 1).schedule();
+      m_robotContainer.m_tf.run=false;
+    }
+
+
+  if (m_robotContainer.m_ttj.run){
+    new GridTrajectory(m_robotContainer.m_ttj, 1, 1).schedule();
+    m_robotContainer.m_ttj.run=false;
   }
+}
 
   @Override
   public void testInit() {

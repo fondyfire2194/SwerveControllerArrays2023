@@ -27,6 +27,8 @@ public class TrajectoryFactory {
 
     private boolean tune;
 
+    public boolean run;
+
     private String pathOne = "PathOne";
     private String pathTwo = "PathOne";
     private String pathThree = "PathOne";
@@ -85,5 +87,11 @@ public class TrajectoryFactory {
 
                 new InstantCommand(() -> m_drive.stopModules()));
     }
+
+    public void periodic(){
+
+    }
+
+    
 
 }

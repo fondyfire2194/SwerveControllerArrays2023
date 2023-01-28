@@ -8,6 +8,8 @@ import java.io.IOException;
 
 import com.ctre.phoenix.unmanaged.Unmanaged;
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.hal.SimDouble;
@@ -23,12 +25,14 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Pref;
 import frc.robot.Constants.CanConstants;
@@ -145,6 +149,8 @@ public class DriveSubsystem extends SubsystemBase {
   private PIDController thetaPID = new PIDController(PPConstants.kPThetaController, PPConstants.kIThetaController,
       PPConstants.kDThetaController);
 
+  public boolean runTrajectory;
+
   // private SwerveModuleDisplay m_smd = new SwerveModuleDisplay(this);
 
   /** Creates a new DriveSubsystem. */
@@ -227,7 +233,8 @@ public class DriveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // Update the odometry in the periodic block
-
+    SmartDashboard.putString("TRROB", getTranslation().toString());
+    
     updateOdometry();
     SmartDashboard.putNumber("Xpos", getX());
     SmartDashboard.putNumber("Ypos", getY());
@@ -361,18 +368,6 @@ public class DriveSubsystem extends SubsystemBase {
   public Translation2d getTranslation() {
     return getEstimatedPose().getTranslation();
   }
-
-  // public PIDController getXPidController() {
-  // return m_xController;
-  // }
-
-  // public PIDController getYPidController() {
-  // return m_yController;
-  // }
-
-  // public ProfiledPIDController getThetaPidController() {
-  // return m_turnController;
-  // }
 
   public double getX() {
     return getTranslation().getX();
@@ -511,6 +506,42 @@ public class DriveSubsystem extends SubsystemBase {
   public PIDController getThetaPID() {
     return thetaPID;
   }
+
+  public void setRunTrajectory(){
+    runTrajectory=true;
+  }
+
+  public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
+    return new SequentialCommandGroup(
+            new InstantCommand(() -> {
+                // Reset odometry for the first path you run during auto
+                if (isFirstPath) {
+                    resetOdometry(traj.getInitialHolonomicPose());
+                }
+            }),
+            new PPSwerveControllerCommand(
+
+                    traj,
+
+                    this::getEstimatedPose, // Pose supplier
+
+                    m_kinematics, // SwerveDriveKinematics
+
+                    getXPID(),
+
+                    getYPID(),
+
+                    getThetaPID(),
+
+                    this::setModuleStates, // Module states consumer
+
+                    this // Requires this drive subsystem
+            ),
+
+            new InstantCommand(() -> stopModules()));
+}
+
+
 
   public void tuneXPIDGains() {
 

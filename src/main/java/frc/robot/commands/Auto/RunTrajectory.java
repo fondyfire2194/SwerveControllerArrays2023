@@ -10,27 +10,27 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.swerve.Test.MessageCommand;
 import frc.robot.utils.TeleopTrajectory;
+import frc.robot.utils.TrajectoryFactory;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class GridTrajectory extends SequentialCommandGroup {
-  /** Creates a new GridTrajectory. */
+public class RunTrajectory extends SequentialCommandGroup {
+  /** Creates a new Run Trajectory. */
+  private String trajName;
 
-  public GridTrajectory(TeleopTrajectory ttj, double maxVel, double maxAccel) {
+  public RunTrajectory(TrajectoryFactory tf, double maxVel, double maxAccel) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
 
-    PathPlannerTrajectory traj = ttj.getSimpleTrajectory(maxVel, maxAccel);
+    trajName = tf.getSelectedTrajectory();
 
-    SmartDashboard.putNumber("TRAJTIme", traj.getTotalTimeSeconds());
-    SmartDashboard.putString("TRANS", ttj.getActiveDrop().getT2d().toString());
-    
+    PathPlannerTrajectory trajectory = tf.getTrajectory(trajName);
 
     addCommands(
-        new MessageCommand("Hello"),
-        ttj.followTrajectoryCommand(traj, true),
-        new MessageCommand("HelloAgain")
+
+        tf.followTrajectoryCommand(trajectory, true)
+
     );
   }
 }

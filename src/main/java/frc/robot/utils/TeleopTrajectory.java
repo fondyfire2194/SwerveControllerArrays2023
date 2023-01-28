@@ -26,27 +26,27 @@ public class TeleopTrajectory {
      */
     public enum GridDrop {
 
-        RIGHT_ONE_CENTER(new Translation2d(.5, .23), new Rotation2d(0)),
+        RIGHT_ONE_CENTER(new Translation2d(1.1, .5), new Rotation2d(0)),
 
-        RIGHT_ONE_PIPE(new Translation2d(1.0, .23), new Rotation2d(0)),
+        RIGHT_ONE_PIPE(new Translation2d(1.1, 1), new Rotation2d(0)),
 
-        RIGHT_TWO_SHELF(new Translation2d(1.5, .23), new Rotation2d(0)),
+        RIGHT_TWO_SHELF(new Translation2d(1.1, 1.5), new Rotation2d(0)),
 
-        RIGHT_THREE_PIPE(new Translation2d(2.0, .23), new Rotation2d(0)),
+        RIGHT_THREE_PIPE(new Translation2d(1.1, 2), new Rotation2d(0)),
 
-        COOP_RIGHT_PIPE(new Translation2d(2.5, .23), new Rotation2d(0)),
+        COOP_RIGHT_PIPE(new Translation2d(1.1, 2.5), new Rotation2d(0)),
 
-        COOP_SHELF(new Translation2d(3.0, .23), new Rotation2d(0)),
+        COOP_SHELF(new Translation2d(1.1, 3), new Rotation2d(0)),
 
-        COOP_LEFT_PIPE(new Translation2d(3.5, .23), new Rotation2d(0)),
+        COOP_LEFT_PIPE(new Translation2d(1.1, 3.5), new Rotation2d(0)),
 
-        LEFT_THREE_PIPE(new Translation2d(4.0, .23), new Rotation2d(0)),
+        LEFT_THREE_PIPE(new Translation2d(1.1, 4), new Rotation2d(0)),
 
-        LEFT_TWO_SHELF(new Translation2d(4.5, .23), new Rotation2d(0)),
+        LEFT_TWO_SHELF(new Translation2d(1.1, 4.5), new Rotation2d(0)),
 
-        LEFT_ONE_PIPE(new Translation2d(5.0, .23), new Rotation2d(0)),
+        LEFT_ONE_PIPE(new Translation2d(1.1, 5), new Rotation2d(0)),
 
-        LEFT_ONE_CENTER(new Translation2d(5.5, .23), new Rotation2d(0));
+        LEFT_ONE_CENTER(new Translation2d(1.1, 5.5), new Rotation2d(0));
 
         private final Translation2d t2d;
 
@@ -71,6 +71,7 @@ public class TeleopTrajectory {
     private DriveSubsystem m_drive;
 
     private GridDrop activeDrop = GridDrop.COOP_SHELF;
+    public boolean run;
 
     public TeleopTrajectory(DriveSubsystem drive) {
         m_drive = drive;

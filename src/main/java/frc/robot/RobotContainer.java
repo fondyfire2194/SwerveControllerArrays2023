@@ -11,6 +11,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.Auto.RunTrajectory;
+import frc.robot.commands.Auto.StartGridTrajectory;
+import frc.robot.commands.Auto.StartTrajectory;
 import frc.robot.commands.Vision.PhotonVision.TargetThread1;
 import frc.robot.commands.swerve.SetSwerveDrive;
 import frc.robot.commands.swerve.Test.JogDriveModule;
@@ -191,8 +194,10 @@ public class RobotContainer {
                 m_testController.x().onTrue(Commands.runOnce(() -> m_ttj.setActiveDrop(GridDrop.LEFT_ONE_CENTER)));
                 m_testController.y().onTrue(Commands.runOnce(() -> m_ttj.setActiveDrop(GridDrop.RIGHT_THREE_PIPE)));
 
-                m_testController.leftBumper().onTrue(Commands.runOnce(
-                                () -> m_ttj.followTrajectoryCommand(m_ttj.getSimpleTrajectory(1, 1), true)));
+                m_testController.leftBumper().onTrue(new StartTrajectory(m_tf));
+                
+                m_testController.rightBumper().onTrue(new StartGridTrajectory(m_ttj));
+
         }
 
         public double getThrottle() {
