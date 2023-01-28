@@ -541,7 +541,8 @@ public class LimeLight {
         double[] temp = { 0, 0, 0, 0, 0, 0 };// default for getEntry
         NetworkTableEntry value = m_table.getEntry("camtran");
         double[] result = value.getDoubleArray(temp);
-        tl3d = new Translation3d(result[0], result[1], result[2]);
+        tl3d = new Translation3d(result[2], result[0], result[1]);
+        //tl3d = new Translation3d(result[0], result[1], result[2]);
         for (int i = 3; i > 5; i++) {
             result[i] = Units.degreesToRadians(result[i]);
         }
