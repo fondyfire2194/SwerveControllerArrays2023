@@ -137,7 +137,7 @@ public class RobotContainer {
                                                 m_drive,
                                                 () -> leftJoystick.getRawAxis(1),
                                                 () -> leftJoystick.getRawAxis(0),
-                                                () -> leftJoystick.getRawAxis(2)));// logitech gamepad
+                                                () -> leftJoystick.getRawAxis(4)));// logitech gamepad
                 // () -> leftJoystick.getRawAxis(2)));
 
                 m_coDriverController.leftTrigger().whileTrue(new JogTurnModule(

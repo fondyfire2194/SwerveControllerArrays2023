@@ -84,7 +84,7 @@ public class SwerveModuleSM extends SubsystemBase {
   public boolean driveMotorConnected;
   public boolean turnMotorConnected;
   public boolean turnCoderConnected;
-  private boolean showOnShuffleboard = false;
+  private boolean showOnShuffleboard = true;
 
   public SendableBuilder m_builder;
   private boolean m_isOpenLoop;
@@ -173,7 +173,7 @@ public class SwerveModuleSM extends SubsystemBase {
 
     m_turnEncoder.setVelocityConversionFactor(ModuleConstants.kTurningDegreesPerEncRev / 60);
 
-    m_turnPosController.enableContinuousInput(-Math.PI, Math.PI);
+    m_turnPosController.enableContinuousInput(-180, 180);
 
     checkCAN();
 
