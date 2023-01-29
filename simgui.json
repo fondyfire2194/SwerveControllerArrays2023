@@ -3,9 +3,20 @@
     "types": {
       "/FMSInfo": "FMSInfo",
       "/Shuffleboard/Scheduler/Scheduler": "Scheduler",
+      "/Shuffleboard/w/Grid 0": "Command",
+      "/Shuffleboard/w/Grid 1": "Command",
+      "/Shuffleboard/w/Grid 2": "Command",
+      "/Shuffleboard/w/Grid 3": "Command",
+      "/Shuffleboard/w/Grid 4": "Command",
+      "/Shuffleboard/w/Grid 5": "Command",
+      "/Shuffleboard/w/Grid 6": "Command",
+      "/Shuffleboard/w/Grid 7": "Command",
+      "/Shuffleboard/w/Grid 8": "Command",
+      "/SmartDashboard/Arm Sim": "Mechanism2d",
       "/SmartDashboard/Auto Selector": "String Chooser",
       "/SmartDashboard/DriveSubsystem": "Subsystem",
       "/SmartDashboard/Field2d": "Field2d",
+      "/SmartDashboard/LinArm Sim": "Mechanism2d",
       "/SmartDashboard/PPSwerveControllerCommand_field": "Field2d",
       "/SmartDashboard/ResetDriverMode1": "Command",
       "/SmartDashboard/ResetDriverMode2": "Command",
@@ -18,6 +29,16 @@
       "/SmartDashboard/TrajChoice": "String Chooser"
     },
     "windows": {
+      "/Shuffleboard/w/Grid 1": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/Shuffleboard/w/Grid 2": {
+        "window": {
+          "visible": true
+        }
+      },
       "/SmartDashboard/Auto Selector": {
         "window": {
           "visible": true

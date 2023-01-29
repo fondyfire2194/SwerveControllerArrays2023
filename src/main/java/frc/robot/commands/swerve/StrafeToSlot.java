@@ -2,20 +2,15 @@ package frc.robot.commands.swerve;
 
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.DriverConstants;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.utils.TeleopTrajectory;
+import frc.robot.utils.GameHandlerSubsystem;
 
 public class StrafeToSlot extends CommandBase {
   @SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
   private final DriveSubsystem m_drive;
-  private final TeleopTrajectory m_telTraj;
 
   /**
    * Creates a new ExampleCommand.
@@ -24,6 +19,7 @@ public class StrafeToSlot extends CommandBase {
    */
   private double endYTarget;
   private double endXTarget;
+  private boolean isPipe;
 
   private PIDController m_pidY = new PIDController(.5, 0, 0);
   private double strafe_max = .25;
@@ -31,16 +27,16 @@ public class StrafeToSlot extends CommandBase {
   private PIDController m_pidX = new PIDController(.5, 0, 0);
   private double drive_max = .25;
 
+  private boolean turnOnCamLeds;
+
+  private double ledsOnDist;
 
   public StrafeToSlot(
       DriveSubsystem drive,
-      TeleopTrajectory telTraj,
+
       DoubleSupplier strafeInput) {
 
     m_drive = drive;
-
-    m_telTraj = telTraj;
-
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
@@ -49,11 +45,12 @@ public class StrafeToSlot extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    endYTarget = m_telTraj.getActiveDrop().getT2d().getY();
-    endXTarget = m_telTraj.getActiveDrop().getT2d().getX();
-
+    endYTarget = GameHandlerSubsystem.getActiveDrop().getyVal();
+    endXTarget = GameHandlerSubsystem.getActiveDrop().getyVal();
+    isPipe = GameHandlerSubsystem.getActiveDrop().getIsPipe();
     SmartDashboard.putNumber("ENDPTY", endYTarget);
     SmartDashboard.putNumber("ENDPTX", endXTarget);
+    SmartDashboard.putBoolean("PIPE", isPipe);
   }
 
   /**
@@ -72,7 +69,7 @@ public class StrafeToSlot extends CommandBase {
     double pidOutY = m_pidY.calculate(m_drive.getY(), endYTarget);
 
     double latchpidY = pidOutY;
-    
+
     if (Math.abs(pidOutY) > strafe_max) {
       pidOutY = strafe_max;
       if (latchpidY < 0)
@@ -82,18 +79,17 @@ public class StrafeToSlot extends CommandBase {
     double pidOutX = m_pidX.calculate(m_drive.getX(), endYTarget);
 
     double latchpidX = pidOutX;
-    
+
     if (Math.abs(pidOutX) > drive_max) {
       pidOutX = drive_max;
       if (latchpidX < 0)
         pidOutX = -pidOutX;
     }
 
-
-
-
-
     m_drive.drive(pidOutX, pidOutY, 0);
+
+    if (isPipe && Math.abs(endYTarget - m_drive.getY()) < ledsOnDist)
+      turnOnCamLeds = true;
 
   }
 

@@ -12,9 +12,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class MessageCommand extends InstantCommand {
   private String m_message;
+
   public MessageCommand(String message) {
     // Use addRequirements() here to declare subsystem dependencies.
- m_message=message;
+    m_message = message;
   }
 
   // Called when the command is initially scheduled.

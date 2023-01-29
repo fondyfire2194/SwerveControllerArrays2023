@@ -84,9 +84,10 @@ public class SwerveModuleSM extends SubsystemBase {
   public boolean driveMotorConnected;
   public boolean turnMotorConnected;
   public boolean turnCoderConnected;
-  private boolean showOnShuffleboard = true;
+  public boolean showOnShuffleboard = false;
 
   public SendableBuilder m_builder;
+
   private boolean m_isOpenLoop;
 
   public boolean driveBrakeMode;
@@ -276,7 +277,7 @@ public class SwerveModuleSM extends SubsystemBase {
     m_lastAngle = angle;
 
     SmartDashboard.putNumber("TESTSP", state.speedMetersPerSecond);
-  
+
     driveMotorMove(state.speedMetersPerSecond);
 
     positionTurn(angle);
@@ -312,7 +313,6 @@ public class SwerveModuleSM extends SubsystemBase {
     SmartDashboard.putNumber("ATAE", turnAngleError);
 
     SmartDashboard.putNumber("TEST", tst++);
-
 
     // if robot is not moving, stop the turn motor oscillating
     // if (turnAngleError < turnDeadband
@@ -376,9 +376,9 @@ public class SwerveModuleSM extends SubsystemBase {
     if (RobotBase.isReal())
       return m_turnEncoder.getPosition();
     else
-       return angle;
-      // return m_turnEncoder.getPosition() *
-      //     ModuleConstants.kTurningDegreesPerEncRev;
+      return angle;
+    // return m_turnEncoder.getPosition() *
+    // ModuleConstants.kTurningDegreesPerEncRev;
 
   }
 

@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.Auto.StartTrajectory;
@@ -21,15 +20,14 @@ import frc.robot.commands.swerve.SetSwerveDrive;
 import frc.robot.commands.swerve.StrafeToSlot;
 import frc.robot.oi.ShuffleboardLLTag;
 import frc.robot.simulation.FieldSim;
-import frc.robot.subsystems.TurnArmSubsystem;
-import frc.robot.subsystems.LinearArmSubsystem;
-
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LimelightVision;
+import frc.robot.subsystems.LinearArmSubsystem;
+import frc.robot.subsystems.TurnArmSubsystem;
 import frc.robot.utils.AutoFactory;
+import frc.robot.utils.GameHandlerSubsystem;
 import frc.robot.utils.LEDControllerI2C;
-import frc.robot.utils.TeleopTrajectory;
-import frc.robot.utils.TeleopTrajectory.GridDrop;
+import frc.robot.utils.ShuffleboardRunGame;
 import frc.robot.utils.TrajectoryFactory;
 
 public class RobotContainer {
@@ -54,7 +52,7 @@ public class RobotContainer {
 
         public TrajectoryFactory m_tf;
 
-        public TeleopTrajectory m_ttj;
+        public GameHandlerSubsystem m_ghs;
 
         public LEDControllerI2C lcI2;
 
@@ -71,6 +69,7 @@ public class RobotContainer {
 
         final LimelightVision llvis = new LimelightVision();
 
+        ShuffleboardRunGame srg;
         private boolean useLimeLight = true;
 
         private boolean usePhotonVision = false;
@@ -107,7 +106,9 @@ public class RobotContainer {
 
                 m_tf = new TrajectoryFactory(m_drive);
 
-                m_ttj = new TeleopTrajectory(m_drive);
+                m_ghs = new GameHandlerSubsystem();
+
+                srg = new ShuffleboardRunGame(m_ghs);
 
                 SmartDashboard.putData(m_drive);
 
@@ -144,11 +145,15 @@ public class RobotContainer {
                                                         () -> m_driverController.getRawAxis(4)));// logitech gamepad
                 }
 
-                m_testController.a()
-                                .onTrue(Commands.runOnce(() -> m_ttj.setActiveDrop(GridDrop.COOP_LEFT_PIPE)));
-                m_testController.b().onTrue(Commands.runOnce(() -> m_ttj.setActiveDrop(GridDrop.RIGHT_ONE_CENTER)));
-                m_testController.x().onTrue(Commands.runOnce(() -> m_ttj.setActiveDrop(GridDrop.LEFT_ONE_CENTER)));
-                m_testController.y().onTrue(Commands.runOnce(() -> m_ttj.setActiveDrop(GridDrop.RIGHT_THREE_PIPE)));
+                // m_testController.a()
+                // // .onTrue(Commands.runOnce(() ->
+                // m_ttj.setActiveDrop(GridDrop.COOP_LEFT_PIPE)));
+                // m_testController.b().onTrue(Commands.runOnce(() ->
+                // m_ttj.setActiveDrop(GridDrop.RIGHT_ONE_CENTER)));
+                // m_testController.x().onTrue(Commands.runOnce(() ->
+                // m_ttj.setActiveDrop(GridDrop.LEFT_ONE_CENTER)));
+                // m_testController.y().onTrue(Commands.runOnce(() ->
+                // m_ttj.setActiveDrop(GridDrop.RIGHT_THREE_PIPE)));
 
                 m_testController.leftBumper().onTrue(new StartTrajectory(m_tf));
 
@@ -157,14 +162,12 @@ public class RobotContainer {
         }
 
         public double getThrottle() {
-
                 return 0;
-
         }
 
         public Command getStrafeToTargetCommand() {
 
-                return new StrafeToSlot(m_drive, m_ttj, () -> m_driverController.getRawAxis(0));
+                return new StrafeToSlot(m_drive, () -> m_driverController.getRawAxis(0));
         }
 
         public Command getJogArmCommand() {
