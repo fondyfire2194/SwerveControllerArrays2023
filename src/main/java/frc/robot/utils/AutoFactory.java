@@ -20,12 +20,10 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.PPConstants;
 import frc.robot.commands.DoNothing;
-import frc.robot.commands.Arm.OpenCloseGripper;
-import frc.robot.commands.Arm.PositionArmInOut;
-import frc.robot.commands.Arm.PositionRotateArm;
-import frc.robot.commands.Test.MessageShuffleboard;
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.commands.swerve.Test.ChaseTagCommandLimelight;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LinearArmSubsystem;
+import frc.robot.subsystems.TurnArmSubsystem;
 
 /** Add your docs here. */
 public class AutoFactory {
@@ -41,32 +39,34 @@ public class AutoFactory {
     private boolean skipPathGroup;
 
     private double startTime;
-    private enum nodeRow{
+
+    private enum nodeRow {
         REAR,
         MID,
         FRONT
     }
 
-/**
- * Event map for auto paths
- */
-HashMap<String, Command> eventMap = new HashMap<>();
-
+    /**
+     * Event map for auto paths
+     */
+    HashMap<String, Command> eventMap = new HashMap<>();
 
     private DriveSubsystem m_drive;
 
-    private ArmSubsystem m_arm;
+    private TurnArmSubsystem m_turnArm;
 
-    public AutoFactory(DriveSubsystem drive, ArmSubsystem arm) {
+    private LinearArmSubsystem m_linArm;
 
-        eventMap.put("deliverconehigh", deliverCone(nodeRow.REAR));
-        eventMap.put("pickupcube", pickupCube());
-        
-        
-        
+    public AutoFactory(DriveSubsystem drive, TurnArmSubsystem turnArm, LinearArmSubsystem linArm) {
+
+       // eventMap.put("deliverconehigh", deliverCone(nodeRow.REAR));
+     //   eventMap.put("pickupcube", pickupCube());
+
         m_drive = drive;
 
-        m_arm = arm;
+        m_turnArm = turnArm;
+
+        m_linArm = linArm;
 
         // Create the AutoBuilder. This only needs to be created once when robot code
         // starts,
@@ -96,8 +96,6 @@ HashMap<String, Command> eventMap = new HashMap<>();
 
         SmartDashboard.putData("Auto Selector", m_autoChooser);
     }
-
-    
 
     public Command getAutonomousCommand() {
 
@@ -146,32 +144,5 @@ HashMap<String, Command> eventMap = new HashMap<>();
 
     }
 
-    public Command deliverCone(nodeRow row){
-
-        return new SequentialCommandGroup(
-            new PositionRotateArm(),new PositionArmInOut(),new OpenCloseGripper());
-        
-    }
-
-    public Command pickupCone(){
-
-        return new SequentialCommandGroup(
-            new PositionRotateArm(),new PositionArmInOut(),new OpenCloseGripper());
-        
-    }
-
-    public Command deliverCube(nodeRow row){
-
-        return new SequentialCommandGroup(
-            new PositionRotateArm(),new PositionArmInOut(),new OpenCloseGripper());
-        
-    }
-
-    public Command pickupCube(){
-
-        return new SequentialCommandGroup(
-            new PositionRotateArm(),new PositionArmInOut(),new OpenCloseGripper());
-        
-    }
-
+  
 }

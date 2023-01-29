@@ -14,12 +14,16 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.Auto.StartTrajectory;
+import frc.robot.commands.LinearArm.JogLinearArm;
+import frc.robot.commands.TurnArm.JogTurnArm;
 import frc.robot.commands.Vision.PhotonVision.TargetThread1;
 import frc.robot.commands.swerve.SetSwerveDrive;
 import frc.robot.commands.swerve.StrafeToSlot;
 import frc.robot.oi.ShuffleboardLLTag;
 import frc.robot.simulation.FieldSim;
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.TurnArmSubsystem;
+import frc.robot.subsystems.LinearArmSubsystem;
+
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LimelightVision;
 import frc.robot.utils.AutoFactory;
@@ -32,7 +36,9 @@ public class RobotContainer {
         // The robot's subsystems
         final DriveSubsystem m_drive = new DriveSubsystem();
 
-        final ArmSubsystem m_arm = new ArmSubsystem();
+        final TurnArmSubsystem m_turnArm = new TurnArmSubsystem();
+
+        final LinearArmSubsystem m_linArm = new LinearArmSubsystem();
 
         final LimelightVision m_llv = new LimelightVision();
 
@@ -97,7 +103,7 @@ public class RobotContainer {
 
                 m_fieldSim.initSim();
 
-                m_autoFactory = new AutoFactory(m_drive, m_arm);
+                m_autoFactory = new AutoFactory(m_drive, m_turnArm, m_linArm);
 
                 m_tf = new TrajectoryFactory(m_drive);
 
@@ -120,10 +126,6 @@ public class RobotContainer {
                 // PortForwarder.add(1183, "10.21.94,11", 1183);
                 // PortForwarder.add(1184, "10.21.94.11", 1184);
 
-                // () -> -m_coDriverController.getRawAxis(1),
-                // () -> -m_coDriverController.getRawAxis(0),
-                // () -> -m_coDriverController.getRawAxis(4)));
-
                 if (usePS4) {
                         m_drive.setDefaultCommand(
                                         new SetSwerveDrive(
@@ -132,7 +134,7 @@ public class RobotContainer {
                                                         () -> m_ps4controller.getRawAxis(0),
                                                         () -> m_ps4controller.getRawAxis(2)));
                 }
-//Logitech gamepad
+                // Logitech gamepad
                 else {
                         m_drive.setDefaultCommand(
                                         new SetSwerveDrive(
@@ -163,6 +165,16 @@ public class RobotContainer {
         public Command getStrafeToTargetCommand() {
 
                 return new StrafeToSlot(m_drive, m_ttj, () -> m_driverController.getRawAxis(0));
+        }
+
+        public Command getJogArmCommand() {
+
+                return new JogTurnArm(m_turnArm, () -> -m_testController.getRawAxis(1));
+        }
+
+        public Command getJogLinearArmCommand() {
+
+                return new JogLinearArm(m_linArm, () -> m_testController.getRawAxis(0));
         }
 
 }
