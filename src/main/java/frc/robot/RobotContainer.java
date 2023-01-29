@@ -4,21 +4,19 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.Auto.RunTrajectory;
-import frc.robot.commands.Auto.StartGridTrajectory;
 import frc.robot.commands.Auto.StartTrajectory;
 import frc.robot.commands.Vision.PhotonVision.TargetThread1;
 import frc.robot.commands.swerve.SetSwerveDrive;
-import frc.robot.commands.swerve.Test.JogDriveModule;
-import frc.robot.commands.swerve.Test.JogTurnModule;
-import frc.robot.commands.swerve.Test.PositionTurnModule;
+import frc.robot.commands.swerve.StrafeToSlot;
 import frc.robot.oi.ShuffleboardLLTag;
 import frc.robot.simulation.FieldSim;
 import frc.robot.subsystems.ArmSubsystem;
@@ -58,10 +56,8 @@ public class RobotContainer {
 
         // The driver's controller
 
-        static Joystick leftJoystick = new Joystick(OIConstants.kDriverControllerPort);
-
-        private CommandXboxController m_coDriverController = new CommandXboxController(
-                        OIConstants.kCoDriverControllerPort);
+        private CommandXboxController m_driverController = new CommandXboxController(
+                        OIConstants.kDriverControllerPort);
 
         private CommandXboxController m_testController = new CommandXboxController(OIConstants.kTestControllerPort);
 
@@ -73,8 +69,10 @@ public class RobotContainer {
 
         private boolean usePhotonVision = false;
 
+        private boolean usePS4;
+
         // temp controller for testing -matt
-        // private PS4Controller m_ps4controller = new PS4Controller(1);
+        private PS4Controller m_ps4controller = new PS4Controller(OIConstants.kDriverControllerPort);
         // public PoseTelemetry pt = new PoseTelemetry();
 
         /**
@@ -94,7 +92,7 @@ public class RobotContainer {
 
                 SmartDashboard.putData("Scheduler", CommandScheduler.getInstance());
 
-                // LiveWindow.disableAllTelemetry();
+                LiveWindow.disableAllTelemetry();
                 // Configure the button bindings
 
                 m_fieldSim.initSim();
@@ -125,68 +123,24 @@ public class RobotContainer {
                 // () -> -m_coDriverController.getRawAxis(1),
                 // () -> -m_coDriverController.getRawAxis(0),
                 // () -> -m_coDriverController.getRawAxis(4)));
-                // m_drive.setDefaultCommand(
-                // new SetSwerveDrive(
-                // m_drive,
-                // () -> m_ps4controller.getRawAxis(1),
-                // () -> m_ps4controller.getRawAxis(0),
-                // () -> m_ps4controller.getRawAxis(2)));
 
-                m_drive.setDefaultCommand(
-                                new SetSwerveDrive(
-                                                m_drive,
-                                                () -> leftJoystick.getRawAxis(1),
-                                                () -> leftJoystick.getRawAxis(0),
-                                                () -> leftJoystick.getRawAxis(4)));// logitech gamepad
-                // () -> leftJoystick.getRawAxis(2)));
-
-                m_coDriverController.leftTrigger().whileTrue(new JogTurnModule(
-                                m_drive,
-                                () -> -m_coDriverController.getRawAxis(1),
-                                () -> m_coDriverController.getRawAxis(0),
-                                () -> m_coDriverController.getRawAxis(4),
-                                () -> m_coDriverController.getRawAxis(5)));
-
-                // individual modules
-                m_coDriverController.leftBumper().whileTrue(new JogDriveModule(
-                                m_drive,
-                                () -> -m_coDriverController.getRawAxis(1),
-                                () -> m_coDriverController.getRawAxis(0),
-                                () -> m_coDriverController.getRawAxis(4),
-                                () -> m_coDriverController.getRawAxis(5),
-                                true));
-
-                // all modules
-                m_coDriverController.rightBumper().whileTrue(new JogDriveModule(
-                                m_drive,
-                                () -> -m_coDriverController.getRawAxis(1),
-                                () -> m_coDriverController.getRawAxis(0),
-                                () -> m_coDriverController.getRawAxis(2),
-                                () -> m_coDriverController.getRawAxis(3),
-                                false));
-
-                // position turn modules individually
-                m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
-                                m_drive.m_frontLeft));
-                // m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
-                // m_drive.m_frontRight));
-                // m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
-                // m_drive.m_backLeft));
-                // m_coDriverController.rightBumper().whileTrue(new PositionTurnModule(m_drive,
-                // m_drive.m_backRight));
-
-                // m_testController.a().whileTrue(getDriverSetCommand(m_pv.cam_tag_11, true));
-
-                // m_testController.rightBumper().whileTrue(getDriverSetCommand(m_pv.cam_tag_11,
-                // false));
-
-                // m_testController.x().whileTrue(getSetPVPipelineCommand(m_pv.cam_tag_11, 1));
-                // m_testController.y().whileTrue(getSetPVPipelineCommand(m_pv.cam_tag_11, 0));
-                // m_testController.leftBumper().whileTrue(getSetPVPipelineCommand(m_pv.cam_tag_11,
-                // 2));
-
-                // m_testController.leftBumper().whileTrue(m_llv.cam_tag_15.ToggleCamMode());
-                // m_testController.rightBumper().whileTrue(m_llv.cam_tag_15.ChangeLEDMode(LedMode.kforceOff));
+                if (usePS4) {
+                        m_drive.setDefaultCommand(
+                                        new SetSwerveDrive(
+                                                        m_drive,
+                                                        () -> m_ps4controller.getRawAxis(1),
+                                                        () -> m_ps4controller.getRawAxis(0),
+                                                        () -> m_ps4controller.getRawAxis(2)));
+                }
+//Logitech gamepad
+                else {
+                        m_drive.setDefaultCommand(
+                                        new SetSwerveDrive(
+                                                        m_drive,
+                                                        () -> m_driverController.getRawAxis(1),
+                                                        () -> m_driverController.getRawAxis(0),
+                                                        () -> m_driverController.getRawAxis(4)));// logitech gamepad
+                }
 
                 m_testController.a()
                                 .onTrue(Commands.runOnce(() -> m_ttj.setActiveDrop(GridDrop.COOP_LEFT_PIPE)));
@@ -195,14 +149,20 @@ public class RobotContainer {
                 m_testController.y().onTrue(Commands.runOnce(() -> m_ttj.setActiveDrop(GridDrop.RIGHT_THREE_PIPE)));
 
                 m_testController.leftBumper().onTrue(new StartTrajectory(m_tf));
-                
-                m_testController.rightBumper().onTrue(new StartGridTrajectory(m_ttj));
+
+                m_driverController.rightBumper().whileTrue(getStrafeToTargetCommand());
 
         }
 
         public double getThrottle() {
 
-                return -leftJoystick.getThrottle();
+                return 0;
+
+        }
+
+        public Command getStrafeToTargetCommand() {
+
+                return new StrafeToSlot(m_drive, m_ttj, () -> m_driverController.getRawAxis(0));
         }
 
 }
