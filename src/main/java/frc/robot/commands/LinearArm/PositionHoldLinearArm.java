@@ -6,7 +6,6 @@ package frc.robot.commands.LinearArm;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.LinearArmSubsystem;
-import frc.robot.subsystems.TurnArmSubsystem;
 
 public class PositionHoldLinearArm extends CommandBase {
   /** Creates a new PositionHoldArm. */

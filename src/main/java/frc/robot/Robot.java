@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
@@ -12,7 +11,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -42,6 +40,8 @@ public class Robot extends TimedRobot {
 
   public static int lpctra;
 
+
+
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -49,7 +49,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    if (RobotBase.isReal())
+  //  if (RobotBase.isReal())
       DataLogManager.start();
 
     PPSwerveControllerCommand.setLoggingCallbacks(
@@ -84,11 +84,7 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
-    m_robotContainer.m_fieldSim.periodic();
-
     lpctra++;
-
-    m_robotContainer.m_drive.throttleValue = m_robotContainer.getThrottle();
 
     /*
      * Retrieves the temperature of the PDP, in degrees Celsius.
@@ -106,7 +102,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-
+    CommandScheduler.getInstance().run();
     if (m_disableStartTime == 0 && !driveIsBraked)
       m_disableStartTime = Timer.getFPGATimestamp();
 
@@ -186,6 +182,7 @@ public class Robot extends TimedRobot {
   @Override
   public void simulationPeriodic() {
     m_robotContainer.m_fieldSim.periodic();
+
   }
 
 }

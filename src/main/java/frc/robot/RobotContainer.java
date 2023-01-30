@@ -10,14 +10,17 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.Auto.StartTrajectory;
 import frc.robot.commands.LinearArm.JogLinearArm;
+import frc.robot.commands.LinearArm.PositionHoldLinearArm;
 import frc.robot.commands.TurnArm.JogTurnArm;
-import frc.robot.commands.Vision.PhotonVision.TargetThread1;
+import frc.robot.commands.TurnArm.PositionHoldTurnArm;
 import frc.robot.commands.swerve.SetSwerveDrive;
 import frc.robot.commands.swerve.StrafeToSlot;
+import frc.robot.oi.ButtonBox;
 import frc.robot.oi.ShuffleboardLLTag;
 import frc.robot.simulation.FieldSim;
 import frc.robot.subsystems.DriveSubsystem;
@@ -41,12 +44,6 @@ public class RobotContainer {
 
         private ShuffleboardLLTag sLLtag;
 
-        private ShuffleboardLLTag sLLtape;
-
-        // final PhotonVision m_pv = new PhotonVision();
-
-        TargetThread1 tgtTh1 = null;
-
         public AutoFactory m_autoFactory;
 
         public TrajectoryFactory m_tf;
@@ -59,16 +56,17 @@ public class RobotContainer {
 
         // The driver's controller
 
-        private CommandXboxController m_driverController = new CommandXboxController(
+        private CommandPS4Controller m_driverController = new CommandPS4Controller(
                         OIConstants.kDriverControllerPort);
 
-        private CommandXboxController m_testController = new CommandXboxController(OIConstants.kTestControllerPort);
+        private CommandPS4Controller m_coDriverController = new CommandPS4Controller(
+                        OIConstants.kCoDriverControllerPort);
+
+        public ButtonBox m_bb = new ButtonBox((4));
 
         final PowerDistribution m_pdp = new PowerDistribution();
 
         final LimelightVision llvis = new LimelightVision();
-
-        private boolean usePS4;
 
         // temp controller for testing -matt
         private PS4Controller m_ps4controller = new PS4Controller(OIConstants.kDriverControllerPort);
@@ -83,7 +81,6 @@ public class RobotContainer {
 
                 Pref.addMissing();
 
-
                 SmartDashboard.putData("Scheduler", CommandScheduler.getInstance());
 
                 LiveWindow.disableAllTelemetry();
@@ -97,7 +94,6 @@ public class RobotContainer {
 
                 m_ghs = new GameHandlerSubsystem();
 
-
                 SmartDashboard.putData(m_drive);
 
                 // m_ls = new LightStrip(9, 60);
@@ -107,65 +103,100 @@ public class RobotContainer {
 
                 sLLtag = new ShuffleboardLLTag(m_llv.cam_tag_15);
 
-                // sLLtape = new ShuffleboardLLTag(m_llv.cam_tape_16);
-
                 // PortForwarder.add(5800, "10.21.94.11", 5800);
                 // PortForwarder.add(1181, "10.21.94.11", 1181);
                 // PortForwarder.add(1182, "10.21.94.11", 1182);
                 // PortForwarder.add(1183, "10.21.94,11", 1183);
                 // PortForwarder.add(1184, "10.21.94.11", 1184);
 
-                if (usePS4) {
-                        m_drive.setDefaultCommand(
-                                        new SetSwerveDrive(
-                                                        m_drive,
-                                                        () -> m_ps4controller.getRawAxis(1),
-                                                        () -> m_ps4controller.getRawAxis(0),
-                                                        () -> m_ps4controller.getRawAxis(2)));
-                }
-                // Logitech gamepad
-                else {
-                        m_drive.setDefaultCommand(
-                                        new SetSwerveDrive(
-                                                        m_drive,
-                                                        () -> m_driverController.getRawAxis(1),
-                                                        () -> m_driverController.getRawAxis(0),
-                                                        () -> m_driverController.getRawAxis(4)));// logitech gamepad
-                }
+                setDefaultCommands();
+                configureDriverControllerBindings();
+                configureCodriverControllerBindings();
+                configureBoxButtons();
+                logScheduler();
+        }
 
-                // m_testController.a()
-                // // .onTrue(Commands.runOnce(() ->
-                // m_ttj.setActiveDrop(GridDrop.COOP_LEFT_PIPE)));
-                // m_testController.b().onTrue(Commands.runOnce(() ->
-                // m_ttj.setActiveDrop(GridDrop.RIGHT_ONE_CENTER)));
-                // m_testController.x().onTrue(Commands.runOnce(() ->
-                // m_ttj.setActiveDrop(GridDrop.LEFT_ONE_CENTER)));
-                // m_testController.y().onTrue(Commands.runOnce(() ->
-                // m_ttj.setActiveDrop(GridDrop.RIGHT_THREE_PIPE)));
+        private void setDefaultCommands() {
 
-                m_testController.leftBumper().onTrue(new StartTrajectory(m_tf));
+                m_drive.setDefaultCommand(new SetSwerveDrive(m_drive,
+                                () -> m_ps4controller.getRawAxis(1),
+                                () -> m_ps4controller.getRawAxis(0),
+                                () -> m_ps4controller.getRawAxis(2)));
 
-                m_driverController.rightBumper().whileTrue(getStrafeToTargetCommand());
+                m_linArm.setDefaultCommand(new PositionHoldLinearArm(m_linArm));
+
+                m_turnArm.setDefaultCommand(new PositionHoldTurnArm(m_turnArm));
 
         }
 
-        public double getThrottle() {
-                return 0;
+        private void configureDriverControllerBindings() {
+
+                m_driverController.L1()
+                                .onTrue(getStrafeToTargetCommand())
+                                .onFalse(getStopDriveCommand());
+
+        }
+
+        private void configureCodriverControllerBindings() {
+                m_coDriverController.R1()
+                                .onTrue(Commands.runOnce(() -> m_tf.setRun(true)))
+                                .onFalse(Commands.runOnce(() -> m_tf.setRun(false)));
+
+                m_coDriverController.L1()
+                                .onTrue(getJogLinearArmCommand());
+                m_coDriverController.R1()
+                                .onTrue(getJogTurnArmCommand());
+
+        }
+
+        private void configureBoxButtons() {
+
+                m_bb.getTriggerRT().onTrue(setTargetGrid(0));
+
+                m_bb.getTriggerLT().onTrue(getJogLinearArmCommand())
+                                .onFalse(new PositionHoldLinearArm(m_linArm));
+        }
+
+        private void logScheduler() {
+                CommandScheduler.getInstance()
+                                .onCommandInitialize(command -> System.out.println(command.getName() + " is starting"));
+                CommandScheduler.getInstance()
+                                .onCommandFinish(command -> System.out.println(command.getName() + " has ended"));
+                CommandScheduler.getInstance()
+                                .onCommandInterrupt(
+                                                command -> System.out.println(command.getName() + " was interrupted"));
+                CommandScheduler.getInstance().onCommandInitialize(
+                                command -> SmartDashboard.putString("CS", command.getName() + " is starting"));
+                CommandScheduler.getInstance()
+                                .onCommandFinish(command -> SmartDashboard.putString("CE",
+                                                command.getName() + " has Ended"));
+                CommandScheduler.getInstance().onCommandInterrupt(
+                                command -> SmartDashboard.putString("CE", command.getName() + "was Interrupted"));
+
         }
 
         public Command getStrafeToTargetCommand() {
 
-                return new StrafeToSlot(m_drive, () -> m_driverController.getRawAxis(0));
+                return new StrafeToSlot(m_drive, () -> m_driverController.getRawAxis(0))
+                                .andThen(() -> m_drive.stopModules());
         }
 
-        public Command getJogArmCommand() {
+        public Command getJogTurnArmCommand() {
 
-                return new JogTurnArm(m_turnArm, () -> -m_testController.getRawAxis(1));
+                return new JogTurnArm(m_turnArm, () -> -m_coDriverController.getLeftY());
         }
 
         public Command getJogLinearArmCommand() {
 
-                return new JogLinearArm(m_linArm, () -> m_testController.getRawAxis(0));
+                return new JogLinearArm(m_linArm, () -> m_coDriverController.getLeftX());
+        }
+
+        public Command getStopDriveCommand() {
+                return new InstantCommand(() -> m_drive.stopModules());
+        }
+
+        public Command setTargetGrid(int n) {
+                return new InstantCommand(() -> m_ghs.setActiveDropNumber(n));
         }
 
 }

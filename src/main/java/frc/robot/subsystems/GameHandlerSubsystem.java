@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import org.apache.commons.collections4.sequence.InsertCommand;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -97,7 +96,7 @@ public class GameHandlerSubsystem extends SubsystemBase {
         return activeDrop;
     }
 
-    public static void setActiveDropNumber(int n) {
+    public void setActiveDropNumber(int n) {
         grid[n] = true;
     }
 

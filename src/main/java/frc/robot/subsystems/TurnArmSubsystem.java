@@ -66,7 +66,7 @@ public class TurnArmSubsystem extends SubsystemBase {
   private static final double kArmEncoderDistPerPulse = 2.0 * Math.PI / 4096;// rads per motor rev
 
   // The arm gearbox represents a gearbox containing two Vex 775pro motors.
-  private final DCMotor m_armGearbox = DCMotor.getVex775Pro(2);
+  private final DCMotor m_turnArmGearbox = DCMotor.getVex775Pro(2);
 
   // Standard classes for controlling our arm
   private final PIDController m_controller = new PIDController(kArmKp, 0, 0);
@@ -74,25 +74,25 @@ public class TurnArmSubsystem extends SubsystemBase {
   private final PWMSparkMax m_motor = new PWMSparkMax(kMotorPort);
   public double targetAngle;
   // Simulation classes help us simulate what's going on, including gravity.
-  private static final double m_armReduction = 600;
-  private static final double m_armMass = 5.0; // Kilograms
-  private static final double m_armLength = Units.inchesToMeters(30);
+  private static final double m_turnArmReduction = 600;
+  private static final double m_turnArmMass = 5.0; // Kilograms
+  private static final double m_turnArmLength = Units.inchesToMeters(30);
   private double armTravel = maxArmPositionDeg - minArmPositionDeg;
-  private double motorRevsForTravel = m_armReduction;
+  private double motorRevsForTravel = m_turnArmReduction;
   private double degreesPerMotorRev = armTravel / motorRevsForTravel;
   private double degreesPerCount = degreesPerMotorRev;
 
   // This arm sim represents an arm that can travel from -45 degrees (rotated down
   // front)
   // to 45 degrees (rotated up in front).
-  private final SingleJointedArmSim m_armSim = new SingleJointedArmSim(
-      m_armGearbox,
-      m_armReduction,
-      SingleJointedArmSim.estimateMOI(m_armLength, m_armMass),
-      m_armLength,
+  private final SingleJointedArmSim m_turnArmSim = new SingleJointedArmSim(
+      m_turnArmGearbox,
+      m_turnArmReduction,
+      SingleJointedArmSim.estimateMOI(m_turnArmLength, m_turnArmMass),
+      m_turnArmLength,
       Units.degreesToRadians(minArmPositionDeg),
       Units.degreesToRadians(maxArmPositionDeg),
-      m_armMass,
+      m_turnArmMass,
       true,
       VecBuilder.fill(kArmEncoderDistPerPulse) // Add noise with a std-dev of 1 tick
   );
@@ -100,13 +100,13 @@ public class TurnArmSubsystem extends SubsystemBase {
 
   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
   private final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
-  private final MechanismRoot2d m_armPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
-  private final MechanismLigament2d m_armTower = m_armPivot.append(new MechanismLigament2d("ArmTower", 30, -90));
-  private final MechanismLigament2d m_arm = m_armPivot.append(
+  private final MechanismRoot2d m_turnArmPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
+  private final MechanismLigament2d m_turnArmTower = m_turnArmPivot.append(new MechanismLigament2d("ArmTower", 30, -90));
+  private final MechanismLigament2d m_turnArm = m_turnArmPivot.append(
       new MechanismLigament2d(
-          "Arm",
+          "TurnArm",
           30,
-          Units.radiansToDegrees(m_armSim.getAngleRads()),
+          Units.radiansToDegrees(m_turnArmSim.getAngleRads()),
           6,
           new Color8Bit(Color.kYellow)));
   private double activeTargetAngle;
@@ -116,8 +116,8 @@ public class TurnArmSubsystem extends SubsystemBase {
     m_encoder.setDistancePerPulse(kArmEncoderDistPerPulse);
 
     // Put Mechanism 2d to SmartDashboard
-    SmartDashboard.putData("Arm Sim", m_mech2d);
-    m_armTower.setColor(new Color8Bit(Color.kBlue));
+    SmartDashboard.putData("Turn Arm Sim", m_mech2d);
+    m_turnArmTower.setColor(new Color8Bit(Color.kBlue));
     targetAngle = minArmPositionDeg;
   }
 
@@ -136,21 +136,21 @@ public class TurnArmSubsystem extends SubsystemBase {
   @Override
   public void simulationPeriodic() {
     // In this method, we update our simulation of what our arm is doing
-    // First, we set our "inputs" (voltages)
-    m_armSim.setInput(m_motor.get() * RobotController.getBatteryVoltage());
+    // // First, we set our "inputs" (voltages)
+    // m_turnArmSim.setInput(m_motor.get() * RobotController.getBatteryVoltage());
 
-    // Next, we update it. The standard loop time is 20ms.
-    m_armSim.update(0.020);
+    // // Next, we update it. The standard loop time is 20ms.
+    // m_turnArmSim.update(0.020);
 
-    // Finally, we set our simulated encoder's readings and simulated battery
-    // voltage
-    m_encoderSim.setDistance(m_armSim.getAngleRads());
-    // SimBattery estimates loaded battery voltages
-    RoboRioSim.setVInVoltage(
-        BatterySim.calculateDefaultBatteryLoadedVoltage(m_armSim.getCurrentDrawAmps()));
+    // // Finally, we set our simulated encoder's readings and simulated battery
+    // // voltage
+    // m_encoderSim.setDistance(m_turnArmSim.getAngleRads());
+    // // SimBattery estimates loaded battery voltages
+    // RoboRioSim.setVInVoltage(
+    //     BatterySim.calculateDefaultBatteryLoadedVoltage(m_turnArmSim.getCurrentDrawAmps()));
 
-    // Update the Mechanism Arm angle based on the simulated arm angle
-    m_arm.setAngle(Units.radiansToDegrees(m_armSim.getAngleRads()));
+    // // Update the Mechanism Arm angle based on the simulated arm angle
+    // m_turnArm.setAngle(Units.radiansToDegrees(m_turnArmSim.getAngleRads()));
   }
 
   public void jogArm(double speed) {

@@ -234,7 +234,7 @@ public class DriveSubsystem extends SubsystemBase {
   public void periodic() {
     // Update the odometry in the periodic block
     SmartDashboard.putString("TRROB", getTranslation().toString());
-    
+
     updateOdometry();
     SmartDashboard.putNumber("Xpos", getX());
     SmartDashboard.putNumber("Ypos", getY());
@@ -507,41 +507,39 @@ public class DriveSubsystem extends SubsystemBase {
     return thetaPID;
   }
 
-  public void setRunTrajectory(){
-    runTrajectory=true;
+  public void setRunTrajectory() {
+    runTrajectory = true;
   }
 
   public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
     return new SequentialCommandGroup(
-            new InstantCommand(() -> {
-                // Reset odometry for the first path you run during auto
-                if (isFirstPath) {
-                    resetOdometry(traj.getInitialHolonomicPose());
-                }
-            }),
-            new PPSwerveControllerCommand(
+        new InstantCommand(() -> {
+          // Reset odometry for the first path you run during auto
+          if (isFirstPath) {
+            resetOdometry(traj.getInitialHolonomicPose());
+          }
+        }),
+        new PPSwerveControllerCommand(
 
-                    traj,
+            traj,
 
-                    this::getEstimatedPose, // Pose supplier
+            this::getEstimatedPose, // Pose supplier
 
-                    m_kinematics, // SwerveDriveKinematics
+            m_kinematics, // SwerveDriveKinematics
 
-                    getXPID(),
+            getXPID(),
 
-                    getYPID(),
+            getYPID(),
 
-                    getThetaPID(),
+            getThetaPID(),
 
-                    this::setModuleStates, // Module states consumer
+            this::setModuleStates, // Module states consumer
 
-                    this // Requires this drive subsystem
-            ),
+            this // Requires this drive subsystem
+        ),
 
-            new InstantCommand(() -> stopModules()));
-}
-
-
+        new InstantCommand(() -> stopModules()));
+  }
 
   public void tuneXPIDGains() {
 

@@ -95,7 +95,7 @@ public class LinearArmSubsystem extends SubsystemBase {
     // To view the LinearArm Sim in the simulator, select Network Tables ->
     // SmartDashboard ->
     // LinearArm Sim
-    SmartDashboard.putData("LinArm Sim", m_mech2d);
+    //SmartDashboard.putData("LinArm Sim", m_mech2d);
   }
 
   @Override
@@ -115,20 +115,20 @@ public class LinearArmSubsystem extends SubsystemBase {
   public void simulationPeriodic() {
     // In this method, we update our simulation of what our LinearArm is doing
     // First, we set our "inputs" (voltages)
-    m_LinearArmSim.setInput(m_motor.get() * RobotController.getBatteryVoltage());
+    // m_LinearArmSim.setInput(m_motor.get() * RobotController.getBatteryVoltage());
 
-    // Next, we update it. The standard loop time is 20ms.
-    m_LinearArmSim.update(0.020);
+    // // Next, we update it. The standard loop time is 20ms.
+    // m_LinearArmSim.update(0.020);
 
-    // Finally, we set our simulated encoder's readings and simulated battery
-    // voltage
-    m_encoderSim.setDistance(m_LinearArmSim.getPositionMeters());
-    // SimBattery estimates loaded battery voltages
-    RoboRioSim.setVInVoltage(
-        BatterySim.calculateDefaultBatteryLoadedVoltage(m_LinearArmSim.getCurrentDrawAmps()));
+    // // Finally, we set our simulated encoder's readings and simulated battery
+    // // voltage
+    // m_encoderSim.setDistance(m_LinearArmSim.getPositionMeters());
+    // // SimBattery estimates loaded battery voltages
+    // RoboRioSim.setVInVoltage(
+    //     BatterySim.calculateDefaultBatteryLoadedVoltage(m_LinearArmSim.getCurrentDrawAmps()));
 
-    // Update LinearArm visualization with simulated position
-    m_LinearArmMech2d.setLength(Units.metersToInches(m_LinearArmSim.getPositionMeters()));
+    // // Update LinearArm visualization with simulated position
+    // m_LinearArmMech2d.setLength(Units.metersToInches(m_LinearArmSim.getPositionMeters()));
   }
 
   public void jogLinearArm(double speed) {
