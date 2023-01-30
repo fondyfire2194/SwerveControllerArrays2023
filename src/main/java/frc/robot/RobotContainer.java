@@ -21,13 +21,12 @@ import frc.robot.commands.swerve.StrafeToSlot;
 import frc.robot.oi.ShuffleboardLLTag;
 import frc.robot.simulation.FieldSim;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.GameHandlerSubsystem;
 import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.LinearArmSubsystem;
 import frc.robot.subsystems.TurnArmSubsystem;
 import frc.robot.utils.AutoFactory;
-import frc.robot.utils.GameHandlerSubsystem;
 import frc.robot.utils.LEDControllerI2C;
-import frc.robot.utils.ShuffleboardRunGame;
 import frc.robot.utils.TrajectoryFactory;
 
 public class RobotContainer {
@@ -69,11 +68,6 @@ public class RobotContainer {
 
         final LimelightVision llvis = new LimelightVision();
 
-        ShuffleboardRunGame srg;
-        private boolean useLimeLight = true;
-
-        private boolean usePhotonVision = false;
-
         private boolean usePS4;
 
         // temp controller for testing -matt
@@ -89,11 +83,6 @@ public class RobotContainer {
 
                 Pref.addMissing();
 
-                // if (useLimeLight)
-
-                // if (usePhotonVision)
-
-                // tgtTh1 = new TargetThread1(m_drive, m_pv);
 
                 SmartDashboard.putData("Scheduler", CommandScheduler.getInstance());
 
@@ -108,7 +97,6 @@ public class RobotContainer {
 
                 m_ghs = new GameHandlerSubsystem();
 
-                srg = new ShuffleboardRunGame(m_ghs);
 
                 SmartDashboard.putData(m_drive);
 

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.commands.swerve.Test.SetActiveGrid;
+import frc.robot.subsystems.GameHandlerSubsystem;
 
 /** Add your docs here. */
 public class ShuffleboardGridSelect {

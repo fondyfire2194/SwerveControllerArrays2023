@@ -72,20 +72,6 @@ public class LimelightVision extends SubsystemBase {
 
   }
 
-  static {
-    tapePipelines = new HashMap<>();
-    tapePipelines.put("PL)", 0);
-    tapePipelines.put("PL1", 1);
-    tapePipelines.put("PL2", 2);
-    tapePipelines.put("PL3", 3);
-    tapePipelines.put("tape_4", 4);
-    tapePipelines.put("PL5", 5);
-    tapePipelines.put("PL6", 6);
-    tapePipelines.put("PL7", 7);
-    tapePipelines.put("PL8", 8);
-    tapePipelines.put("PL9", 9);
-
-  }
 
   public LimelightVision() {
 
@@ -94,21 +80,12 @@ public class LimelightVision extends SubsystemBase {
     cam_tag_15.setCamMode(CamMode.kvision);
     cam_tag_15.setStream(StreamType.kStandard);
 
-    if (numCams > 1) {
-
-      // cam_tape_16 = new LimeLight("limelight-tapes
-
-      cam_tape_16.setLEDMode(LedMode.kpipeLine);
-      cam_tape_16.setCamMode(CamMode.kvision);
-      cam_tape_16.setStream(StreamType.kStandard);
-
-      // ShuffleboardLL cam_tape_16Display = new ShuffleboardLL(cam_tape_16);
-    }
+   
   }
 
   @Override
   public void periodic() {
-    // / }
+    
 
   }
 

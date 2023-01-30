@@ -2,6 +2,10 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Grid2/PickLevel": "String Chooser",
+      "/Shuffleboard/Grid2/PickPiece": "String Chooser",
+      "/Shuffleboard/Grid2/PickSlot": "String Chooser",
+      "/Shuffleboard/Grid2/SetChoices": "Command",
       "/Shuffleboard/Scheduler/Scheduler": "Scheduler",
       "/Shuffleboard/w/Grid 0": "Command",
       "/Shuffleboard/w/Grid 1": "Command",

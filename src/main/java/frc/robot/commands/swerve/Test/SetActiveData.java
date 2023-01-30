@@ -5,7 +5,7 @@
 package frc.robot.commands.swerve.Test;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.utils.GameHandlerSubsystem;
+import frc.robot.subsystems.GameHandlerSubsystem;
 import frc.robot.utils.ShuffleboardRunGame;
 
 public class SetActiveData extends CommandBase {
