@@ -12,9 +12,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -48,7 +50,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    // if (RobotBase.isReal())
+     if (RobotBase.isReal())
     DataLogManager.start();
 
     PPSwerveControllerCommand.setLoggingCallbacks(
@@ -126,6 +128,14 @@ public class Robot extends TimedRobot {
 
     m_robotContainer.m_drive.setIdleMode(true);
 
+    boolean tempAlliance = DriverStation.getAlliance()==Alliance.Blue;
+
+    m_robotContainer.m_ghs.setAllianceBlue(tempAlliance);
+
+    m_robotContainer.m_llv.setAllianceBlue(tempAlliance);
+
+
+
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -148,6 +158,11 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    boolean tempAlliance = DriverStation.getAlliance()==Alliance.Blue;
+
+    m_robotContainer.m_ghs.setAllianceBlue(tempAlliance);
+
+    m_robotContainer.m_llv.setAllianceBlue(tempAlliance);
 
     // new SetSwerveOdometry(m_robotContainer.m_drive,
     //     m_robotContainer.m_fieldSim, new Pose2d(6.13, 5.23,

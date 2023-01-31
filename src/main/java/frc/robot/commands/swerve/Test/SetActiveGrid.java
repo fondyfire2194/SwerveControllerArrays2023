@@ -4,40 +4,40 @@
 
 package frc.robot.commands.swerve.Test;
 
-
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.GameHandlerSubsystem;
-
+import frc.robot.utils.ShuffleboardGridSelect;
 
 public class SetActiveGrid extends CommandBase {
   /** Creates a new SetGrid. */
+  private GameHandlerSubsystem m_ghs;
+  private ShuffleboardGridSelect m_sgs;
   private int selectedGrid;
-  private int m_n;
+  private double startTime;
 
-  public SetActiveGrid() {
+  public SetActiveGrid(ShuffleboardGridSelect sgs, GameHandlerSubsystem ghs) {
     // Use addRequirements() here to declare subsystem dependencies.
+    m_ghs = ghs;
+    m_sgs = sgs;
 
-  }
-
-  public SetActiveGrid(int n) {
-    // Use addRequirements() here to declare subsystem dependencies.
-    m_n = n;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
-
+    selectedGrid = m_sgs.gridSlot.getSelected();
+    startTime = Timer.getFPGATimestamp();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    SmartDashboard.putNumber("GSW", selectedGrid);
+    m_ghs.setDropByNumber(selectedGrid);
 
-    GameHandlerSubsystem.setDropByNumber(m_n);
-    GameHandlerSubsystem.grid[selectedGrid] = true;
-  }
+  };
 
   // Called once the command ends or is interrupted.
   @Override
@@ -48,6 +48,6 @@ public class SetActiveGrid extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return GameHandlerSubsystem.getActiveDrop().ordinal() == selectedGrid;
+    return Timer.getFPGATimestamp() > startTime + 1;
   }
 }

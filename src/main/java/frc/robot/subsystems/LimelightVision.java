@@ -14,6 +14,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.oi.LimeLightV3;
 import frc.robot.oi.LimeLightV3.CamMode;
@@ -50,6 +52,8 @@ public class LimelightVision extends SubsystemBase {
 
   private Pose2d visionPoseEstimatedData;
 
+  private boolean allianceBlue;
+
   public static Map<String, Integer> tapePipelines;
 
   public static Map<String, Integer> tagPipelines;
@@ -76,6 +80,10 @@ public class LimelightVision extends SubsystemBase {
     cam_tag_15.setCamMode(CamMode.kvision);
     cam_tag_15.setStream(StreamType.kStandard);
 
+  }
+
+  public void setAllianceBlue(boolean alliance) {
+    allianceBlue = alliance;
   }
 
   @Override

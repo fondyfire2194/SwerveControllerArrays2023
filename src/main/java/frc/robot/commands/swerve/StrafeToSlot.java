@@ -11,6 +11,7 @@ import frc.robot.subsystems.GameHandlerSubsystem;
 public class StrafeToSlot extends CommandBase {
   @SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
   private final DriveSubsystem m_drive;
+  private final GameHandlerSubsystem m_ghs;
 
   /**
    * Creates a new ExampleCommand.
@@ -33,10 +34,12 @@ public class StrafeToSlot extends CommandBase {
 
   public StrafeToSlot(
       DriveSubsystem drive,
+      GameHandlerSubsystem ghs,
 
       DoubleSupplier strafeInput) {
 
     m_drive = drive;
+    m_ghs = ghs;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
@@ -45,12 +48,15 @@ public class StrafeToSlot extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    endYTarget = GameHandlerSubsystem.getActiveDrop().getyVal();
-    endXTarget = GameHandlerSubsystem.getActiveDrop().getyVal();
-    isPipe = GameHandlerSubsystem.getActiveDrop().getIsPipe();
+
+    endYTarget = m_ghs.getActiveDrop().getYVal();
+    endXTarget = m_ghs.getActiveDrop().getXVal();
+    isPipe = m_ghs.getActiveDrop().getIsPipe();
+
     SmartDashboard.putNumber("ENDPTY", endYTarget);
     SmartDashboard.putNumber("ENDPTX", endXTarget);
     SmartDashboard.putBoolean("PIPE", isPipe);
+
   }
 
   /**

@@ -13,11 +13,14 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.LinearArm.JogLinearArm;
 import frc.robot.commands.LinearArm.PositionHoldLinearArm;
 import frc.robot.commands.TurnArm.PositionHoldTurnArm;
 import frc.robot.commands.swerve.SetSwerveDrive;
 import frc.robot.commands.swerve.StrafeToSlot;
+import frc.robot.commands.swerve.Test.MessageCommand;
 import frc.robot.oi.ButtonBox;
+import frc.robot.oi.CommandPS3Controller;
 import frc.robot.oi.ShuffleboardLLTag;
 import frc.robot.simulation.FieldSim;
 import frc.robot.subsystems.DriveSubsystem;
@@ -28,6 +31,7 @@ import frc.robot.subsystems.TurnArmSubsystem;
 import frc.robot.utils.AutoFactory;
 import frc.robot.utils.LEDControllerI2C;
 import frc.robot.utils.PoseTelemetry;
+import frc.robot.utils.ShuffleboardGridSelect;
 import frc.robot.utils.TrajectoryFactory;
 
 public class RobotContainer {
@@ -43,6 +47,8 @@ public class RobotContainer {
 
         private ShuffleboardLLTag sLLtag;
 
+        private ShuffleboardGridSelect m_sgs;
+
         public AutoFactory m_autoFactory;
 
         public TrajectoryFactory m_tf;
@@ -55,7 +61,7 @@ public class RobotContainer {
 
         // The driver and codriver controllers
 
-        private CommandPS4Controller m_driverController = new CommandPS4Controller(
+        private CommandPS3Controller m_driverController = new CommandPS3Controller(
                         OIConstants.kDriverControllerPort);
 
         private CommandPS4Controller m_coDriverController = new CommandPS4Controller(
@@ -67,7 +73,7 @@ public class RobotContainer {
 
         final PowerDistribution m_pdp = new PowerDistribution();
 
-        final LimelightVision llvis = new LimelightVision();
+        public LimelightVision llvis = new LimelightVision();
 
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -94,6 +100,8 @@ public class RobotContainer {
 
                 m_ghs = new GameHandlerSubsystem();
 
+                m_sgs = new ShuffleboardGridSelect(m_ghs);
+
                 m_fieldSim = new FieldSim(m_drive);
 
                 // m_ls = new LightStrip(9, 60);
@@ -114,38 +122,6 @@ public class RobotContainer {
                 // PortForwarder.add(1183, "10.21.94,11", 1183);
                 // PortForwarder.add(1184, "10.21.94.11", 1184);
 
-                // if (RobotBase.isReal()) {
-                // m_drive.setDefaultCommand(new SetSwerveDrive(m_drive,
-                // () -> m_driverController.getLeftY(),
-                // () -> m_driverController.getLeftX(),
-                // () -> m_driverController.getRightX()));
-                // }
-
-                m_drive.setDefaultCommand(getDriveCommand());
-
-                m_linArm.setDefaultCommand(new PositionHoldLinearArm(m_linArm));
-
-                m_turnArm.setDefaultCommand(new PositionHoldTurnArm(m_turnArm));
-
-                m_coDriverController.L1()
-                                .onTrue(getStrafeToTargetCommand())
-                                .onFalse(getStopDriveCommand());
-
-                m_coDriverController.R1()
-                                .onTrue(Commands.runOnce(() -> m_tf.setRun(true)))
-                                .onFalse(Commands.runOnce(() -> m_tf.setRun(false)));
-
-                m_coDriverController.L1()
-                                .onTrue(getJogLinearArmCommand());
-
-                m_coDriverController.R1()
-                                .onTrue(getJogTurnArmCommand());
-
-                m_bb.getTriggerRT().onTrue(setTargetGrid(0));
-
-                m_bb.getTriggerLT().onTrue(getJogLinearArmCommand())
-                                .onFalse(new PositionHoldLinearArm(m_linArm));
-
                 CommandScheduler.getInstance()
                                 .onCommandInitialize(command -> System.out.println(command.getName() + " is starting"));
                 CommandScheduler.getInstance()
@@ -163,6 +139,54 @@ public class RobotContainer {
 
                 m_fieldSim.initSim();
 
+                setDefaultCommands();
+
+                configDriverButtons();
+
+                configCodriverButtons();
+
+                configButtonBoxButtons();
+
+        }
+
+        private void setDefaultCommands() {
+
+                m_drive.setDefaultCommand(getDriveCommand());
+
+                m_linArm.setDefaultCommand(new PositionHoldLinearArm(m_linArm));
+
+                m_turnArm.setDefaultCommand(new PositionHoldTurnArm(m_turnArm));
+
+        }
+
+        private void configDriverButtons() {
+
+                m_driverController.L1().onTrue(new MessageCommand("HELLO"))
+                                .whileTrue(getStrafeToTargetCommand());
+
+        }
+
+        private void configCodriverButtons() {
+
+                m_coDriverController.R1()
+                                .onTrue(Commands.runOnce(() -> m_tf.setRun(true)))
+                                .onFalse(Commands.runOnce(() -> m_tf.setRun(false)));
+
+                m_coDriverController.L1()
+                                .onTrue(getJogLinearArmCommand());
+
+                m_coDriverController.R1()
+                                .onTrue(getJogTurnArmCommand());
+
+        }
+
+        private void configButtonBoxButtons() {
+
+                m_bb.getTriggerRT().onTrue(setTargetGrid(0));
+
+                m_bb.getTriggerLT().onTrue(getJogLinearArmCommand())
+                                .onFalse(new PositionHoldLinearArm(m_linArm));
+
         }
 
         public Command getDriveCommand() {
@@ -175,7 +199,7 @@ public class RobotContainer {
 
         public Command getStrafeToTargetCommand() {
 
-                return new StrafeToSlot(m_drive, () -> m_driverController.getRawAxis(0))
+                return new StrafeToSlot(m_drive, m_ghs, () -> m_driverController.getRawAxis(0))
                                 .andThen(() -> m_drive.stopModules());
         }
 
@@ -186,7 +210,7 @@ public class RobotContainer {
 
         public Command getJogLinearArmCommand() {
 
-                return new InstantCommand();// new JogLinearArm(m_linArm, () -> m_coDriverController.getLeftX());
+                return new JogLinearArm(m_linArm, () -> m_coDriverController.getLeftX());
         }
 
         public Command getStopDriveCommand() {
