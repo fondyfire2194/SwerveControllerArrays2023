@@ -13,9 +13,9 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 /** Add your docs here. */
 public class ShuffleboardLLTag {
 
-        private LimeLight m_ll;
+        private LimeLightV3 m_ll;
 
-        public ShuffleboardLLTag(LimeLight ll) {{
+        public ShuffleboardLLTag(LimeLightV3 ll) {{
 
                 m_ll = ll;
 
@@ -74,7 +74,7 @@ public class ShuffleboardLLTag {
 
                 col5_6.addNumber(name + " Tag ID", () -> m_ll.getAprilTagID());
 
-                col5_6.addString(name + " Cam Tran3d", () -> m_ll.getCamTran().toString());
+                col5_6.addString(name + " Cam Tran3d", () -> m_ll.getCameraPoseTargetSpace().toString());
 
                 col5_6.addString(name + " RobTran3d", () -> m_ll.getRobotTransform().toString());
 

@@ -17,13 +17,11 @@ public class FieldSim {
   private final DriveSubsystem m_swerveDrive;
 
   private SwerveModuleSM[] modules = new SwerveModuleSM[4];
-  
- 
 
   private final Field2d m_field2d = new Field2d();
 
   private final Pose2d[] m_swerveModulePoses = new Pose2d[4];
-
+private int tstctr;
   public FieldSim(DriveSubsystem swerveDrive) {
 
     m_swerveDrive = swerveDrive;
@@ -68,13 +66,15 @@ public class FieldSim {
 
         .setPoses(m_swerveModulePoses);
 
+        SmartDashboard.putNumber("TSTSIM", tstctr);
+
   }
 
   public void periodic() {
 
     updateRobotPoses();
 
-   // if (RobotBase.isSimulation())
+    if (RobotBase.isSimulation())
 
       simulationPeriodic();
 

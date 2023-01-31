@@ -38,7 +38,6 @@ public class PoseTelemetry {
     Pose2d estPose = new Pose2d();
 
     public PoseTelemetry() {
-        SmartDashboard.putData("Field", field);
         update();
     }
 

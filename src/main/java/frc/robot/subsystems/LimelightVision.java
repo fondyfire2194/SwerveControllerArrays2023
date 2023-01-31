@@ -15,20 +15,17 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.VisionConstants;
-import frc.robot.oi.LimeLight;
-import frc.robot.oi.LimeLight.CamMode;
-import frc.robot.oi.LimeLight.LedMode;
-import frc.robot.oi.LimeLight.StreamType;
+import frc.robot.oi.LimeLightV3;
+import frc.robot.oi.LimeLightV3.CamMode;
+import frc.robot.oi.LimeLightV3.LedMode;
+import frc.robot.oi.LimeLightV3.StreamType;
 
 public class LimelightVision extends SubsystemBase {
   /** Creates a new LimelightVision. */
 
   private int numCams = 1;
 
-  public LimeLight cam_tag_15;
-
-  public LimeLight cam_tape_16;
+  public LimeLightV3 cam_tag_15;
 
   Rotation2d rr = new Rotation2d(1.57);
   Translation3d tl3 = new Translation3d(1, 2, 3);
@@ -49,7 +46,7 @@ public class LimelightVision extends SubsystemBase {
 
   private Pose2d targetPose2d = new Pose2d();
 
-  public Transform3d camTran = new Transform3d();
+  public Transform3d camPoseTargetSpace = new Transform3d();
 
   private Pose2d visionPoseEstimatedData;
 
@@ -72,24 +69,21 @@ public class LimelightVision extends SubsystemBase {
 
   }
 
-
   public LimelightVision() {
 
-    cam_tag_15 = new LimeLight("limelight-tags");
+    cam_tag_15 = new LimeLightV3("limelight-tags");
     cam_tag_15.setLEDMode(LedMode.kforceOff);
     cam_tag_15.setCamMode(CamMode.kvision);
     cam_tag_15.setStream(StreamType.kStandard);
 
-   
   }
 
   @Override
   public void periodic() {
-    
 
   }
 
-  public Transform3d getCamTransform(LimeLight cam) {
+  public Transform3d getCamTransform(LimeLightV3 cam) {
 
     imageCaptureTime = cam.getPipelineLatency() / 1000d;
 
@@ -97,14 +91,14 @@ public class LimelightVision extends SubsystemBase {
 
     if (fiducialId != -1) {
 
-      camTran = cam.getCamTran();
+      camPoseTargetSpace = cam.getCameraPoseTargetSpace();
     }
 
-    return camTran;
+    return camPoseTargetSpace;
 
   }
 
-  public Transform3d getRobotTransform(LimeLight cam) {
+  public Transform3d getRobotTransform(LimeLightV3 cam) {
 
     imageCaptureTime = cam.getPipelineLatency() / 1000d;
 

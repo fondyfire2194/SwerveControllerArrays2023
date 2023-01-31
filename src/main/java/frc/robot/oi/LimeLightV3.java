@@ -323,6 +323,12 @@ public class LimeLightV3 {
         return v == 1.0;
     }
 
+    public String getJsonEntry() {
+        NetworkTableEntry jsonDumpNetworkTableEntry = m_table.getEntry("json");
+        String jsonDump = jsonDumpNetworkTableEntry.getString("{}");
+        return jsonDump;
+    }
+
     /**
      * tx Horizontal Offset From Crosshair To Target (-27 degrees to 27 degrees)
      * 
@@ -545,7 +551,6 @@ public class LimeLightV3 {
             for (int i = 3; i > 5; i++) {
                 result[i] = Units.degreesToRadians(result[i]);
             }
-
             r3d = new Rotation3d(result[3], result[4], result[5]);
             tf3d = new Transform3d(tl3d, r3d);
         } else
@@ -577,6 +582,14 @@ public class LimeLightV3 {
         } else
             tf3d = new Transform3d();
         return tf3d;
+    }
+
+    public Transform3d getRobotTransform_WPIboolean(boolean blueAlliance) {
+        if (blueAlliance)
+            return getRobotTransform_WPIBlue();
+        else
+            return getRobotTransform_WPIRed();
+
     }
 
     /**

@@ -13,9 +13,9 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 /** Add your docs here. */
 public class ShuffleboardLLTape {
 
-        private LimeLight m_ll;
+        private LimeLightV3 m_ll;
 
-        public ShuffleboardLLTape(LimeLight ll) {{
+        public ShuffleboardLLTape(LimeLightV3 ll) {{
 
                 m_ll = ll;
 

@@ -4,25 +4,37 @@
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Arm Sim": "Mechanism2d",
       "/SmartDashboard/Auto Selector": "String Chooser",
+      "/SmartDashboard/Drive": "Subsystem",
       "/SmartDashboard/DriveSubsystem": "Subsystem",
+      "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/Field2d": "Field2d",
+      "/SmartDashboard/Lin Arm": "Subsystem",
       "/SmartDashboard/LinArm Sim": "Mechanism2d",
       "/SmartDashboard/Scheduler": "Scheduler",
       "/SmartDashboard/TrajChoice": "String Chooser",
-      "/SmartDashboard/Turn Arm Sim": "Mechanism2d"
+      "/SmartDashboard/Turn Arm Sim": "Mechanism2d",
+      "/SmartDashboard/TurnArm": "Subsystem"
     },
     "windows": {
-      "/SmartDashboard/Arm Sim": {
-        "window": {
-          "visible": true
-        }
-      },
       "/SmartDashboard/Field2d": {
+        "Robot": {
+          "image": "C:\\Users\\John\\Documents\\FRC2023\\SwerveControllerCommand-Arrays-PHVIs-2023\\src\\main\\images\\robot.png"
+        },
+        "Swerve Modules": {
+          "image": "C:\\Users\\John\\Documents\\FRC2023\\SwerveControllerCommand-Arrays-PHVIs-2023\\src\\main\\images\\swerve_module.png",
+          "style": "Box/Image"
+        },
+        "image": "C:\\Users\\John\\Documents\\FRC2023\\SwerveControllerCommand-Arrays-PHVIs-2023\\src\\main\\images\\Field2d_2023.png",
         "window": {
           "visible": true
         }
       },
       "/SmartDashboard/LinArm Sim": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Turn Arm Sim": {
         "window": {
           "visible": true
         }
@@ -37,16 +49,16 @@
       "Preferences": {
         "open": true
       },
+      "Shuffleboard": {
+        "open": true
+      },
       "SmartDashboard": {
-        "LinArm Sim": {
-          "open": true
-        },
         "Scheduler": {
           "open": true
         },
-        "open": true
-      },
-      "limelight-tags": {
+        "Turn Arm Sim": {
+          "open": true
+        },
         "open": true
       }
     }

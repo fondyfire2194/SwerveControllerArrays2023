@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.swerve.SetSwerveOdometry;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -40,8 +41,6 @@ public class Robot extends TimedRobot {
 
   public static int lpctra;
 
-
-
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -49,8 +48,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-  //  if (RobotBase.isReal())
-      DataLogManager.start();
+    // if (RobotBase.isReal())
+    DataLogManager.start();
 
     PPSwerveControllerCommand.setLoggingCallbacks(
         (PathPlannerTrajectory activeTrajectory) -> {
@@ -84,6 +83,7 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
+    //m_robotContainer.periodic();
     lpctra++;
 
     /*
@@ -149,9 +149,10 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
-    // new SetSwerveOdometry(m_robotContainer.m_robotDrive,
-    // m_robotContainer.m_fieldSim,new Pose2d(6.13, 5.23,
-    // Rotation2d.fromDegrees(-41.5))).schedule();
+    // new SetSwerveOdometry(m_robotContainer.m_drive,
+    //     m_robotContainer.m_fieldSim, new Pose2d(6.13, 5.23,
+    //         Rotation2d.fromDegrees(-41.5)))
+    //     .schedule();
   }
 
   /** This function is called periodically during operator control. */
@@ -159,10 +160,10 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     // m_robotContainer.m_ls.rainbow();
     // if (m_robotContainer.m_tf.run) {
-    //   new RunTrajectory(m_robotContainer.m_tf, 1, 1).schedule();
-    //   m_robotContainer.m_tf.run=false;
+    // new RunTrajectory(m_robotContainer.m_tf, 1, 1).schedule();
+    // m_robotContainer.m_tf.run=false;
     // }
-}
+  }
 
   @Override
   public void testInit() {
@@ -181,8 +182,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void simulationPeriodic() {
-    m_robotContainer.m_fieldSim.periodic();
-
+     m_robotContainer.m_fieldSim.periodic();
+    // m_robotContainer.simulationPeriodic();
   }
 
 }

@@ -236,6 +236,7 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putString("TRROB", getTranslation().toString());
 
     updateOdometry();
+
     SmartDashboard.putNumber("Xpos", getX());
     SmartDashboard.putNumber("Ypos", getY());
     SmartDashboard.putNumber("GyroAngle", getHeadingDegrees());

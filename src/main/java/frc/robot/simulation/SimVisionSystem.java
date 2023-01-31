@@ -4,14 +4,11 @@
 
 package frc.robot.simulation;
 
-import org.photonvision.SimVisionTarget;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.VisionConstants;
 
 public class SimVisionSystem {
   /** Creates a new SimVision. */// Simulated Vision System.

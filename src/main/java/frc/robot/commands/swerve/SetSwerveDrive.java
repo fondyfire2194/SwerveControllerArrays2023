@@ -56,7 +56,7 @@ public class SetSwerveDrive extends CommandBase {
         * Math.signum(m_rotationInput.getAsDouble());
 
     // square values after deadband while keeping original sign
-SmartDashboard.putNumber("THHRAW", throttle);
+    SmartDashboard.putNumber("THHRAW", throttle);
     throttle = -Math.signum(throttle) * Math.pow(throttle, 2);
     strafe = -Math.signum(strafe) * Math.pow(strafe, 2);
     rotation = -Math.signum(rotation) * Math.pow(rotation, 2);
@@ -67,8 +67,8 @@ SmartDashboard.putNumber("THHRAW", throttle);
 
     double throttle_sl = m_slewX.calculate(throttle);
     double strafe_sl = m_slewY.calculate(strafe);
-    //double rotation_sl = m_slewRot.calculate(rotation);
-    //SlewRateLimiter causes drifting issues with swerve rotation
+    // double rotation_sl = m_slewRot.calculate(rotation);
+    // SlewRateLimiter causes drifting issues with swerve rotation
 
     SmartDashboard.putNumber("JSVal", throttle);
     SmartDashboard.putNumber("JSSlew", throttle_sl);

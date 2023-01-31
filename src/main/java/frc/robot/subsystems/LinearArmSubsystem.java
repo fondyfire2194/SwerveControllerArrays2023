@@ -33,7 +33,7 @@ public class LinearArmSubsystem extends SubsystemBase {
   private static final double kCarriageMass = 4.0; // kg
 
   private static final double minLinearArmDistance = Units.inchesToMeters(2);
-  
+
   private static final double maxLinearArmDistance = Units.inchesToMeters(50);
 
   public enum linearDistances {
@@ -55,6 +55,7 @@ public class LinearArmSubsystem extends SubsystemBase {
     }
 
   }
+
   // distance per pulse = (distance per revolution) / (pulses per revolution)
   // = (Pi * D) / ppr
   private static final double kLinearArmEncoderDistPerPulse = 2.0 * Math.PI * kLinearArmDrumRadius / 4096;
@@ -87,48 +88,46 @@ public class LinearArmSubsystem extends SubsystemBase {
   public double targetDistance;
   private double activeTargetDistance;
 
-
   public LinearArmSubsystem() {
     m_encoder.setDistancePerPulse(kLinearArmEncoderDistPerPulse);
 
     // Publish Mechanism2d to SmartDashboard
     // To view the LinearArm Sim in the simulator, select Network Tables ->
-    // SmartDashboard ->
-    // LinearArm Sim
-    //SmartDashboard.putData("LinArm Sim", m_mech2d);
+   // SmartDashboard ->    LinearArmSim
+    SmartDashboard.putData("LinArm Sim", m_mech2d);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-     // This method will be called once per scheduler run
-     SmartDashboard.putNumber("LinArmdistance", getDistance());
-     SmartDashboard.putNumber("LinArmtarget", targetDistance);
-     SmartDashboard.putNumber("LinArmVel", getVelocity());
- 
-     SmartDashboard.putBoolean("LinInPos", inPosition());
-     SmartDashboard.putBoolean("LinStopped", isStopped());
- 
+    // This method will be called once per scheduler run
+    SmartDashboard.putNumber("LinArmdistance", getDistance());
+    SmartDashboard.putNumber("LinArmtarget", targetDistance);
+    SmartDashboard.putNumber("LinArmVel", getVelocity());
+
+    SmartDashboard.putBoolean("LinInPos", inPosition());
+    SmartDashboard.putBoolean("LinStopped", isStopped());
+
   }
 
   @Override
   public void simulationPeriodic() {
     // In this method, we update our simulation of what our LinearArm is doing
     // First, we set our "inputs" (voltages)
-    // m_LinearArmSim.setInput(m_motor.get() * RobotController.getBatteryVoltage());
+    m_LinearArmSim.setInput(m_motor.get() * RobotController.getBatteryVoltage());
 
     // // Next, we update it. The standard loop time is 20ms.
-    // m_LinearArmSim.update(0.020);
+    m_LinearArmSim.update(0.020);
 
-    // // Finally, we set our simulated encoder's readings and simulated battery
-    // // voltage
-    // m_encoderSim.setDistance(m_LinearArmSim.getPositionMeters());
-    // // SimBattery estimates loaded battery voltages
-    // RoboRioSim.setVInVoltage(
-    //     BatterySim.calculateDefaultBatteryLoadedVoltage(m_LinearArmSim.getCurrentDrawAmps()));
+    // Finally, we set our simulated encoder's readings and simulated battery
+    // voltage
+    m_encoderSim.setDistance(m_LinearArmSim.getPositionMeters());
+    // SimBattery estimates loaded battery voltages
+    RoboRioSim.setVInVoltage(
+        BatterySim.calculateDefaultBatteryLoadedVoltage(m_LinearArmSim.getCurrentDrawAmps()));
 
-    // // Update LinearArm visualization with simulated position
-    // m_LinearArmMech2d.setLength(Units.metersToInches(m_LinearArmSim.getPositionMeters()));
+    // Update LinearArm visualization with simulated position
+    m_LinearArmMech2d.setLength(Units.metersToInches(m_LinearArmSim.getPositionMeters()));
   }
 
   public void jogLinearArm(double speed) {
@@ -143,7 +142,7 @@ public class LinearArmSubsystem extends SubsystemBase {
 
     m_motor.setVoltage(pidOut * RobotController.getBatteryVoltage());
 
-    targetDistance=getDistance();
+    targetDistance = getDistance();
   }
 
   public void positionHold() {
