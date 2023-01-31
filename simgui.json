@@ -2,6 +2,10 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Grid/GridLevel": "String Chooser",
+      "/Shuffleboard/Grid/GridSlot": "String Chooser",
+      "/Shuffleboard/Grid/PieceType": "String Chooser",
+      "/Shuffleboard/Grid/SetSlot": "Command",
       "/SmartDashboard/Arm Sim": "Mechanism2d",
       "/SmartDashboard/Auto Selector": "String Chooser",
       "/SmartDashboard/Drive": "Subsystem",
@@ -54,9 +58,6 @@
       },
       "SmartDashboard": {
         "Scheduler": {
-          "open": true
-        },
-        "Turn Arm Sim": {
           "open": true
         },
         "open": true
