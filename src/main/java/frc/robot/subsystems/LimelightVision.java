@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -14,8 +13,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.oi.LimeLightV3;
 import frc.robot.oi.LimeLightV3.CamMode;
@@ -25,7 +22,6 @@ import frc.robot.oi.LimeLightV3.StreamType;
 public class LimelightVision extends SubsystemBase {
   /** Creates a new LimelightVision. */
 
-  private int numCams = 1;
 
   public LimeLightV3 cam_tag_15;
 
@@ -54,22 +50,27 @@ public class LimelightVision extends SubsystemBase {
 
   private boolean allianceBlue;
 
-  public static Map<String, Integer> tapePipelines;
+  static enum pipelines {
+    SPARE(0),
+    LOADCUBE(1),
+    LOADCONE(2),
+    SPARE3(3),
+    SPARE4(4),
+    SPARE5(5),
+    SPARE6(6),
+    SPARE7(7),
+    SPARE8(8),
+    SPARE9(9);
 
-  public static Map<String, Integer> tagPipelines;
+    private int number;
 
-  static {
-    tagPipelines = new HashMap<>();
-    tagPipelines.put("tag_0", 0);
-    tagPipelines.put("PL1", 1);
-    tagPipelines.put("PL2", 2);
-    tagPipelines.put("PL3", 3);
-    tagPipelines.put("tape_4", 4);
-    tagPipelines.put("PL5", 5);
-    tagPipelines.put("PL6", 6);
-    tagPipelines.put("PL7", 7);
-    tagPipelines.put("PL8", 8);
-    tagPipelines.put("PL0", 9);
+    private pipelines(int number) {
+      this.number = number;
+    }
+
+    private int getNumber() {
+      return number;
+    }
 
   }
 
@@ -128,5 +129,14 @@ public class LimelightVision extends SubsystemBase {
     return number;
 
   }
+
+  public void setLoadCubePipeline() {
+    cam_tag_15.setPipeline(pipelines.LOADCUBE.ordinal());
+  }
+
+  public void setLoadConePipeline() {
+    cam_tag_15.setPipeline(pipelines.LOADCONE.ordinal());
+  }
+
 
 }

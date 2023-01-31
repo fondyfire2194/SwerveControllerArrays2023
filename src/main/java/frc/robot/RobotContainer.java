@@ -15,7 +15,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.LinearArm.JogLinearArm;
 import frc.robot.commands.LinearArm.PositionHoldLinearArm;
+import frc.robot.commands.TurnArm.JogTurnArm;
 import frc.robot.commands.TurnArm.PositionHoldTurnArm;
+import frc.robot.commands.swerve.RotateToAngle;
 import frc.robot.commands.swerve.SetSwerveDrive;
 import frc.robot.commands.swerve.StrafeToSlot;
 import frc.robot.commands.swerve.Test.MessageCommand;
@@ -37,7 +39,7 @@ import frc.robot.utils.TrajectoryFactory;
 public class RobotContainer {
 
         // The robot's subsystems
-        final DriveSubsystem m_drive;// = new DriveSubsystem();
+        final DriveSubsystem m_drive;
 
         final TurnArmSubsystem m_turnArm;// = new TurnArmSubsystem();
 
@@ -161,8 +163,22 @@ public class RobotContainer {
 
         private void configDriverButtons() {
 
-                m_driverController.L1().onTrue(new MessageCommand("HELLO"))
+                m_driverController.L1()
                                 .whileTrue(getStrafeToTargetCommand());
+
+                m_driverController.L2().onTrue(new RotateToAngle(m_drive, 90));
+
+                m_driverController.cross()
+
+                                .onTrue
+
+                                (new InstantCommand(() -> m_ghs.setConeForPickup()))
+
+                                .onTrue
+
+                                (new InstantCommand(() -> m_llv.setLoadConePipeline()));
+
+                m_driverController.circle().onTrue(new InstantCommand(() -> m_ghs.setCubeForPickup()));
 
         }
 
@@ -175,7 +191,7 @@ public class RobotContainer {
                 m_coDriverController.L1()
                                 .onTrue(getJogLinearArmCommand());
 
-                m_coDriverController.R1()
+                m_coDriverController.R2()
                                 .onTrue(getJogTurnArmCommand());
 
         }
@@ -205,7 +221,7 @@ public class RobotContainer {
 
         public Command getJogTurnArmCommand() {
 
-                return new InstantCommand();// JogTurnArm(m_turnArm, () -> -m_coDriverController.getLeftY());
+                return new JogTurnArm(m_turnArm, () -> -m_coDriverController.getLeftY());
         }
 
         public Command getJogLinearArmCommand() {

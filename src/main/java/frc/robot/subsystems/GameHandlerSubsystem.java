@@ -108,6 +108,10 @@ public class GameHandlerSubsystem extends SubsystemBase {
 
     private int  nameIndex =0;
 
+    private boolean coneForPickup;
+
+    private boolean cubeForPickup;
+
     public GameHandlerSubsystem() {
 
     }
@@ -217,6 +221,15 @@ public class GameHandlerSubsystem extends SubsystemBase {
 
     public String getActiveName(){
         return dropNames[nameIndex];
+    }
+
+    public void setConeForPickup(){
+        coneForPickup=true;
+        cubeForPickup=false;
+    }
+    public void setCubeForPickup(){
+        cubeForPickup=true;
+        coneForPickup=false;
     }
 
     @Override
