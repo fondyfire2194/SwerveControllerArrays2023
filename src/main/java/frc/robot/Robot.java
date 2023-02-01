@@ -88,7 +88,6 @@ public class Robot extends TimedRobot {
     // m_robotContainer.periodic();
     lpctra++;
 
- 
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -118,11 +117,12 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
 
+    setAllianceBlue();
+
     m_autonomousCommand = m_robotContainer.m_autoFactory.getAutonomousCommand();
 
     m_robotContainer.m_drive.setIdleMode(true);
 
-    setAllianceBlue();
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -157,7 +157,6 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     // m_robotContainer.m_ls.rainbow();
 
-    
   }
 
   @Override
@@ -183,11 +182,13 @@ public class Robot extends TimedRobot {
 
   public void setAllianceBlue() {
 
-    boolean ourAlliance = DriverStation.getAlliance() == Alliance.Blue;
+    boolean blueAlliance = DriverStation.getAlliance() == Alliance.Blue;
 
-    m_robotContainer.m_ghs.setAllianceBlue(ourAlliance);
+    m_robotContainer.m_ghs.setAllianceBlue(blueAlliance);
 
-    m_robotContainer.m_llv.setAllianceBlue(ourAlliance);
+    m_robotContainer.m_llv.setAllianceBlue(blueAlliance);
+
+    m_robotContainer.configDriverButtons(blueAlliance);
 
   }
 

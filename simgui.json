@@ -27,9 +27,16 @@
       },
       "/SmartDashboard/Field2d": {
         "AprilTag1": {
+          "arrowSize": 26,
           "arrowWeight": 3.0,
+          "color": [
+            0.8391856551170349,
+            0.8507462739944458,
+            0.07618621736764908,
+            255.0
+          ],
           "selectable": false,
-          "style": "Line"
+          "style": "Line (Closed)"
         },
         "Robot": {
           "image": "C:\\Users\\John\\Documents\\FRC2023\\SwerveControllerCommand-Arrays-PHVIs-2023\\src\\main\\images\\robot.png",
@@ -68,6 +75,15 @@
         "open": true
       },
       "Shuffleboard": {
+        ".metadata": {
+          "open": true
+        },
+        "LimelightVision": {
+          "A": {
+            "open": true
+          },
+          "open": true
+        },
         "open": true
       },
       "SmartDashboard": {

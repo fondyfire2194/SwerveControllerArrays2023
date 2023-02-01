@@ -4,12 +4,17 @@
 
 package frc.robot.simulation;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.FieldConstants2023;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.SwerveModuleSM;
@@ -23,8 +28,16 @@ public class FieldSim {
 
   private final Pose2d[] m_swerveModulePoses = new Pose2d[4];
 
-  private final Pose2d[] m_aprilTags = new Pose2d[8];
-  
+  private final Pose2d[] aprilTags = new Pose2d[8];
+
+  private double xVal;
+
+  private double yVal;
+
+  private Rotation2d r2d;
+
+  private Pose3d[] tagArray;
+
   public FieldSim(DriveSubsystem swerveDrive) {
 
     m_swerveDrive = swerveDrive;
@@ -33,6 +46,19 @@ public class FieldSim {
     modules[1] = m_swerveDrive.m_frontRight;
     modules[2] = m_swerveDrive.m_backLeft;
     modules[3] = m_swerveDrive.m_backRight;
+
+    Collection<Pose3d> values = FieldConstants2023.aprilTags.values();
+
+    tagArray = values.toArray(new Pose3d[0]);
+
+    for (int n = 0; n < 8; n++) {
+      double xVal = tagArray[n].getX();
+      double yVal = tagArray[n].getY();
+      Rotation2d r2d = tagArray[n].getRotation().toRotation2d();
+      aprilTags[n] = new Pose2d(xVal, yVal, r2d);
+
+    }
+
   }
 
   public void initSim() {
@@ -69,7 +95,8 @@ public class FieldSim {
 
         .setPoses(m_swerveModulePoses);
 
-    m_field2d.getObject("AprilTag1").setPose(1,1,Rotation2d.fromDegrees(0));
+    m_field2d.getObject("AprilTags")
+        .setPoses(aprilTags);
 
   }
 

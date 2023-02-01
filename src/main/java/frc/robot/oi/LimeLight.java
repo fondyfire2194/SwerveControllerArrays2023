@@ -14,8 +14,9 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.FieldConstants2023;
 
-public class LimeLightV3 {
+public class LimeLight {
 
     public String m_tableName;
     public NetworkTable m_table;
@@ -23,7 +24,7 @@ public class LimeLightV3 {
     private Rotation3d r3d = new Rotation3d();
     private Transform3d tf3d = new Transform3d();
 
-    public LimeLightV3() {
+    public LimeLight() {
 
         m_tableName = "limelight";
         m_table = NetworkTableInstance.getDefault().getTable(m_tableName);
@@ -33,7 +34,7 @@ public class LimeLightV3 {
     /**
      * If you changed the name of your Lime Light tell Me the New Name
      */
-    public LimeLightV3(String tableName) {
+    public LimeLight(String tableName) {
         m_tableName = tableName;
         m_table = NetworkTableInstance.getDefault().getTable(m_tableName);
         _heartBeat.startPeriodic(_heartBeatPeriod);
@@ -43,7 +44,7 @@ public class LimeLightV3 {
     /**
      * Send an instance of the NetworkTabe
      */
-    public LimeLightV3(NetworkTable table) {
+    public LimeLight(NetworkTable table) {
         m_table = table;
         _heartBeat.startPeriodic(_heartBeatPeriod);
     }
@@ -57,6 +58,8 @@ public class LimeLightV3 {
     public double _heartBeatPeriod = 0.5;
 
     private LedMode currentLedMode = LedMode.kpipeLine;
+
+    private int ledModeSize = 4;
 
     public boolean connected;
 
@@ -323,12 +326,6 @@ public class LimeLightV3 {
         return v == 1.0;
     }
 
-    public String getJsonEntry() {
-        NetworkTableEntry jsonDumpNetworkTableEntry = m_table.getEntry("json");
-        String jsonDump = jsonDumpNetworkTableEntry.getString("{}");
-        return jsonDump;
-    }
-
     /**
      * tx Horizontal Offset From Crosshair To Target (-27 degrees to 27 degrees)
      * 
@@ -518,35 +515,11 @@ public class LimeLightV3 {
      * 
      * @return Transform3d
      */
-
-    public Transform3d getRobotTransform() {
+    public Transform3d getRobotPose() {
         double[] temp = { 0, 0, 0, 0, 0, 0 };// default for getEntry
         NetworkTableEntry value = m_table.getEntry("botpose");
-
         double[] result = value.getDoubleArray(temp);
-
         if (result.length == 6) {
-
-            tl3d = new Translation3d(result[0], result[1], result[2]);
-            for (int i = 3; i > 5; i++) {
-                result[i] = Units.degreesToRadians(result[i]);
-            }
-
-            r3d = new Rotation3d(result[3], result[4], result[5]);
-            tf3d = new Transform3d(tl3d, r3d);
-        } else
-            tf3d = new Transform3d();
-        return tf3d;
-    }
-
-    public Transform3d getRobotTransform_WPIBlue() {
-        double[] temp = { 0, 0, 0, 0, 0, 0 };// default for getEntry
-        NetworkTableEntry value = m_table.getEntry("botpose_wpiblue");
-
-        double[] result = value.getDoubleArray(temp);
-
-        if (result.length == 6) {
-
             tl3d = new Translation3d(result[0], result[1], result[2]);
             for (int i = 3; i > 5; i++) {
                 result[i] = Units.degreesToRadians(result[i]);
@@ -558,25 +531,16 @@ public class LimeLightV3 {
         return tf3d;
     }
 
-    /**
-     * Returns pose of the April Tag
-     * 
-     * @return Transform3d
-     */
-
-    public Transform3d getRobotTransform_WPIRed() {
+    public Transform3d getRobotPoseWPI() {
         double[] temp = { 0, 0, 0, 0, 0, 0 };// default for getEntry
-        NetworkTableEntry value = m_table.getEntry("botpose_wpired");
-
+        NetworkTableEntry value = m_table.getEntry("botpose");
         double[] result = value.getDoubleArray(temp);
-
         if (result.length == 6) {
-
-            tl3d = new Translation3d(result[0], result[1], result[2]);
+            tl3d = new Translation3d(result[0] + (FieldConstants2023.fieldLength / 2),
+                    result[1] + (FieldConstants2023.fieldWidth / 2), result[2]);
             for (int i = 3; i > 5; i++) {
                 result[i] = Units.degreesToRadians(result[i]);
             }
-
             r3d = new Rotation3d(result[3], result[4], result[5]);
             tf3d = new Transform3d(tl3d, r3d);
         } else
@@ -584,14 +548,6 @@ public class LimeLightV3 {
         return tf3d;
     }
 
-    public Transform3d getRobotTransform_WPIboolean(boolean blueAlliance) {
-        if (blueAlliance)
-            return getRobotTransform_WPIBlue();
-        else
-            return getRobotTransform_WPIRed();
-
-    }
-
     /**
      * camtran Camera transform in target space of primary apriltag or solvepnp
      * target.
@@ -599,75 +555,9 @@ public class LimeLightV3 {
      * 
      * @return
      */
-    public Transform3d getCameraPoseTargetSpace() {
+    public Transform3d getCamPose() {
         double[] temp = { 0, 0, 0, 0, 0, 0 };// default for getEntry
-        NetworkTableEntry value = m_table.getEntry("camerapose_targetspace");
-        double[] result = value.getDoubleArray(temp);
-        tl3d = new Translation3d(result[0], result[1], result[2]);
-        for (int i = 3; i > 5; i++) {
-            result[i] = Units.degreesToRadians(result[i]);
-        }
-        r3d = new Rotation3d(result[3], result[4], result[5]);
-        tf3d = new Transform3d(tl3d, r3d);
-
-        return tf3d;
-
-    }
-
-    /**
-     * camtran Camera transform in target space of primary apriltag or solvepnp
-     * target.
-     * NumberArray: Translation (x,y,z) Rotation(pitch,yaw,roll)
-     * 
-     * @return
-     */
-    public Transform3d getTargetPoseCameraSpace() {
-        double[] temp = { 0, 0, 0, 0, 0, 0 };// default for getEntry
-        NetworkTableEntry value = m_table.getEntry("targetpose_cameraspace");
-        double[] result = value.getDoubleArray(temp);
-        tl3d = new Translation3d(result[0], result[1], result[2]);
-        for (int i = 3; i > 5; i++) {
-            result[i] = Units.degreesToRadians(result[i]);
-        }
-        r3d = new Rotation3d(result[3], result[4], result[5]);
-        tf3d = new Transform3d(tl3d, r3d);
-
-        return tf3d;
-
-    }
-
-    /**
-     * camtran Camera transform in target space of primary apriltag or solvepnp
-     * target.
-     * NumberArray: Translation (x,y,z) Rotation(pitch,yaw,roll)
-     * 
-     * @return
-     */
-    public Transform3d getTargetPoseRobotSpace() {
-        double[] temp = { 0, 0, 0, 0, 0, 0 };// default for getEntry
-        NetworkTableEntry value = m_table.getEntry("targetpose_robotspace");
-        double[] result = value.getDoubleArray(temp);
-        tl3d = new Translation3d(result[0], result[1], result[2]);
-        for (int i = 3; i > 5; i++) {
-            result[i] = Units.degreesToRadians(result[i]);
-        }
-        r3d = new Rotation3d(result[3], result[4], result[5]);
-        tf3d = new Transform3d(tl3d, r3d);
-
-        return tf3d;
-
-    }
-
-    /**
-     * camtran Camera transform in target space of primary apriltag or solvepnp
-     * target.
-     * NumberArray: Translation (x,y,z) Rotation(pitch,yaw,roll)
-     * 
-     * @return
-     */
-    public Transform3d getRobotPoseTargetSpace() {
-        double[] temp = { 0, 0, 0, 0, 0, 0 };// default for getEntry
-        NetworkTableEntry value = m_table.getEntry("botpose_targetspace");
+        NetworkTableEntry value = m_table.getEntry("camtran");
         double[] result = value.getDoubleArray(temp);
         tl3d = new Translation3d(result[0], result[1], result[2]);
         for (int i = 3; i > 5; i++) {

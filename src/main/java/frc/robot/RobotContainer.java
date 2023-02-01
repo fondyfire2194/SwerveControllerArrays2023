@@ -17,6 +17,8 @@ import frc.robot.commands.LinearArm.JogLinearArm;
 import frc.robot.commands.LinearArm.PositionHoldLinearArm;
 import frc.robot.commands.TurnArm.JogTurnArm;
 import frc.robot.commands.TurnArm.PositionHoldTurnArm;
+import frc.robot.commands.Vision.ChaseTagCommandLimelight;
+import frc.robot.commands.Vision.Limelight.TargetThreadLLDataTX;
 import frc.robot.commands.swerve.RotateToAngle;
 import frc.robot.commands.swerve.SetSwerveDrive;
 import frc.robot.commands.swerve.StrafeToSlot;
@@ -77,6 +79,8 @@ public class RobotContainer {
 
         public LimelightVision llvis = new LimelightVision();
 
+        TargetThreadLLDataTX tth;
+
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
@@ -106,13 +110,15 @@ public class RobotContainer {
 
                 m_fieldSim = new FieldSim(m_drive);
 
+                tth = new TargetThreadLLDataTX(llvis, m_drive);
+
                 // m_ls = new LightStrip(9, 60);
 
                 // lc = LEDController.getInstance();
 
                 // lcI2 = LEDControllerI2C.getInstance();
 
-                sLLtag = new ShuffleboardLLTag(m_llv.cam_tag_15);
+                sLLtag = new ShuffleboardLLTag(m_llv);
 
                 SmartDashboard.putData("Drive", m_drive);
                 SmartDashboard.putData("TurnArm", m_turnArm);
@@ -143,7 +149,7 @@ public class RobotContainer {
 
                 setDefaultCommands();
 
-                configDriverButtons();
+                configFixedDriverButtons();
 
                 configCodriverButtons();
 
@@ -161,17 +167,37 @@ public class RobotContainer {
 
         }
 
-        private void configDriverButtons() {
+        void configFixedDriverButtons() {
 
-                m_driverController.L1()
-                                .whileTrue(getStrafeToTargetCommand());
+                m_driverController.square().whileTrue(getStrafeToTargetCommand());
 
-                m_driverController.L2().onTrue(new RotateToAngle(m_drive, 90));
+                m_driverController.povLeft().onTrue(new RotateToAngle(m_drive, 90));
+
+                m_driverController.povRight().onTrue(new RotateToAngle(m_drive, -90));
+
+                m_driverController.povUp().onTrue(new RotateToAngle(m_drive, -180));
+
+                m_driverController.povDown().onTrue(new RotateToAngle(m_drive, 180));
 
                 m_driverController.cross().onTrue(new InstantCommand(() -> m_ghs.setConeForPickup()))
                                 .onTrue(new InstantCommand(() -> m_llv.setLoadConePipeline()));
 
-                m_driverController.circle().onTrue(new InstantCommand(() -> m_ghs.setCubeForPickup()));
+                m_driverController.circle().onTrue(new InstantCommand(() -> m_ghs.setCubeForPickup()))
+                                .onTrue(new InstantCommand(() -> m_llv.setLoadCubePipeline()));
+        }
+
+        void configDriverButtons(boolean bluelliance) {
+
+                int tag = 4;
+
+                if (!bluelliance)
+                        tag = 5;
+
+                m_driverController.L1()
+                                .onTrue(new ChaseTagCommandLimelight(llvis, m_llv.cam_tag_15, tag, 1, 0, 0, m_drive));
+
+                m_driverController.L2()
+                                .onTrue(new ChaseTagCommandLimelight(llvis, m_llv.cam_tag_15, tag, -1, 0, 0, m_drive));
 
         }
 

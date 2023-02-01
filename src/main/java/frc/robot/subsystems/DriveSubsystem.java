@@ -4,14 +4,11 @@
 
 package frc.robot.subsystems;
 
-import java.io.IOException;
-
 import com.ctre.phoenix.unmanaged.Unmanaged;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.VecBuilder;
@@ -135,9 +132,11 @@ public class DriveSubsystem extends SubsystemBase {
   private double positionStart;
 
   double positionChange;
-  public AprilTagFieldLayout m_fieldLayout;
-  public boolean fieldFileRead;
+
   private Pose2d visionPoseEstimatedData;
+
+  private double latencyMs;
+
   private boolean visionDataAvailable;
 
   private PIDController xPID = new PIDController(
@@ -157,8 +156,6 @@ public class DriveSubsystem extends SubsystemBase {
   public DriveSubsystem() {
 
     // SmartDashboard.putData("SM", m_smd);
-
-    // getFieldTagData();
 
     m_gyro.reset();
 
@@ -237,13 +234,13 @@ public class DriveSubsystem extends SubsystemBase {
 
     updateOdometry();
 
-    SmartDashboard.putNumber("Xpos", getX());
-    SmartDashboard.putNumber("Ypos", getY());
-    SmartDashboard.putNumber("GyroAngle", getHeadingDegrees());
+    // SmartDashboard.putNumber("Xpos", getX());
+    // SmartDashboard.putNumber("Ypos", getY());
+    // SmartDashboard.putNumber("GyroAngle", getHeadingDegrees());
 
-    SmartDashboard.putNumber("GyroPitch", getGyroPitch());
+    // SmartDashboard.putNumber("GyroPitch", getGyroPitch());
 
-    SmartDashboard.putNumber("GyroRoll", getGyroRoll());
+    // SmartDashboard.putNumber("GyroRoll", getGyroRoll());
 
     if (startTime == 0) {
 
@@ -274,9 +271,9 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void updateOdometry() {
 
-    SmartDashboard.putString(("EstPose"), getEstimatedPose().toString());
-    SmartDashboard.putString(("FLModPos"), m_frontLeft.getPosition().toString());
-    SmartDashboard.putNumber(("FLDrPos"), m_frontLeft.getDrivePosition());
+    // SmartDashboard.putString(("EstPose"), getEstimatedPose().toString());
+    // SmartDashboard.putString(("FLModPos"), m_frontLeft.getPosition().toString());
+    // SmartDashboard.putNumber(("FLDrPos"), m_frontLeft.getDrivePosition());
 
     if (checkCANOK()) {
 
@@ -297,13 +294,18 @@ public class DriveSubsystem extends SubsystemBase {
 
             visionPoseEstimatedData,
 
-            Timer.getFPGATimestamp() - 0.3);
+            Timer.getFPGATimestamp() - latencyMs);
       }
     }
   }
 
   public Pose2d getEstimatedPose() {
     return m_poseEstimator.getEstimatedPosition();
+  }
+
+  public void getVisionCorrection(Pose2d pose, double latency) {
+    visionPoseEstimatedData = pose;
+    latencyMs = latency;
   }
 
   public void resetOdometry(Pose2d pose) {
@@ -458,42 +460,6 @@ public class DriveSubsystem extends SubsystemBase {
   public double getAnglefromThrottle() {
 
     return 180 * throttleValue;
-  }
-
-  private void getFieldTagData() {
-
-    String fieldFileFolder = "/FieldTagLayout/";
-
-    String fieldFileName = "2023-chargedup.json";
-
-    fieldFileRead = true;
-
-    var f = Filesystem.getDeployDirectory().toString();
-
-    f = f + fieldFileFolder + fieldFileName;
-
-    SmartDashboard.putString("fieldFile", fieldFileName);
-
-    try {
-
-      m_fieldLayout = new AprilTagFieldLayout(f);
-
-    } catch (IOException e) {
-
-      fieldFileRead = false;
-
-      e.printStackTrace();
-
-    }
-    SmartDashboard.putBoolean("fieldFileread", fieldFileRead);
-    if (fieldFileRead) {
-      SmartDashboard.putNumber("TagsInFile", m_fieldLayout.getTags().size());
-      SmartDashboard.putNumber("TagsInFile", m_fieldLayout.getTags().size());
-    }
-  }
-
-  public void getVisionPoseEstimatedData(Pose2d data) {
-    visionPoseEstimatedData = data;
   }
 
   public PIDController getXPID() {
