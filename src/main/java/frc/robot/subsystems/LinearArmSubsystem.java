@@ -8,6 +8,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
@@ -19,6 +20,8 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LinearArmSubsystem extends SubsystemBase {
@@ -64,10 +67,16 @@ public class LinearArmSubsystem extends SubsystemBase {
 
   // Standard classes for controlling our LinearArm
   private final PIDController m_controller = new PIDController(kLinearArmKp, 0, 0);
+
   private final Encoder m_encoder = new Encoder(kEncoderAChannel, kEncoderBChannel);
+
   private final PWMSparkMax m_motor = new PWMSparkMax(kMotorPort);
 
+  private final PWMSparkMax m_wristMotor = new PWMSparkMax(3);
+
+  private final AnalogPotentiometer m_wristPot = new AnalogPotentiometer(1, 90);
   // Simulation classes help us simulate what's going on, including gravity.
+
   private final ElevatorSim m_LinearArmSim = new ElevatorSim(
       m_LinearArmGearbox,
       kLinearArmGearing,
@@ -85,15 +94,17 @@ public class LinearArmSubsystem extends SubsystemBase {
   private final MechanismLigament2d m_LinearArmMech2d = m_mech2dRoot.append(
       new MechanismLigament2d(
           "LinearArm", Units.metersToInches(m_LinearArmSim.getPositionMeters()), 00));
+  private MechanismLigament2d m_wrist;
+
   public double targetDistance;
   private double activeTargetDistance;
 
   public LinearArmSubsystem() {
+
+    m_wrist = m_LinearArmMech2d.append(
+        new MechanismLigament2d("wrist", 0.5, 90, 6, new Color8Bit(Color.kPurple)));
     m_encoder.setDistancePerPulse(kLinearArmEncoderDistPerPulse);
 
-    // Publish Mechanism2d to SmartDashboard
-    // To view the LinearArm Sim in the simulator, select Network Tables ->
-   // SmartDashboard ->    LinearArmSim
     SmartDashboard.putData("LinArm Sim", m_mech2d);
   }
 
@@ -118,7 +129,7 @@ public class LinearArmSubsystem extends SubsystemBase {
 
     // // Next, we update it. The standard loop time is 20ms.
     m_LinearArmSim.update(0.020);
-
+    m_wrist.setAngle(m_wristPot.get());
     // Finally, we set our simulated encoder's readings and simulated battery
     // voltage
     m_encoderSim.setDistance(m_LinearArmSim.getPositionMeters());

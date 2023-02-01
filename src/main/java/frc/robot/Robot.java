@@ -50,8 +50,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-     if (RobotBase.isReal())
-    DataLogManager.start();
+    if (RobotBase.isReal())
+      DataLogManager.start();
 
     PPSwerveControllerCommand.setLoggingCallbacks(
         (PathPlannerTrajectory activeTrajectory) -> {
@@ -85,14 +85,10 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
-    //m_robotContainer.periodic();
+    // m_robotContainer.periodic();
     lpctra++;
 
-    /*
-     * Retrieves the temperature of the PDP, in degrees Celsius.
-     */
-    SmartDashboard.putNumber("Temperature", m_robotContainer.m_pdp.getTemperature());
-
+ 
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -122,20 +118,11 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
 
-    boolean useRawTrajectory = false;
-
     m_autonomousCommand = m_robotContainer.m_autoFactory.getAutonomousCommand();
 
     m_robotContainer.m_drive.setIdleMode(true);
 
-    boolean tempAlliance = DriverStation.getAlliance()==Alliance.Blue;
-
-    m_robotContainer.m_ghs.setAllianceBlue(tempAlliance);
-
-    m_robotContainer.m_llv.setAllianceBlue(tempAlliance);
-
-
-
+    setAllianceBlue();
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -158,26 +145,19 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    boolean tempAlliance = DriverStation.getAlliance()==Alliance.Blue;
-
-    m_robotContainer.m_ghs.setAllianceBlue(tempAlliance);
-
-    m_robotContainer.m_llv.setAllianceBlue(tempAlliance);
-
+    setAllianceBlue();
     // new SetSwerveOdometry(m_robotContainer.m_drive,
-    //     m_robotContainer.m_fieldSim, new Pose2d(6.13, 5.23,
-    //         Rotation2d.fromDegrees(-41.5)))
-    //     .schedule();
+    // m_robotContainer.m_fieldSim, new Pose2d(6.13, 5.23,
+    // Rotation2d.fromDegrees(-41.5)))
+    // .schedule();
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
     // m_robotContainer.m_ls.rainbow();
-    // if (m_robotContainer.m_tf.run) {
-    // new RunTrajectory(m_robotContainer.m_tf, 1, 1).schedule();
-    // m_robotContainer.m_tf.run=false;
-    // }
+
+    
   }
 
   @Override
@@ -197,8 +177,18 @@ public class Robot extends TimedRobot {
 
   @Override
   public void simulationPeriodic() {
-     m_robotContainer.m_fieldSim.periodic();
+    m_robotContainer.m_fieldSim.periodic();
     // m_robotContainer.simulationPeriodic();
+  }
+
+  public void setAllianceBlue() {
+
+    boolean ourAlliance = DriverStation.getAlliance() == Alliance.Blue;
+
+    m_robotContainer.m_ghs.setAllianceBlue(ourAlliance);
+
+    m_robotContainer.m_llv.setAllianceBlue(ourAlliance);
+
   }
 
 }

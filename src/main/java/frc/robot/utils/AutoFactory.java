@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.PPConstants;
-import frc.robot.commands.DoNothing;
+import frc.robot.commands.Auto.DoNothing;
 import frc.robot.commands.swerve.Test.ChaseTagCommandLimelight;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LinearArmSubsystem;

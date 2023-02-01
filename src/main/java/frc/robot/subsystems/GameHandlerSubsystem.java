@@ -78,10 +78,7 @@ public class GameHandlerSubsystem extends SubsystemBase {
 
         public boolean getIsPipe() {
             return isPipe;
-        }
-
-    
-
+        }  
     }
 
     String[] pieceName = { "CONE", "CUBE" };
@@ -108,9 +105,14 @@ public class GameHandlerSubsystem extends SubsystemBase {
 
     private int  nameIndex =0;
 
-    private boolean coneForPickup;
+    public boolean wantConeForPickup;
 
-    private boolean cubeForPickup;
+    public boolean wantCubeForPickup;
+
+    public boolean robotHasCube;
+
+    public boolean robotHasCone;
+
 
     public GameHandlerSubsystem() {
 
@@ -224,12 +226,12 @@ public class GameHandlerSubsystem extends SubsystemBase {
     }
 
     public void setConeForPickup(){
-        coneForPickup=true;
-        cubeForPickup=false;
+        wantConeForPickup=true;
+        wantCubeForPickup=false;
     }
     public void setCubeForPickup(){
-        cubeForPickup=true;
-        coneForPickup=false;
+        wantCubeForPickup=true;
+        wantConeForPickup=false;
     }
 
     @Override

@@ -88,14 +88,15 @@ public class TrajectoryFactory {
                 new InstantCommand(() -> m_drive.stopModules()));
     }
 
-    public void setRun(boolean on){
-        run=on;
+    public void setRun(boolean on) {
+        run = on;
     }
 
-    public void periodic(){
-
+    public void periodic() {
+//  if (run) {
+//      new RunTrajectory(this, 1, 1).schedule();
+//      run=false;
+  //   }
     }
-
-    
 
 }

@@ -20,13 +20,27 @@
       "/SmartDashboard/TurnArm": "Subsystem"
     },
     "windows": {
+      "/FMSInfo": {
+        "window": {
+          "visible": true
+        }
+      },
       "/SmartDashboard/Field2d": {
+        "AprilTag1": {
+          "arrowWeight": 3.0,
+          "selectable": false,
+          "style": "Line"
+        },
         "Robot": {
-          "image": "C:\\Users\\John\\Documents\\FRC2023\\SwerveControllerCommand-Arrays-PHVIs-2023\\src\\main\\images\\robot.png"
+          "image": "C:\\Users\\John\\Documents\\FRC2023\\SwerveControllerCommand-Arrays-PHVIs-2023\\src\\main\\images\\robot.png",
+          "length": 0.800000011920929,
+          "width": 0.5860000252723694
         },
         "Swerve Modules": {
           "image": "C:\\Users\\John\\Documents\\FRC2023\\SwerveControllerCommand-Arrays-PHVIs-2023\\src\\main\\images\\swerve_module.png",
-          "style": "Box/Image"
+          "length": 0.5,
+          "style": "Box/Image",
+          "width": 0.4000000059604645
         },
         "image": "C:\\Users\\John\\Documents\\FRC2023\\SwerveControllerCommand-Arrays-PHVIs-2023\\src\\main\\images\\Field2d_2023.png",
         "window": {
@@ -59,8 +73,7 @@
       "SmartDashboard": {
         "Scheduler": {
           "open": true
-        },
-        "open": true
+        }
       }
     }
   }

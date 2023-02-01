@@ -5,6 +5,7 @@
 package frc.robot.simulation;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -21,7 +22,9 @@ public class FieldSim {
   private final Field2d m_field2d = new Field2d();
 
   private final Pose2d[] m_swerveModulePoses = new Pose2d[4];
-private int tstctr;
+
+  private final Pose2d[] m_aprilTags = new Pose2d[8];
+  
   public FieldSim(DriveSubsystem swerveDrive) {
 
     m_swerveDrive = swerveDrive;
@@ -66,7 +69,7 @@ private int tstctr;
 
         .setPoses(m_swerveModulePoses);
 
-        SmartDashboard.putNumber("TSTSIM", tstctr);
+    m_field2d.getObject("AprilTag1").setPose(1,1,Rotation2d.fromDegrees(0));
 
   }
 

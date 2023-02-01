@@ -17,8 +17,6 @@ public class ShuffleboardGridSelect {
 
         public SendableChooser<Integer> gridSlot = new SendableChooser<>();
 
-        public static SendableChooser<Integer> gamePiece = new SendableChooser<>();
-
         public static SendableChooser<Integer> gridLevel = new SendableChooser<>();
 
         ShuffleboardTab x = Shuffleboard.getTab("Grid");
@@ -42,7 +40,6 @@ public class ShuffleboardGridSelect {
                 gridSlot.addOption("LeftCube", 7);
 
                 gridSlot.addOption("LeftHybridPipe", 8);
- 
 
                 gridLevel.setDefaultOption("Ground", 0);
                 gridLevel.addOption("MidLevel", 1);
@@ -54,14 +51,9 @@ public class ShuffleboardGridSelect {
                 gridLevel.addOption("MidLevel3", 7);
                 gridLevel.addOption("TopLevel3", 8);
 
-                gamePiece.setDefaultOption("Cone", 0);
-                gamePiece.addOption("Cube", 1);
-
                 x.add("GridSlot", gridSlot).withPosition(0, 1).withSize(2, 1);
 
                 x.add("GridLevel", gridLevel).withPosition(3, 0).withSize(2, 1);
-
-                x.add("PieceType", gamePiece).withPosition(5, 0).withSize(1, 1);
 
                 x.add("SetSlot", new SetActiveGrid(this, ghs))
                                 .withPosition(0, 2).withSize(1, 1);
@@ -71,7 +63,7 @@ public class ShuffleboardGridSelect {
                                 .withPosition(0, 3).withSize(4, 1);
 
                 x.addBoolean("BlueAlliance", () -> ghs.getAllianceBlue())
-                                .withPosition(0, 1).withSize(1, 1);
+                                .withPosition(0, 0).withSize(1, 1);
 
                 x.addNumber("Active X", () -> ghs.getXDistance())
                                 .withPosition(6, 0).withSize(1, 1);
@@ -79,7 +71,14 @@ public class ShuffleboardGridSelect {
                 x.addNumber("Active Y", () -> ghs.getActiveDrop().getYVal())
                                 .withPosition(6, 1).withSize(1, 1);
 
-              
+                                x.addBoolean("HasCone", () -> ghs.robotHasCone)
+                                .withPosition(7, 0).withSize(1, 1);
+                                x.addBoolean("HasCube", () -> ghs.robotHasCube)
+                                .withPosition(7, 1).withSize(1, 1);
+                                x.addBoolean("WantsCone", () -> ghs.wantConeForPickup)
+                                .withPosition(8, 0).withSize(1, 1);
+                                x.addBoolean("WantsCube", () -> ghs.wantCubeForPickup)
+                                .withPosition(8, 1).withSize(1, 1);
 
         }
 

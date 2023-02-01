@@ -168,15 +168,8 @@ public class RobotContainer {
 
                 m_driverController.L2().onTrue(new RotateToAngle(m_drive, 90));
 
-                m_driverController.cross()
-
-                                .onTrue
-
-                                (new InstantCommand(() -> m_ghs.setConeForPickup()))
-
-                                .onTrue
-
-                                (new InstantCommand(() -> m_llv.setLoadConePipeline()));
+                m_driverController.cross().onTrue(new InstantCommand(() -> m_ghs.setConeForPickup()))
+                                .onTrue(new InstantCommand(() -> m_llv.setLoadConePipeline()));
 
                 m_driverController.circle().onTrue(new InstantCommand(() -> m_ghs.setCubeForPickup()));
 
