@@ -68,7 +68,7 @@ public class RobotContainer {
         private CommandPS3Controller m_driverController = new CommandPS3Controller(
                         OIConstants.kDriverControllerPort);
 
-        private CommandPS4Controller m_coDriverController = new CommandPS4Controller(
+        private CommandPS3Controller m_coDriverController = new CommandPS3Controller(
                         OIConstants.kCoDriverControllerPort);
 
         public ButtonBox m_bb = new ButtonBox((4));
@@ -204,8 +204,8 @@ public class RobotContainer {
         private void configCodriverButtons() {
 
                 m_coDriverController.R1()
-                                .onTrue(Commands.runOnce(() -> m_tf.setRun(true)))
-                                .onFalse(Commands.runOnce(() -> m_tf.setRun(false)));
+                                .onTrue(Commands.runOnce(() -> m_tf.setRun(true)));;
+                                
 
                 m_coDriverController.L1()
                                 .onTrue(getJogLinearArmCommand());

@@ -8,14 +8,12 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants.PPConstants;
+import frc.robot.commands.swerve.Test.MessageCommand;
 import frc.robot.subsystems.DriveSubsystem;
 
 /** Add your docs here. */
@@ -60,6 +58,7 @@ public class TrajectoryFactory {
 
     public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
         return new SequentialCommandGroup(
+                new MessageCommand("uuu"),
                 new InstantCommand(() -> {
                     // Reset odometry for the first path you run during auto
                     if (isFirstPath) {
@@ -85,18 +84,24 @@ public class TrajectoryFactory {
                         m_drive // Requires this drive subsystem
                 ),
 
-                new InstantCommand(() -> m_drive.stopModules()));
+                new InstantCommand(() -> m_drive.stopModules()),
+                new InstantCommand(() -> run = false));
     }
 
     public void setRun(boolean on) {
+        SmartDashboard.putBoolean("RUNRUNRUN", on);
         run = on;
     }
 
     public void periodic() {
-//  if (run) {
-//      new RunTrajectory(this, 1, 1).schedule();
-//      run=false;
-  //   }
+        SmartDashboard.putBoolean("RUNRUN", tune);
+        if (run) {
+            PathPlannerTrajectory trajectory1 = PathPlanner.loadPath(
+                    getSelectedTrajectory(), 2, 2, false);
+            SmartDashboard.putString("Path", getSelectedTrajectory());
+            this.followTrajectoryCommand(trajectory1, true).schedule();
+            run = false;
+        }
     }
 
 }

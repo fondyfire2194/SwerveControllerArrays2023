@@ -13,7 +13,7 @@ import frc.robot.utils.PS3Controller;
 /**
  * A version of {@link PS4Controller} with {@link Trigger} factories for command-based.
  *
- * @see PS4Controller
+ * @see PS3Controller
  */
 /** Add your docs here. */
 

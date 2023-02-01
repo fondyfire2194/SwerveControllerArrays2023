@@ -85,7 +85,9 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
-    // m_robotContainer.periodic();
+    m_robotContainer.m_tf.periodic();
+
+    SmartDashboard.putBoolean("TFRUN", m_robotContainer.m_tf.run);
     lpctra++;
 
   }
