@@ -18,7 +18,7 @@ public class RotateToAngle extends PIDCommand {
   public RotateToAngle(DriveSubsystem drive, double angle) {
     super(
         // The controller that the command will use
-        new PIDController(0.075, 0, 0),
+        new PIDController(0.02, 0, 0),
         // This should return the measurement
         () -> drive.getHeadingDegrees(),
         // This should return the setpoint (can also be a constant)
@@ -28,7 +28,9 @@ public class RotateToAngle extends PIDCommand {
           drive.drive(0, 0, output);
         });
 
-        super.m_controller.setTolerance(1); //this number could be changed
+        super.m_controller.setTolerance(1);
+        super.m_controller.enableContinuousInput(0, 360);
+        //this number could be changed
 
         addRequirements(drive);
     // Use addRequirements() here to declare subsystem dependencies.
