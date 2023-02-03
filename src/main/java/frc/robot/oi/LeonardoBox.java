@@ -3,7 +3,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.utils;
+package frc.robot.oi;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -18,13 +18,13 @@ import edu.wpi.first.wpilibj.event.EventLoop;
  * requested the most recent value is returned. There is a single class instance for each controller
  * and the mapping of ports to hardware buttons depends on the code in the Driver Station.
  */
-public class PS3Controller extends GenericHID {
+public class LeonardoBox extends GenericHID {
   /**
    * Construct an instance of a device.
    *
    * @param port The port index on the Driver Station that the device is plugged into.
    */
-  public PS3Controller(int port) {
+  public LeonardoBox(int port) {
     super(port);
     HAL.report(tResourceType.kResourceType_PS4Controller, port + 1);
   }
@@ -35,10 +35,10 @@ public class PS3Controller extends GenericHID {
     kCross(15),
     kCircle(14),
     kTriangle(13),
-    kL1(11),
-    kR1(12),
-    kL2(9),
-    kR2(10),
+    kL1(1),
+    kR1(2),
+    kL2(3),
+    kR2(0),
     kShare(9),
     kOptions(10),
     kL3(11),

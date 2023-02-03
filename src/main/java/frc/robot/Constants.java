@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -262,5 +263,26 @@ public final class Constants {
 
   public static final class LEDConstants {
     public static final int LED_CONTROLLER_PORT = 1;
+  }
+
+  public static class LoadStationPickupConstants {
+
+    Pose2d aprilTag5 = FieldConstants2023.aprilTags.get(5).toPose2d();
+
+    Transform2d rightPickupT2d = new Transform2d(new Translation2d(0, .8), new Rotation2d());
+ 
+    Transform2d leftPickupT2d = new Transform2d(new Translation2d(0, -.8), new Rotation2d());
+
+    Pose2d blueLeftTarget = aprilTag5.plus(rightPickupT2d);
+
+    Pose2d blueRightTarget = aprilTag5.plus(leftPickupT2d);
+
+    Pose2d aprilTag6 = FieldConstants2023.aprilTags.get(6).toPose2d();
+
+   
+    Pose2d redLeftTarget = aprilTag6.plus(rightPickupT2d);
+
+    Pose2d redRightTarget = aprilTag6.plus(leftPickupT2d);
+
   }
 }

@@ -110,6 +110,7 @@ public class TurnArmSubsystem extends SubsystemBase {
           6,
           new Color8Bit(Color.kYellow)));
   private double activeTargetAngle;
+  private boolean m_testMode;
 
   public TurnArmSubsystem() {
 
@@ -198,5 +199,9 @@ public class TurnArmSubsystem extends SubsystemBase {
 
   public double getActiveTargetAngle() {
     return activeTargetAngle;
+  }
+
+  public void setTestMode(){
+    m_testMode=true;
   }
 }

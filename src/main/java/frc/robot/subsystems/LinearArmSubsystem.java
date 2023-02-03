@@ -98,6 +98,7 @@ public class LinearArmSubsystem extends SubsystemBase {
 
   public double targetDistance;
   private double activeTargetDistance;
+  private boolean m_testMode;
 
   public LinearArmSubsystem() {
 
@@ -182,6 +183,10 @@ public class LinearArmSubsystem extends SubsystemBase {
 
   public double getActiveTargetDistance() {
     return activeTargetDistance;
+  }
+
+  public void setTestMode(){
+    m_testMode=true;
   }
 
 }

@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.FieldConstants2023;
 
 public class LimeLight {
 
@@ -125,6 +124,10 @@ public class LimeLight {
     /** */
     public boolean isConnected() {
         return connected;
+    }
+
+    public LedMode getLEDMode(LimeLight cam){
+        return cam.getLEDMode();
     }
 
     /** */
@@ -275,7 +278,7 @@ public class LimeLight {
      * @return Pipelinge
      */
     public int getPipeline() {
-        NetworkTableEntry pipeline = m_table.getEntry("pipeline");
+        NetworkTableEntry pipeline = m_table.getEntry("getpipe");
         double pipe = pipeline.getInteger(0);
         return (int) pipe;
     }
@@ -511,11 +514,11 @@ public class LimeLight {
     }
 
     /**
-     * Returns pose of the April Tag
+     * Returns robot pose in Field Space
      * 
      * @return Transform3d
      */
-    public Transform3d getRobotPose() {
+    public Transform3d getRobotPose_FS() {
         double[] temp = { 0, 0, 0, 0, 0, 0 };// default for getEntry
         NetworkTableEntry value = m_table.getEntry("botpose");
         double[] result = value.getDoubleArray(temp);
@@ -531,13 +534,17 @@ public class LimeLight {
         return tf3d;
     }
 
-    public Transform3d getRobotPoseWPI() {
+    /**
+     * Returns robot pose in Field Space referenced to Blue WPILIB oroigin
+     * 
+     * @return Transform3d
+     */
+    public Transform3d getRobotPose_FS_WPIBL() {
         double[] temp = { 0, 0, 0, 0, 0, 0 };// default for getEntry
-        NetworkTableEntry value = m_table.getEntry("botpose");
+        NetworkTableEntry value = m_table.getEntry("botpose_wpiblue");
         double[] result = value.getDoubleArray(temp);
         if (result.length == 6) {
-            tl3d = new Translation3d(result[0] + (FieldConstants2023.fieldLength / 2),
-                    result[1] + (FieldConstants2023.fieldWidth / 2), result[2]);
+            tl3d = new Translation3d(result[0], result[1], result[2]);
             for (int i = 3; i > 5; i++) {
                 result[i] = Units.degreesToRadians(result[i]);
             }
@@ -549,15 +556,36 @@ public class LimeLight {
     }
 
     /**
-     * camtran Camera transform in target space of primary apriltag or solvepnp
+     * Returns robot pose in Field Space referenced to Red WPILIB oroigin
+     * 
+     * @return Transform3d
+     */
+    public Transform3d getRobotPose_FS_WPIRED() {
+        double[] temp = { 0, 0, 0, 0, 0, 0 };// default for getEntry
+        NetworkTableEntry value = m_table.getEntry("botpose_wpired");
+        double[] result = value.getDoubleArray(temp);
+        if (result.length == 6) {
+            tl3d = new Translation3d(result[0], result[1], result[2]);
+            for (int i = 3; i > 5; i++) {
+                result[i] = Units.degreesToRadians(result[i]);
+            }
+            r3d = new Rotation3d(result[3], result[4], result[5]);
+            tf3d = new Transform3d(tl3d, r3d);
+        } else
+            tf3d = new Transform3d();
+        return tf3d;
+    }
+
+    /**
+     * camerapose Camera transform in target space of primary apriltag or solvepnp
      * target.
      * NumberArray: Translation (x,y,z) Rotation(pitch,yaw,roll)
      * 
      * @return
      */
-    public Transform3d getCamPose() {
+    public Transform3d getCameraPose_TS() {
         double[] temp = { 0, 0, 0, 0, 0, 0 };// default for getEntry
-        NetworkTableEntry value = m_table.getEntry("camtran");
+        NetworkTableEntry value = m_table.getEntry("camerapose_targetspace");
         double[] result = value.getDoubleArray(temp);
         tl3d = new Translation3d(result[0], result[1], result[2]);
         for (int i = 3; i > 5; i++) {
@@ -565,9 +593,67 @@ public class LimeLight {
         }
         r3d = new Rotation3d(result[3], result[4], result[5]);
         tf3d = new Transform3d(tl3d, r3d);
-
         return tf3d;
+    }
 
+    /**
+     * targetpose Camera transform in target space of primary apriltag or solvepnp
+     * target.
+     * NumberArray: Translation (x,y,z) Rotation(pitch,yaw,roll)
+     * 
+     * @return
+     */
+    public Transform3d getTargetPose_CS() {
+        double[] temp = { 0, 0, 0, 0, 0, 0 };// default for getEntry
+        NetworkTableEntry value = m_table.getEntry("targetpose_cameraspace");
+        double[] result = value.getDoubleArray(temp);
+        tl3d = new Translation3d(result[0], result[1], result[2]);
+        for (int i = 3; i > 5; i++) {
+            result[i] = Units.degreesToRadians(result[i]);
+        }
+        r3d = new Rotation3d(result[3], result[4], result[5]);
+        tf3d = new Transform3d(tl3d, r3d);
+        return tf3d;
+    }
+
+    /**
+     * targetpose Camera transform in target space of primary apriltag or solvepnp
+     * target.
+     * NumberArray: Translation (x,y,z) Rotation(pitch,yaw,roll)
+     * 
+     * @return
+     */
+    public Transform3d getTargetPose_RS() {
+        double[] temp = { 0, 0, 0, 0, 0, 0 };// default for getEntry
+        NetworkTableEntry value = m_table.getEntry("targetpose_robotspace");
+        double[] result = value.getDoubleArray(temp);
+        tl3d = new Translation3d(result[0], result[1], result[2]);
+        for (int i = 3; i > 5; i++) {
+            result[i] = Units.degreesToRadians(result[i]);
+        }
+        r3d = new Rotation3d(result[3], result[4], result[5]);
+        tf3d = new Transform3d(tl3d, r3d);
+        return tf3d;
+    }
+
+    /**
+     * targetpose Camera transform in target space of primary apriltag or solvepnp
+     * target.
+     * NumberArray: Translation (x,y,z) Rotation(pitch,yaw,roll)
+     * 
+     * @return
+     */
+    public Transform3d getRobotPose_TS() {
+        double[] temp = { 0, 0, 0, 0, 0, 0 };// default for getEntry
+        NetworkTableEntry value = m_table.getEntry("botpose_targetspace");
+        double[] result = value.getDoubleArray(temp);
+        tl3d = new Translation3d(result[0], result[1], result[2]);
+        for (int i = 3; i > 5; i++) {
+            result[i] = Units.degreesToRadians(result[i]);
+        }
+        r3d = new Rotation3d(result[3], result[4], result[5]);
+        tf3d = new Transform3d(tl3d, r3d);
+        return tf3d;
     }
 
     /**

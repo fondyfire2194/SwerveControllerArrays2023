@@ -15,7 +15,7 @@ import frc.robot.subsystems.LimelightVision;
 public class ShuffleboardLLTag {
 
         private LimelightVision m_llv;
-        
+
         private LimeLight llcam;
 
         public ShuffleboardLLTag(LimelightVision llv) {
@@ -25,8 +25,7 @@ public class ShuffleboardLLTag {
 
                         llcam = m_llv.cam_tag_15;
 
-                        String name = m_llv.getName();
-
+                        String name = m_llv.cam_tag_15.getName();
                         ShuffleboardLayout col1_2 = Shuffleboard.getTab(name)
                                         .getLayout("A", BuiltInLayouts.kList).withPosition(0, 0)
                                         .withSize(2, 6).withProperties(Map.of("Label position", "TOP"));
@@ -41,56 +40,68 @@ public class ShuffleboardLLTag {
 
                         // columns 1 and 2
 
-                        col1_2.addNumber("HeartBeat", () -> llcam.getHeartbeat());
+                        col1_2.addNumber("HeartBeat", () -> llv.getHeartbeat(llcam));
 
-                        col1_2.addBoolean(name + " hasTarget)", () -> llcam.getIsTargetFound());
+                        col1_2.addBoolean(name + " hasTarget)", () -> llv.isTargetFound(llcam));
 
                         col1_2.addBoolean(name + " Connected", () -> llcam.isConnected());
 
-                        col1_2.addString(name + " Cam Mode ", () -> llcam.getCamMode().toString());
+                        col1_2.addString(name + " Led Mode", () -> llv.getLedMode(llcam).toString());
 
-                        col1_2.addString(name + " Led Mode", () -> llcam.getLEDMode().toString());
+                        // col1_2.addString(name + " Stream Mode", () -> llcam.getStream().toString());
 
-                        col1_2.addString(name + " Stream Mode", () -> llcam.getStream().toString());
+                        col1_2.addNumber(name + " Pipeline", () -> llv.getPipelineNumber(llcam));
 
-                        col1_2.addNumber(name + " Pipeline", () -> llcam.getPipeline());
-
-                        col1_2.addNumber(name + " Latency", () -> llcam.getPipelineLatency());
+                        col1_2.addNumber(name + " Latency", () -> round2dp(llv.getPipelineLatency(llcam)));
 
                         // cols 3 and 4.
 
-                        col3_4.addNumber(name + " BB Short", () -> llcam.getBoundingBoxShortestSide());
+                        col3_4.addNumber(name + " BB Short", () -> round2dp(llcam.getBoundingBoxShortestSide()));
 
-                        col3_4.addNumber(name + " BB Long", () -> llcam.getBoundingBoxLongestSide());
+                        col3_4.addNumber(name + " BB Long", () -> round2dp(llcam.getBoundingBoxLongestSide()));
 
-                        col3_4.addNumber(name + " BB Height", () -> llcam.getBoundingBoxHeight());
+                        col3_4.addNumber(name + " BB Height", () -> round2dp(llcam.getBoundingBoxHeight()));
 
-                        col3_4.addNumber(name + " BB Width", () -> llcam.getBoundingBoxWidth());
+                        col3_4.addNumber(name + " BB Width", () -> round2dp(llcam.getBoundingBoxWidth()));
 
-                        col3_4.addNumber(name + " BB Area ", () -> llcam.getTargetArea());
+                        col3_4.addNumber(name + " BB Area ", () -> round2dp(llcam.getTargetArea()));
 
-                        col3_4.addNumber(name + " Deg Rot", () -> llcam.getdegRotationToTarget());
+                        col3_4.addNumber(name + " Deg Rot", () -> round2dp(llcam.getdegRotationToTarget()));
 
-                        col3_4.addNumber(name + " Deg Vert", () -> llcam.getdegVerticalToTarget());
+                        col3_4.addNumber(name + " Deg Vert", () -> round2dp(llcam.getdegVerticalToTarget()));
 
-                        col3_4.addNumber(name + " Deg Skew", () -> llcam.getSkew_Rotation());
+                        col3_4.addNumber(name + " Deg Skew", () -> round2dp(llcam.getSkew_Rotation()));
 
                         // cols 5 and 6
 
-                        col5_6.addNumber(name + " Tag ID", () -> llcam.getAprilTagID());
+                        col5_6.addNumber(name + " Tag ID", () -> llv.getAprilTagID(llcam));
 
-                        col5_6.addString(name + " Cam Tran3d", () -> llcam.getCamPose().toString());
+                       // col5_6.addString(name + " RobPose FS", () -> llv.getRobotPose_FS(llcam).toString());
 
-                        col5_6.addString(name + " RobPose3d", () -> llcam.getRobotPose().toString());
+                        col5_6.addString(name + " RobPoseFS-WPIBL", () -> llv.getRobotPose_FS_WPIBlue(llcam).toString());
 
-                        col5_6.addString(name + " RobPose3d-WPI", () -> llcam.getRobotPoseWPI().toString());
+                        col5_6.addString(name + " CurrTagPose", () -> llv.getCurrentTagPose(llcam).toString());
 
-                        col5_6.addString(name + " VisionCorrection", () -> m_llv.visionPoseEstimatedData.toString());
+                        col5_6.addNumber("XDistToTag", () ->  round2dp(m_llv.distToTagX));
 
-                        col5_6.addNumber(name + " Neur ID", () -> llcam.getNeuralClassID());
 
-                        col5_6.addDoubleArray(name + " HSV tc", () -> llcam.getAveCrossHairColor());
+                        col5_6.addNumber("YDistToTag", () -> round2dp(llv.distToTagY));
 
+                        col5_6.addNumber("DegToTag",()->round2dp(llv.degToTag));
+
+                        col5_6.addNumber("RobDiffX",()->round2dp(llv.robDiffX));
+
+                        col5_6.addNumber("RobDiffY",()->round2dp(llv.robDiffY));
+                        
+                        col5_6.addNumber("RobDiffDeg",()->round2dp(llv.robDiffDeg));
+              
                 }
+
+        }
+
+        public double round2dp(double number) {
+                number = Math.round(number * 100);
+                number /= 100;
+                return number;
         }
 }

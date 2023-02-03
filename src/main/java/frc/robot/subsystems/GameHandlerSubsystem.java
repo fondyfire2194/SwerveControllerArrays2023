@@ -78,7 +78,7 @@ public class GameHandlerSubsystem extends SubsystemBase {
 
         public boolean getIsPipe() {
             return isPipe;
-        }  
+        }
     }
 
     String[] pieceName = { "CONE", "CUBE" };
@@ -103,7 +103,7 @@ public class GameHandlerSubsystem extends SubsystemBase {
 
     private int[] lookupRedIndex = { 8, 7, 6, 5, 4, 3, 2, 1, 0 };
 
-    private int  nameIndex =0;
+    private int nameIndex = 0;
 
     public boolean wantConeForPickup;
 
@@ -113,6 +113,7 @@ public class GameHandlerSubsystem extends SubsystemBase {
 
     public boolean robotHasCone;
 
+    private int dropOfflevel;
 
     public GameHandlerSubsystem() {
 
@@ -191,7 +192,6 @@ public class GameHandlerSubsystem extends SubsystemBase {
             case 9:
                 break;
 
-  
             default:
                 break;
 
@@ -203,10 +203,9 @@ public class GameHandlerSubsystem extends SubsystemBase {
     }
 
     public double getXDistance() {
-        if (allianceBlue)
+      
             return xDist;
-        else
-            return fieldLength - xDist;
+       
     }
 
     public void setActiveDropNumber(int n) {
@@ -221,17 +220,22 @@ public class GameHandlerSubsystem extends SubsystemBase {
         return new InstantCommand(() -> setActiveDropNumber(n));
     }
 
-    public String getActiveName(){
+    public String getActiveName() {
         return dropNames[nameIndex];
     }
 
-    public void setConeForPickup(){
-        wantConeForPickup=true;
-        wantCubeForPickup=false;
+    public void setConeForPickup() {
+        wantConeForPickup = true;
+        wantCubeForPickup = false;
     }
-    public void setCubeForPickup(){
-        wantCubeForPickup=true;
-        wantConeForPickup=false;
+
+    public void setCubeForPickup() {
+        wantCubeForPickup = true;
+        wantConeForPickup = false;
+    }
+
+    public void setDropOffLevel(int level) {
+        dropOfflevel = level;
     }
 
     @Override

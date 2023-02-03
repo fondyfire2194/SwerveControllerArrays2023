@@ -18,24 +18,24 @@ import frc.robot.commands.LinearArm.PositionHoldLinearArm;
 import frc.robot.commands.TurnArm.JogTurnArm;
 import frc.robot.commands.TurnArm.PositionHoldTurnArm;
 import frc.robot.commands.Vision.ChaseTagCommandLimelight;
-import frc.robot.commands.Vision.Limelight.TargetThreadLLDataTX;
+import frc.robot.commands.Vision.DriveToTape;
+
 import frc.robot.commands.swerve.RotateToAngle;
 import frc.robot.commands.swerve.SetSwerveDrive;
 import frc.robot.commands.swerve.StrafeToSlot;
-import frc.robot.commands.swerve.Test.MessageCommand;
-import frc.robot.oi.ButtonBox;
-import frc.robot.oi.CommandPS3Controller;
+
+import frc.robot.oi.CommandLeonardoController;
 import frc.robot.oi.ShuffleboardLLTag;
 import frc.robot.simulation.FieldSim;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.GameHandlerSubsystem;
+import frc.robot.subsystems.GripperSubsystem;
 import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.LinearArmSubsystem;
 import frc.robot.subsystems.TurnArmSubsystem;
 import frc.robot.utils.AutoFactory;
 import frc.robot.utils.LEDControllerI2C;
 import frc.robot.utils.PoseTelemetry;
-import frc.robot.utils.ShuffleboardGridSelect;
 import frc.robot.utils.TrajectoryFactory;
 
 public class RobotContainer {
@@ -47,11 +47,11 @@ public class RobotContainer {
 
         final LinearArmSubsystem m_linArm;// = new LinearArmSubsystem();
 
+        final GripperSubsystem m_grp;
+
         final LimelightVision m_llv = new LimelightVision();
 
         private ShuffleboardLLTag sLLtag;
-
-        private ShuffleboardGridSelect m_sgs;
 
         public AutoFactory m_autoFactory;
 
@@ -65,21 +65,20 @@ public class RobotContainer {
 
         // The driver and codriver controllers
 
-        private CommandPS3Controller m_driverController = new CommandPS3Controller(
+        private CommandPS4Controller m_driverController = new CommandPS4Controller(
                         OIConstants.kDriverControllerPort);
 
-        private CommandPS3Controller m_coDriverController = new CommandPS3Controller(
+        private CommandPS4Controller m_coDriverController = new CommandPS4Controller(
                         OIConstants.kCoDriverControllerPort);
 
-        public ButtonBox m_bb = new ButtonBox((4));
+        public CommandLeonardoController m_codriverBox = new CommandLeonardoController(5);
 
         public PoseTelemetry pt = new PoseTelemetry();
 
         final PowerDistribution m_pdp = new PowerDistribution();
 
-        public LimelightVision llvis = new LimelightVision();
+        public LimelightVision m_llvis = new LimelightVision();
 
-        TargetThreadLLDataTX tth;
 
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -92,9 +91,13 @@ public class RobotContainer {
 
                 m_drive = new DriveSubsystem();
 
+                m_drive.showOnShuffleboard = false;
+
                 m_turnArm = new TurnArmSubsystem();
 
                 m_linArm = new LinearArmSubsystem();
+
+                m_grp = new GripperSubsystem();
 
                 SmartDashboard.putData("Scheduler", CommandScheduler.getInstance());
 
@@ -106,12 +109,9 @@ public class RobotContainer {
 
                 m_ghs = new GameHandlerSubsystem();
 
-                m_sgs = new ShuffleboardGridSelect(m_ghs);
-
                 m_fieldSim = new FieldSim(m_drive);
 
-                tth = new TargetThreadLLDataTX(llvis, m_drive);
-
+        
                 // m_ls = new LightStrip(9, 60);
 
                 // lc = LEDController.getInstance();
@@ -123,6 +123,7 @@ public class RobotContainer {
                 SmartDashboard.putData("Drive", m_drive);
                 SmartDashboard.putData("TurnArm", m_turnArm);
                 SmartDashboard.putData("Lin Arm", m_linArm);
+                SmartDashboard.putData("Grippers", m_ghs);
 
                 // PortForwarder.add(5800, "10.21.94.11", 5800);
                 // PortForwarder.add(1181, "10.21.94.11", 1181);
@@ -149,11 +150,12 @@ public class RobotContainer {
 
                 setDefaultCommands();
 
-                configFixedDriverButtons();
+                configDriverButtons();
 
                 configCodriverButtons();
 
-                configButtonBoxButtons();
+                configLeonardoBoxButtons();
+
 
         }
 
@@ -167,23 +169,30 @@ public class RobotContainer {
 
         }
 
-        void configFixedDriverButtons() {
+        void configDriverButtons() {
 
                 m_driverController.square().whileTrue(getStrafeToTargetCommand());
 
                 m_driverController.povLeft().onTrue(new RotateToAngle(m_drive, 90));
 
-                m_driverController.povRight().onTrue(new RotateToAngle(m_drive, -90));
+                m_driverController.povDown().onTrue(new InstantCommand(() -> m_ghs.setDropOffLevel(0)));
 
-                m_driverController.povUp().onTrue(new RotateToAngle(m_drive, -180));
+                m_driverController.povRight().onTrue(new InstantCommand(() -> m_ghs.setDropOffLevel(1)));
 
-                m_driverController.povDown().onTrue(new RotateToAngle(m_drive, 180));
+                m_driverController.povUp().onTrue(new InstantCommand(() -> m_ghs.setDropOffLevel(2)));
 
                 m_driverController.cross().onTrue(new InstantCommand(() -> m_ghs.setConeForPickup()))
                                 .onTrue(new InstantCommand(() -> m_llv.setLoadConePipeline()));
 
                 m_driverController.circle().onTrue(new InstantCommand(() -> m_ghs.setCubeForPickup()))
                                 .onTrue(new InstantCommand(() -> m_llv.setLoadCubePipeline()));
+
+                m_driverController.L2().onTrue(getDriveToTapeCommand());
+
+                // m_driverController.R2()
+
+                // m_driverController.triangle()
+
         }
 
         void configDriverButtons(boolean bluelliance) {
@@ -191,21 +200,24 @@ public class RobotContainer {
                 int tag = 4;
 
                 if (!bluelliance)
+
                         tag = 5;
 
                 m_driverController.L1()
-                                .onTrue(new ChaseTagCommandLimelight(llvis, m_llv.cam_tag_15, tag, 1, 0, 0, m_drive));
+                                .onTrue(new ChaseTagCommandLimelight(m_llvis, m_llv.cam_tag_15, tag, 1, 0, 0, m_drive,
+                                                () -> -m_driverController.getLeftX()));
 
                 m_driverController.L2()
-                                .onTrue(new ChaseTagCommandLimelight(llvis, m_llv.cam_tag_15, tag, -1, 0, 0, m_drive));
+                                .onTrue(new ChaseTagCommandLimelight(m_llvis, m_llv.cam_tag_15, tag, -1, 0, 0, m_drive,
+                                                () -> -m_driverController.getLeftX()));
 
         }
 
         private void configCodriverButtons() {
 
                 m_coDriverController.R1()
-                                .onTrue(Commands.runOnce(() -> m_tf.setRun(true)));;
-                                
+                                .onTrue(Commands.runOnce(() -> m_tf.setRun(true)));
+                ;
 
                 m_coDriverController.L1()
                                 .onTrue(getJogLinearArmCommand());
@@ -215,12 +227,11 @@ public class RobotContainer {
 
         }
 
-        private void configButtonBoxButtons() {
+        private void configLeonardoBoxButtons() {
 
-                m_bb.getTriggerRT().onTrue(setTargetGrid(0));
-
-                m_bb.getTriggerLT().onTrue(getJogLinearArmCommand())
-                                .onFalse(new PositionHoldLinearArm(m_linArm));
+                m_codriverBox.L1().onTrue(new InstantCommand(() -> m_linArm.setTestMode()))
+                                .onTrue(new InstantCommand(() -> m_turnArm.setTestMode()))
+                                .onTrue(new InstantCommand(() -> m_grp.setTestMode()));
 
         }
 
@@ -232,9 +243,17 @@ public class RobotContainer {
 
         }
 
+        public Command getDriveToTapeCommand() {
+                return new DriveToTape(m_drive, m_llv,
+                                () -> m_driverController.getLeftY(),
+                                () -> m_driverController.getLeftX(),
+                                () -> m_driverController.getRightX());
+
+        }
+
         public Command getStrafeToTargetCommand() {
 
-                return new StrafeToSlot(m_drive, m_ghs, () -> m_driverController.getRawAxis(0))
+                return new StrafeToSlot(m_drive, m_ghs, m_llv, () -> m_driverController.getRawAxis(0))
                                 .andThen(() -> m_drive.stopModules());
         }
 
@@ -263,5 +282,6 @@ public class RobotContainer {
 
         public void periodic() {
                 m_fieldSim.periodic();
+
         }
 }

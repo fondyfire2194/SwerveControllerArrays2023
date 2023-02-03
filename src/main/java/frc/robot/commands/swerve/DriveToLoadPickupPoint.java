@@ -13,14 +13,13 @@ import frc.robot.subsystems.LimelightVision;
  * Command to position accurately in front of any grid slot.
  * Robot needs to synch its position with an April Tag before using this
  * Command will drive to given X value and strafe to Y
- * If slot is for a pipe then LimeLight tape pipeline will 
+ * If slot is for a pipe then LimeLight tape pipeline will
  * be selected and used to stop the robot on center.
  * Driver controls strafe speed until PIC controller takes over.
  * 
  */
 
-
-public class StrafeToSlot extends CommandBase {
+public class DriveToLoadPickupPoint extends CommandBase {
   @SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
   private final DriveSubsystem m_drive;
   private final GameHandlerSubsystem m_ghs;
@@ -34,20 +33,21 @@ public class StrafeToSlot extends CommandBase {
    */
   private double endYTarget;
   private double endXTarget;
-  private boolean isPipe;
 
   private PIDController m_pidY = new PIDController(.5, 0, 0);
 
-
   private PIDController m_pidX = new PIDController(.5, 0, 0);
+
   private double drive_max = .25;
 
   private double ledsOnDist;
 
-  public StrafeToSlot(
+  public DriveToLoadPickupPoint(
       DriveSubsystem drive,
       GameHandlerSubsystem ghs,
       LimelightVision llv,
+      boolean blueAlliance,
+      boolean left,
 
       DoubleSupplier strafeInput) {
 
@@ -64,15 +64,11 @@ public class StrafeToSlot extends CommandBase {
   @Override
   public void initialize() {
 
-    m_llv.setAprilTagPipeline();
-
     endYTarget = m_ghs.getActiveDrop().getYVal();
     endXTarget = m_ghs.getActiveDrop().getXVal();
-    isPipe = m_ghs.getActiveDrop().getIsPipe();
 
     SmartDashboard.putNumber("ENDPTY", endYTarget);
     SmartDashboard.putNumber("ENDPTX", endXTarget);
-    SmartDashboard.putBoolean("PIPE", isPipe);
 
   }
 

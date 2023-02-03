@@ -10,15 +10,15 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
- * A version of {@link PS3Controller} with {@link Trigger} factories for command-based.
+ * A version of {@link LeonardoController} with {@link Trigger} factories for command-based.
  *
- * @see PS3Controller
+ * @see LeonardoController
  */
 /** Add your docs here. */
 
 @SuppressWarnings("MethodName")
-public class CommandPS3Controller extends CommandGenericHID {
-    private final PS3Controller m_hid;
+public class CommandLeonardoController extends CommandGenericHID {
+    private final LeonardoBox m_hid;
 
     /**
      * Construct an instance of a device.
@@ -26,9 +26,9 @@ public class CommandPS3Controller extends CommandGenericHID {
      * @param port The port index on the Driver Station that the device is plugged
      *             into.
      */
-    public CommandPS3Controller(int port) {
+    public CommandLeonardoController(int port) {
         super(port);
-        m_hid = new PS3Controller(port);
+        m_hid = new LeonardoBox(port);
     }
 
     /**
@@ -37,7 +37,7 @@ public class CommandPS3Controller extends CommandGenericHID {
      * @return the wrapped GenericHID object
      */
     @Override
-    public PS3Controller getHID() {
+    public LeonardoBox getHID() {
         return m_hid;
     }
 

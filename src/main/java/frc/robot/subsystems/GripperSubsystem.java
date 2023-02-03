@@ -25,6 +25,8 @@ public class GripperSubsystem extends SubsystemBase {
           SolenoidConstants.GRIPPER_RAISE,
           SolenoidConstants.GRIPPER_LOWER);
 
+  private boolean m_testMode;
+
   public GripperSubsystem() {
   }
 
@@ -63,6 +65,10 @@ public class GripperSubsystem extends SubsystemBase {
 
   public boolean getGrippersClosed() {
     return m_gripperOpenClose.get() == DoubleSolenoid.Value.kReverse;
+  }
+
+  public void setTestMode() {
+    m_testMode = true;
   }
 
 }

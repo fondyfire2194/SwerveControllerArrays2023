@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -115,7 +116,7 @@ public class DriveSubsystem extends SubsystemBase {
       VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
       VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30)));
 
-  private boolean showOnShuffleboard = true;
+  public boolean showOnShuffleboard;// set in RobotContainer
 
   private SimDouble m_simAngle;// navx sim
 
@@ -137,7 +138,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   private double latencyMs;
 
-  private boolean visionDataAvailable;
+  public boolean visionDataAvailable;
 
   private PIDController xPID = new PIDController(
       PPConstants.kPXController, PPConstants.kIXController, PPConstants.kIXController); // X
@@ -149,6 +150,8 @@ public class DriveSubsystem extends SubsystemBase {
       PPConstants.kDThetaController);
 
   public boolean runTrajectory;
+
+  private final EventLoop m_drloop = new EventLoop();
 
   // private SwerveModuleDisplay m_smd = new SwerveModuleDisplay(this);
 
@@ -266,6 +269,8 @@ public class DriveSubsystem extends SubsystemBase {
       tuneYPIDGains();
     if (Pref.getPref("ThetaTune") == 1)
       tuneThetaPIDGains();
+
+    m_drloop.poll();
 
   }
 

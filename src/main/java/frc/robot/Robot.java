@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import javax.swing.text.StyleContext.SmallAttributeSet;
+
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
@@ -17,10 +19,11 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.swerve.SetSwerveOdometry;
+import frc.robot.commands.Vision.Limelight.TransferVisionDataToDrive;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -42,6 +45,8 @@ public class Robot extends TimedRobot {
   private boolean driveIsBraked;
 
   public static int lpctra;
+
+  private final EventLoop m_loop = new EventLoop();
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -67,9 +72,8 @@ public class Robot extends TimedRobot {
           // Log path following error
         });
 
-    // Instantiate our RobotContainer. This will perform all our button bindings,
-    // and put our
-    // autonomous chooser on the dashboard.
+    // Instantiate our RobotContainer.
+
     m_robotContainer = new RobotContainer();
 
   }
@@ -88,7 +92,13 @@ public class Robot extends TimedRobot {
     m_robotContainer.m_tf.periodic();
 
     SmartDashboard.putBoolean("TFRUN", m_robotContainer.m_tf.run);
+
     lpctra++;
+
+    m_loop.poll();
+
+    double xxx = m_robotContainer.m_codriverBox.getRawAxis(0);
+    SmartDashboard.putNumber("XXX", xxx);
 
   }
 
@@ -97,6 +107,7 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     m_disableStartTime = 0;
     driveIsBraked = false;
+
   }
 
   @Override
@@ -142,7 +153,7 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-
+    new TransferVisionDataToDrive(m_robotContainer.m_llv, m_robotContainer.m_drive).schedule();
     m_robotContainer.m_drive.setIdleMode(true);
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
