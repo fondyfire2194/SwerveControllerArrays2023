@@ -273,16 +273,16 @@ public final class Constants {
  
     Transform2d leftPickupT2d = new Transform2d(new Translation2d(0, -.8), new Rotation2d());
 
-    Pose2d blueLeftTarget = aprilTag5.plus(rightPickupT2d);
+    public static Pose2d blueLeftTarget = aprilTag5.plus(rightPickupT2d);
 
-    Pose2d blueRightTarget = aprilTag5.plus(leftPickupT2d);
+    public static Pose2d blueRightTarget = aprilTag5.plus(leftPickupT2d);
 
     Pose2d aprilTag6 = FieldConstants2023.aprilTags.get(6).toPose2d();
 
    
-    Pose2d redLeftTarget = aprilTag6.plus(rightPickupT2d);
+    public static Pose2d redLeftTarget = aprilTag6.plus(rightPickupT2d);
 
-    Pose2d redRightTarget = aprilTag6.plus(leftPickupT2d);
+    public static Pose2d redRightTarget = aprilTag6.plus(leftPickupT2d);
 
   }
 }

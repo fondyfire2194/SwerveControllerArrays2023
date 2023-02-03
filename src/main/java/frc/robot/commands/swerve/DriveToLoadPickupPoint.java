@@ -3,8 +3,10 @@ package frc.robot.commands.swerve;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.LoadStationPickupConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.GameHandlerSubsystem;
 import frc.robot.subsystems.LimelightVision;
@@ -24,6 +26,8 @@ public class DriveToLoadPickupPoint extends CommandBase {
   private final DriveSubsystem m_drive;
   private final GameHandlerSubsystem m_ghs;
   private final LimelightVision m_llv;
+  private boolean m_blueAlliance;
+  private boolean m_left;
   private DoubleSupplier m_strafeInput;
 
   /**
@@ -31,6 +35,7 @@ public class DriveToLoadPickupPoint extends CommandBase {
    *
    * @param swerveDriveSubsystem The subsystem used by this command.
    */
+  private Pose2d endPose;
   private double endYTarget;
   private double endXTarget;
 
@@ -39,8 +44,6 @@ public class DriveToLoadPickupPoint extends CommandBase {
   private PIDController m_pidX = new PIDController(.5, 0, 0);
 
   private double drive_max = .25;
-
-  private double ledsOnDist;
 
   public DriveToLoadPickupPoint(
       DriveSubsystem drive,
@@ -54,6 +57,8 @@ public class DriveToLoadPickupPoint extends CommandBase {
     m_drive = drive;
     m_ghs = ghs;
     m_llv = llv;
+    m_blueAlliance = blueAlliance;
+    m_left = left;
     m_strafeInput = strafeInput;
 
     // Use addRequirements() here to declare subsystem dependencies.
@@ -64,9 +69,21 @@ public class DriveToLoadPickupPoint extends CommandBase {
   @Override
   public void initialize() {
 
-    endYTarget = m_ghs.getActiveDrop().getYVal();
-    endXTarget = m_ghs.getActiveDrop().getXVal();
+    if (m_blueAlliance) {
+      endPose = LoadStationPickupConstants.blueLeftTarget;
 
+    } else {
+      endPose = LoadStationPickupConstants.blueRightTarget;
+    }
+    if (!m_blueAlliance) {
+      endPose = LoadStationPickupConstants.redLeftTarget;
+
+    } else {
+      endPose = LoadStationPickupConstants.redRightTarget;
+    }
+    endXTarget = endPose.getX();
+
+    endYTarget = endPose.getY();
     SmartDashboard.putNumber("ENDPTY", endYTarget);
     SmartDashboard.putNumber("ENDPTX", endXTarget);
 
@@ -123,10 +140,6 @@ public class DriveToLoadPickupPoint extends CommandBase {
     }
 
     m_drive.drive(pidOutX, pidOutY, 0);
-
-    if (isPipe && Math.abs(endYTarget - m_drive.getY()) < ledsOnDist)
-
-      m_llv.setTapePipeline();
 
   }
 
