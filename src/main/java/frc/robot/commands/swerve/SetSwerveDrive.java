@@ -1,5 +1,6 @@
 package frc.robot.commands.swerve;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
@@ -17,6 +18,7 @@ public class SetSwerveDrive extends CommandBase {
   private final SlewRateLimiter m_slewY = new SlewRateLimiter(DriverConstants.kTranslationSlew);
   private final SlewRateLimiter m_slewRot = new SlewRateLimiter(DriverConstants.kRotationSlew);
   private final DoubleSupplier m_throttleInput, m_strafeInput, m_rotationInput;
+  private final BooleanSupplier m_slowSpeedMode;
 
   /**
    * Creates a new ExampleCommand.
@@ -27,11 +29,13 @@ public class SetSwerveDrive extends CommandBase {
       DriveSubsystem swerveDriveSubsystem,
       DoubleSupplier throttleInput,
       DoubleSupplier strafeInput,
-      DoubleSupplier rotationInput) {
+      DoubleSupplier rotationInput,
+      BooleanSupplier slowSpeedMode) {
     m_swerveDrive = swerveDriveSubsystem;
     m_throttleInput = throttleInput;
     m_strafeInput = strafeInput;
     m_rotationInput = rotationInput;
+    m_slowSpeedMode = slowSpeedMode;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(swerveDriveSubsystem);
   }
@@ -64,6 +68,11 @@ public class SetSwerveDrive extends CommandBase {
     throttle *= DriveConstants.kMaxSpeedMetersPerSecond;
     strafe *= DriveConstants.kMaxSpeedMetersPerSecond;
     rotation *= DriveConstants.kMaxRotationRadiansPerSecond;
+
+    if (!m_slowSpeedMode.getAsBoolean()) {
+      throttle*=.5;
+      strafe*=.5;
+    }
 
     double throttle_sl = m_slewX.calculate(throttle);
     double strafe_sl = m_slewY.calculate(strafe);

@@ -132,20 +132,20 @@ public class RobotContainer {
                 // PortForwarder.add(1183, "10.21.94,11", 1183);
                 // PortForwarder.add(1184, "10.21.94.11", 1184);
 
-                CommandScheduler.getInstance()
-                                .onCommandInitialize(command -> System.out.println(command.getName() + " is starting"));
-                CommandScheduler.getInstance()
-                                .onCommandFinish(command -> System.out.println(command.getName() + " has ended"));
-                CommandScheduler.getInstance()
-                                .onCommandInterrupt(
-                                                command -> System.out.println(command.getName() + " was interrupted"));
-                CommandScheduler.getInstance().onCommandInitialize(
-                                command -> SmartDashboard.putString("CS", command.getName() + " is starting"));
-                CommandScheduler.getInstance()
-                                .onCommandFinish(command -> SmartDashboard.putString("CE",
-                                                command.getName() + " has Ended"));
-                CommandScheduler.getInstance().onCommandInterrupt(
-                                command -> SmartDashboard.putString("CE", command.getName() + "was Interrupted"));
+                 CommandScheduler.getInstance()
+                                 .onCommandInitialize(command -> System.out.println(command.getName() + " is starting"));
+                 CommandScheduler.getInstance()
+                                 .onCommandFinish(command -> System.out.println(command.getName() + " has ended"));
+                 CommandScheduler.getInstance()
+                                 .onCommandInterrupt(
+                                                 command -> System.out.println(command.getName() + " was interrupted"));
+                 CommandScheduler.getInstance().onCommandInitialize(
+                                 command -> SmartDashboard.putString("CS", command.getName() + " is starting"));
+                 CommandScheduler.getInstance()
+                                 .onCommandFinish(command -> SmartDashboard.putString("CE",
+                                                 command.getName() + " has Ended"));
+                 CommandScheduler.getInstance().onCommandInterrupt(
+                                 command -> SmartDashboard.putString("CE", command.getName() + "was Interrupted"));
 
                 m_fieldSim.initSim();
 
@@ -240,7 +240,8 @@ public class RobotContainer {
                 return new SetSwerveDrive(m_drive,
                                 () -> m_driverController.getLeftY(),
                                 () -> m_driverController.getLeftX(),
-                                () -> m_driverController.getRightX());
+                                () -> m_driverController.getRightX(),
+                                m_driverController.L3());
 
         }
 
