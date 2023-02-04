@@ -28,7 +28,7 @@ public class LimelightVision extends SubsystemBase {
   Rotation3d rr3 = new Rotation3d(1.57, 1.00, .44);
   public Transform3d tran3d = new Transform3d(tl3, rr3);
 
-  public Pose2d visionPoseEstimatedData;
+  public Pose2d visionPoseEstimatedData = new Pose2d();
 
   public double imageCaptureTime;
 
@@ -38,7 +38,7 @@ public class LimelightVision extends SubsystemBase {
 
   public boolean allianceBlue;
 
-  public  double distToTagX;
+  public double distToTagX;
   public double distToTagY;
   public double degToTag;
   public double distToTag;
@@ -54,8 +54,6 @@ public class LimelightVision extends SubsystemBase {
   public double robDiffX;
   public double robDiffY;
   public double robDiffDeg;
-
-  
 
   public double curTagX;
 
@@ -117,8 +115,10 @@ public class LimelightVision extends SubsystemBase {
 
   @Override
   public void periodic() {
-
-    visionPoseEstimatedData = getVisionCorrection(getRobotPose_FS_WPIBlue(cam_tag_15));
+    if (getAprilTagID(cam_tag_15) != -1) {
+      visionPoseEstimatedData = getVisionCorrection(getRobotPose_FS_WPIBlue(cam_tag_15));
+    } else
+      visionPoseEstimatedData = new Pose2d();
   }
 
   public Transform3d getRobotPose_FS(LimeLight cam) {
@@ -130,6 +130,7 @@ public class LimelightVision extends SubsystemBase {
     if (fiducialId != -1) {
 
       robotPose_FS = cam.getRobotPose_FS();
+      
     }
 
     return robotPose_FS;
@@ -145,6 +146,8 @@ public class LimelightVision extends SubsystemBase {
     if (fiducialId != -1) {
 
       robotPose_FS = cam.getRobotPose_FS_WPIBL();
+    } else {
+      return new Transform3d();
     }
     return robotPose_FS;
   }
@@ -211,7 +214,10 @@ public class LimelightVision extends SubsystemBase {
   }
 
   public Pose3d getCurrentTagPose(LimeLight cam) {
-    return FieldConstants2023.aprilTags.get(getAprilTagID(cam));
+    if (getAprilTagID(cam) != -1) {
+      return FieldConstants2023.aprilTags.get(getAprilTagID(cam));
+    } else
+      return new Pose3d();
   }
 
 }

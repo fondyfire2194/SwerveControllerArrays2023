@@ -9,6 +9,7 @@ import java.util.Map;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LimelightVision;
 
 /** Add your docs here. */
@@ -16,14 +17,18 @@ public class ShuffleboardLLTag {
 
         private LimelightVision m_llv;
 
+        private DriveSubsystem m_drive;
+
         private LimeLight llcam;
 
-        public ShuffleboardLLTag(LimelightVision llv) {
+        public ShuffleboardLLTag(LimelightVision llv, DriveSubsystem drive) {
                 {
 
                         m_llv = llv;
 
                         llcam = m_llv.cam_tag_15;
+
+                        m_drive = drive;
 
                         String name = m_llv.cam_tag_15.getName();
                         ShuffleboardLayout col1_2 = Shuffleboard.getTab(name)
@@ -76,25 +81,28 @@ public class ShuffleboardLLTag {
 
                         col5_6.addNumber(name + " Tag ID", () -> llv.getAprilTagID(llcam));
 
-                       // col5_6.addString(name + " RobPose FS", () -> llv.getRobotPose_FS(llcam).toString());
+                        col5_6.addString("Actual Robot Pose", () -> m_drive.getEstimatedPose().toString());
 
-                        col5_6.addString(name + " RobPoseFS-WPIBL", () -> llv.getRobotPose_FS_WPIBlue(llcam).toString());
+                        // col5_6.addString(name + " RobPose FS", () ->
+                        // llv.getRobotPose_FS(llcam).toString());
 
-                        col5_6.addString(name + " CurrTagPose", () -> llv.getCurrentTagPose(llcam).toString());
+                        col5_6.addString(name + " RobPoseFS-WPIBL",
+                                        () -> llv.getRobotPose_FS_WPIBlue(llcam).toString());
 
-                        col5_6.addNumber("XDistToTag", () ->  round2dp(m_llv.distToTagX));
+                  //      col5_6.addString(name + " CurrTagPose", () -> llv.getCurrentTagPose(llcam).toString());
 
+                        // col5_6.addNumber("XDistToTag", () -> round2dp(m_llv.distToTagX));
 
-                        col5_6.addNumber("YDistToTag", () -> round2dp(llv.distToTagY));
+                        // col5_6.addNumber("YDistToTag", () -> round2dp(llv.distToTagY));
 
-                        col5_6.addNumber("DegToTag",()->round2dp(llv.degToTag));
+                        // col5_6.addNumber("DegToTag",()->round2dp(llv.degToTag));
 
-                        col5_6.addNumber("RobDiffX",()->round2dp(llv.robDiffX));
+                        // col5_6.addNumber("RobDiffX",()->round2dp(llv.robDiffX));
 
-                        col5_6.addNumber("RobDiffY",()->round2dp(llv.robDiffY));
-                        
-                        col5_6.addNumber("RobDiffDeg",()->round2dp(llv.robDiffDeg));
-              
+                        // col5_6.addNumber("RobDiffY",()->round2dp(llv.robDiffY));
+
+                        // col5_6.addNumber("RobDiffDeg",()->round2dp(llv.robDiffDeg));
+
                 }
 
         }
