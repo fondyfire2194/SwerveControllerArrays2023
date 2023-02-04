@@ -25,6 +25,7 @@ import frc.robot.commands.swerve.SetSwerveDrive;
 import frc.robot.commands.swerve.StrafeToSlot;
 
 import frc.robot.oi.CommandLeonardoController;
+import frc.robot.oi.CommandPS3Controller;
 import frc.robot.oi.ShuffleboardLLTag;
 import frc.robot.simulation.FieldSim;
 import frc.robot.subsystems.DriveSubsystem;
@@ -68,7 +69,7 @@ public class RobotContainer {
         private CommandPS4Controller m_driverController = new CommandPS4Controller(
                         OIConstants.kDriverControllerPort);
 
-        private CommandPS4Controller m_coDriverController = new CommandPS4Controller(
+        private CommandPS3Controller m_coDriverController = new CommandPS3Controller(
                         OIConstants.kCoDriverControllerPort);
 
         public CommandLeonardoController m_codriverBox = new CommandLeonardoController(5);

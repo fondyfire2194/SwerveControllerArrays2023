@@ -42,6 +42,7 @@
       "/SmartDashboard/DriveSubsystem": "Subsystem",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/Field2d": "Field2d",
+      "/SmartDashboard/Grippers": "Subsystem",
       "/SmartDashboard/Lin Arm": "Subsystem",
       "/SmartDashboard/LinArm Sim": "Mechanism2d",
       "/SmartDashboard/Scheduler": "Scheduler",

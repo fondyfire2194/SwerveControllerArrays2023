@@ -267,17 +267,17 @@ public final class Constants {
 
   public static class LoadStationPickupConstants {
 
-    Pose2d aprilTag5 = FieldConstants2023.aprilTags.get(5).toPose2d();
+    static Pose2d aprilTag5 = FieldConstants2023.aprilTags.get(5).toPose2d();
 
-    Transform2d rightPickupT2d = new Transform2d(new Translation2d(0, .8), new Rotation2d());
+    static Transform2d rightPickupT2d = new Transform2d(new Translation2d(0, .8), new Rotation2d());
  
-    Transform2d leftPickupT2d = new Transform2d(new Translation2d(0, -.8), new Rotation2d());
+    static Transform2d leftPickupT2d = new Transform2d(new Translation2d(0, -.8), new Rotation2d());
 
     public static Pose2d blueLeftTarget = aprilTag5.plus(rightPickupT2d);
 
     public static Pose2d blueRightTarget = aprilTag5.plus(leftPickupT2d);
 
-    Pose2d aprilTag6 = FieldConstants2023.aprilTags.get(6).toPose2d();
+    static Pose2d aprilTag6 = FieldConstants2023.aprilTags.get(6).toPose2d();
 
    
     public static Pose2d redLeftTarget = aprilTag6.plus(rightPickupT2d);

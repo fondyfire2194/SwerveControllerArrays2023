@@ -2,8 +2,15 @@ package frc.robot.commands.swerve;
 
 import java.util.function.DoubleSupplier;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPoint;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.LoadStationPickupConstants;
@@ -81,65 +88,31 @@ public class DriveToLoadPickupPoint extends CommandBase {
     } else {
       endPose = LoadStationPickupConstants.redRightTarget;
     }
-    endXTarget = endPose.getX();
+    Pose2d currentPose = m_drive.getEstimatedPose();
 
-    endYTarget = endPose.getY();
-    SmartDashboard.putNumber("ENDPTY", endYTarget);
-    SmartDashboard.putNumber("ENDPTX", endXTarget);
+    PathPlannerTrajectory trajLoad = PathPlanner.generatePath(
+
+        new PathConstraints(2, 2),
+
+        new PathPoint(currentPose.getTranslation(), currentPose.getRotation()),
+
+        new PathPoint(endPose.getTranslation(), endPose.getRotation()));
 
   }
 
   /**
-   * Used to position the robot to one of the target slots
-   * Robot will run at 50% strafe until it reaches the slowdown distance
-   * from the target end.
-   * T that point speed will be reduced proportional to remaining distance
-   * 
-   * 
+   * Used to position the robot to one of the load windows
+   * Robot will drive normlly using gamepad until button held.
+   * At that point if load april tag is seen it will create a Path Planner
+   * trajectory. This will use endpoints from above.
    */
   // https://www.chiefdelphi.com/t/swerve-controller-joystick/392544/5
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double pidOutY = 0;
-    boolean targetDirectionIsPlusY = endYTarget > m_drive.getY();
 
-    boolean operatorDirectionIsPlusY = m_strafeInput.getAsDouble() > 0;
-
-    if (targetDirectionIsPlusY != operatorDirectionIsPlusY) {
-
-      pidOutY = m_strafeInput.getAsDouble();
-
-    }
-
-    else {
-
-      pidOutY = m_pidY.calculate(m_drive.getY(), endYTarget);
-
-      if (Math.abs(pidOutY) > Math.abs(m_strafeInput.getAsDouble())) {
-
-        pidOutY = m_strafeInput.getAsDouble();
-
-        if (!targetDirectionIsPlusY)
-
-          pidOutY = -pidOutY;
-      }
-    }
-
-    double pidOutX = m_pidX.calculate(m_drive.getX(), endYTarget);
-
-    double latchpidX = pidOutX;
-
-    if (Math.abs(pidOutX) > drive_max) {
-
-      pidOutX = drive_max;
-
-      if (latchpidX < 0)
-
-        pidOutX = -pidOutX;
-    }
-
-    m_drive.drive(pidOutX, pidOutY, 0);
+    // Simple path with holonomic rotation. Stationary start/end. Max velocity of 4
+    // m/s and max accel of 3 m/s^2
 
   }
 
